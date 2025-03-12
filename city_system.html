@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市系统探索游戏</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, 'Apple Color Emoji', Arial, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+            margin: 0;
+            padding: 20px 10px;
+            background-color: #F5F1E6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #252525;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+            padding: 20px;
+            width: calc(100% - 20px);
+            max-width: 500px;
+            margin: 10px auto;
+            transition: background 100ms ease-out 0s;
+        }
+
+        .card:hover {
+            background-color: rgba(55, 53, 47, 0.03);
+        }
+
+        .end-button {
+            background-color: #EC6E5F;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 15px 10px;
+            width: auto;
+            min-width: 120px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 20ms ease-in 0s;
+            user-select: none;
+        }
+
+        .skip-button {
+            background-color: #F8C653;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 15px 10px;
+            width: 100%;
+            max-width: 200px;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 20ms ease-in 0s;
+            user-select: none;
+        }
+
+        .skip-button:hover {
+            background-color: #F8C653;
+        }
+
+        .end-button:hover {
+            background-color: #EC6E5F;
+        }        .generate-log-button {
+            background-color: #4B7B91;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 15px 10px;
+            width: auto;
+            min-width: 120px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 20ms ease-in 0s;
+            user-select: none;
+        }
+
+        .generate-log-button:hover {
+            background-color: #4B7B91;
+        }
+
+        .share-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 15px 10px;
+            width: auto;
+            min-width: 120px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 20ms ease-in 0s;
+            user-select: none;
+        }
+
+        .share-button:hover {
+            background-color: #45a049;
+        }
+
+        .share-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .share-dialog.active {
+            display: block;
+        }
+
+        .share-dialog h3 {
+            margin-top: 0;
+        }
+
+        .share-dialog input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .share-dialog button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .share-dialog button:hover {
+            background-color: #45a049;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .card-number {
+            font-size: 16px;
+            color: rgba(55, 53, 47, 0.65);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .card-content {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: rgb(55, 53, 47);
+            white-space: pre-line;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+        }
+
+
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+        }
+
+        .options-title {
+            font-size: 16px;
+            color: rgba(55, 53, 47, 0.65);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .option-button {
+            background: transparent;
+            color: rgb(55, 53, 47);
+            border: 1px solid rgba(55, 53, 47, 0.16);
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: background-color 20ms ease-in 0s;
+        }
+
+        .option-button:hover {
+            background-color: rgba(55, 53, 47, 0.08);
+        }
+
+        .history {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+            width: calc(100% - 20px);
+            max-width: 500px;
+        }
+
+        .history h3 {
+            margin-top: 0;
+            color: rgb(55, 53, 47);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+            color: rgb(55, 53, 47);
+            font-size: 14px;
+        }
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px 5px;
+            }
+
+            .card {
+                padding: 15px;
+                margin: 8px auto;
+            }
+
+            .card-content {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+            }
+
+            .options {
+                gap: 6px;
+            }
+
+            .option-button {
+                padding: 12px 16px;
+                font-size: 16px;
+                min-height: 44px;
+            }
+
+            .history {
+                padding: 12px;
+                margin-top: 15px;
+            }
+
+            .history-item {
+                padding: 10px 0;
+                font-size: 14px;
+            }
+
+            .tag {
+                padding: 6px 14px;
+                font-size: 14px;
+            }
+        }
+
+        /* 添加触摸反馈效果 */
+        @media (hover: none) {
+            .card:active,
+            .option-button:active,
+            .end-button:active,
+            .skip-button:active,
+            .edit-button:active {
+                opacity: 0.7;
+                transform: scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="card" class="card">
+        <div class="card-number"></div>
+        <div class="card-content">
+            1. 这是一个示例卡片的内容。
+            2. 在这里你可以描述当前场景、故事情节。
+            3. 需要玩家执行的动作和观察内容。
+        </div>
+        <div class="options">
+            <div class="options-title">选择你的行动：</div>
+            <button class="option-button">转到 #1</button>
+            <button class="option-button">转到 #2</button>
+            <button class="option-button">转到 #3</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button class="skip-button" onclick="skipCard()">跳过</button>
+        <button class="end-button" onclick="endGame()">结束探索</button>
+        <button class="generate-log-button" onclick="generateLog()">生成日志</button>
+        <button class="share-button" onclick="showShareDialog()">分享游戏</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="share-dialog" id="shareDialog">
+        <h3>分享游戏</h3>
+        <p>复制以下链接分享给朋友：</p>
+        <input type="text" id="shareUrl" readonly>
+        <button onclick="copyShareLink()">复制链接</button>
+        <button onclick="closeShareDialog()">关闭</button>
+    </div>
+
+    <div class="history">
+        <h3>探索历史</h3>
+        <ul class="history-list"></ul>
+    </div>
+
+    <script>
+        // API配置
+        const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
+        const DEEPSEEK_API_KEY = 'sk-ca0cdae03cae4ed8812562e1d96dea36';
+
+        let currentCard = 1;
+        let history = [];
+
+        function editCurrentCard() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const cardContent = document.querySelector('.card-content');
+            const textarea = document.createElement('textarea');
+            textarea.value = currentCardData.content;
+            textarea.style.width = '100%';
+            textarea.style.margin = '10px 0';
+            textarea.style.height = '150px';
+            textarea.style.resize = 'none';
+            cardContent.parentNode.replaceChild(textarea, cardContent);
+            
+            const buttonContainer = document.createElement('div');
+            const saveButton = document.createElement('button');
+            saveButton.textContent = '保存';
+            saveButton.onclick = () => {
+                currentCardData.content = textarea.value;
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = textarea.value;
+                textarea.parentNode.replaceChild(newCardContent, textarea);
+                buttonContainer.remove();
+                updateCardDisplay();
+            };
+            
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.onclick = () => {
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = currentCardData.content;
+                textarea.parentNode.replaceChild(newCardContent, textarea);
+                buttonContainer.remove();
+            };
+            
+            buttonContainer.appendChild(saveButton);
+            buttonContainer.appendChild(cancelButton);
+            textarea.parentNode.insertBefore(buttonContainer, textarea.nextSibling);
+        }
+
+        function saveCard() {
+            const editContent = document.getElementById('editContent');
+            const currentCardData = cards.find(card => card.id === currentCard);
+            
+            // 更新cards数组中的内容
+            currentCardData.content = editContent.value;
+            
+            // 更新当前显示的卡片内容
+            document.querySelector('.card-content').textContent = editContent.value;
+            
+            // 更新历史记录中的显示文本
+            updateHistoryDisplay();
+            
+            // 隐藏编辑表单
+            cancelEdit();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.querySelector('.history-list');
+            historyList.innerHTML = '';
+            
+            history.forEach(cardId => {
+                const card = cards.find(c => c.id === cardId);
+                if (card) {
+                    const historyItem = document.createElement('li');
+                    historyItem.className = 'history-item';
+                    
+                    const cardNumber = document.createElement('span');
+                    cardNumber.className = 'card-number-highlight';
+                    cardNumber.textContent = `#${cardId}`;
+                    
+                    historyItem.appendChild(cardNumber);
+                    historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                    
+                    historyList.appendChild(historyItem);
+                }
+            });
+        }
+
+        function cancelEdit() {
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function updateCardDisplay() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const cardContent = document.querySelector('.card-content');
+            const optionsContainer = document.querySelector('.options');
+            
+            // 清除原有内容
+            cardContent.textContent = '';
+            optionsContainer.innerHTML = '';
+            
+            // 分离主要文本和选项
+            const mainContent = currentCardData.content.split('\n').filter(line => !line.match(/^\d+\.|转到#/)).join('\n');
+            cardContent.textContent = mainContent;
+            
+            // 添加选项标题
+            if (currentCardData.options && currentCardData.options.length > 0) {
+                const optionsTitle = document.createElement('div');
+                optionsTitle.className = 'options-title';
+                optionsTitle.textContent = '选项：';
+                optionsContainer.appendChild(optionsTitle);
+                
+                // 添加选项按钮
+                currentCardData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.textContent = option.text;
+                    button.onclick = () => selectOption(option.nextCard, option.text);
+                    optionsContainer.appendChild(button);
+                });
+            }
+        }
+
+        // 游戏卡片数据 - 可以根据需要自定义卡片内容
+        // 每个卡片对象包含：
+        // - id: 卡片唯一编号
+        // - content: 卡片显示的问题或指令
+        // - tags: 卡片的标签数组，可以是["建筑家", "街头侦探", "哲学家", "时间旅人"]
+        // - options: 选项数组，每个选项包含text(选项描述)和nextCard(点击后跳转的卡片id)
+        const cards = [
+    {
+        id: 1,
+        content: "到离你最近的公园，或是你所在的城市最热闹的公园/广场；站在楼梯上大约一半的位置",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "站好之后，转到#2", nextCard: 2 }
+        ]
+    },
+    {
+        id: 2,
+        content: "闭上眼睛，数到十；睁开眼睛，开始跟着离你最近的人走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "走到第一个路口，转到#3", nextCard: 3 }
+        ]
+    },
+    {
+        id: 3,
+        content: "仔细观察这台自行车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果自行车有车座，转到#60", nextCard: 60 },
+            { text: "如果没有车座，转到#61", nextCard: 61 }
+        ]
+    },
+    {
+        id: 4,
+        content: "观察离你最近的垃圾桶；注意垃圾桶中有多少垃圾",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "几乎是空的，请走到离你最近的共享单车附近，并转到#16", nextCard: 16 },
+            { text: "大概一半，转到#21", nextCard: 21 },
+            { text: "满了，请走到最近的私人停车位，并转到#41", nextCard: 41 }
+        ]
+    },
+    {
+        id: 5,
+        content: "站在最近的公交车站；比较你的手机号码的末尾两位，计算二者差值的绝对值（x）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左边的数字大于右边，并向左手边走x个路口", nextCard: 68 },
+            { text: "右边的数字大于左边，乘坐下一辆公交车，在x站后下车", nextCard: 68 },
+            { text: "两个数相等，观察离你最近的快的骑手，并转到#68", nextCard: 68 }
+        ]
+    },
+    {
+        id: 6,
+        content: "站立，静止不要动；向下看，注意双脚之间的空间",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "有垃圾，转到#31", nextCard: 31 },
+            { text: "有口香糖，转到#28", nextCard: 28 },
+            { text: "没有上述情况，尽量分开双脚，转到#69", nextCard: 69 }
+        ]
+    },
+    {
+        id: 7,
+        content: "跟着遛狗的路人；直到狗狗拉屎或者吠叫",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "当狗狗拉屎或者吠叫时，转到#74", nextCard: 74 },
+            { text: "如果在这之前看到地铁口/公交站，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 8,
+        content: "跟着推婴儿车的路人；留意婴儿车和路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果推车的是男性，则继续跟着，直到找到地铁站/公交站", nextCard: 33 },
+            { text: "如果是女性，继续跟着直到发现另外一个推婴儿车的路人，重复上述步骤", nextCard: 33 },
+            { text: "如果你无法跟随，转到#33", nextCard: 33 }
+        ]
+    },
+    {
+        id: 9,
+        content: "在你周围找到一个可以坐着的地方，可以是长凳、门廊、窗台",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有空位，坐下，转到#82", nextCard: 82 },
+            { text: "如果没有空位，或者你找不到可以做的地方，那么开始漫无目的地走，直到你看到一个独坐的人，转到#83", nextCard: 83 }
+        ]
+    },
+    {
+        id: 10,
+        content: "向东走；留意迎面走来的行人的嘴",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到有人在微笑，跟着ta走到最近的路口", nextCard: 84 },
+            { text: "如果没有，向东走三个街区，转到#84", nextCard: 84 }
+        ]
+    },
+    {
+        id: 11,
+        content: "走到离你最近的路口；背对建筑物站立，观察过往行人；等待10名经过你的路人，并留意第11名路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta有眼镜，转到#33", nextCard: 33 },
+            { text: "如果ta有帽子，转到#40", nextCard: 40 },
+            { text: "如果ta有胡子，转到#66", nextCard: 66 },
+            { text: "如果ta牵着狗，转到#7", nextCard: 7 },
+            { text: "如果以上几项的任意组合，转到#20", nextCard: 20 },
+            { text: "如果以上都没有，跟着他走两个路口，然后转到#42", nextCard: 42 },
+            { text: "如果无法跟随，停下并转到#28", nextCard: 28 }
+        ]
+    },
+    {
+        id: 12,
+        content: "在公交车上，找出你认为最年长的乘客；和ta在同一站下车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta戴帽子，沿着ta走的方向走到最近的路口，转到#48", nextCard: 48 },
+            { text: "如果ta戴眼镜，朝着反方向走到最近的路口，转到#48", nextCard: 48 },
+            { text: "如果二者都有或都没有，过马路走到相反方向的公交车站，转到#21", nextCard: 21 }
+        ]
+    },
+    {
+        id: 14,
+        content: "上车，做到离司机最远的空位；在下一站留意上车人数，每有一个人上车，向前挪一排",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你觉得这样举止会太怪异，也可以直接计算", nextCard: 89 },
+            { text: "直到前面没有空位，下车，转到#89", nextCard: 89 }
+        ]
+    },
+    {
+        id: 15,
+        content: "在你所站的地方，寻找周围的建筑有没有外挂的消防楼梯",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#35", nextCard: 35 },
+            { text: "如果没有，转到#123", nextCard: 123 }
+        ]
+    },
+    {
+        id: 16,
+        content: "如果共享单车时",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是黄色，转到#55", nextCard: 55 },
+            { text: "如果是蓝色，转到#51", nextCard: 51 },
+            { text: "如果是青色，转到#57", nextCard: 57 },
+            { text: "如果是其他颜色，转到#29", nextCard: 29 }
+        ]
+    },
+    {
+        id: 17,
+        content: "向南走；留意有没有随意停放的共享单车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#55", nextCard: 55 },
+            { text: "如果没有，转到#89", nextCard: 89 }
+        ]
+    },
+    {
+        id: 18,
+        content: "走到最近路口；闭上眼睛，数到十；感觉风从哪个方向吹来，向那个方向走，直到看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "一家餐厅，转到#27", nextCard: 27 },
+            { text: "公交车站，转到#5", nextCard: 5 },
+            { text: "带着狗、婴儿车或是吉他的路人，转到#19", nextCard: 19 },
+            { text: "地铁或公交站，转到#126", nextCard: 126 }
+        ]
+    },
+    {
+        id: 19,
+        content: "跟着遛狗的人，转到#7；跟着推婴儿车的人，转到#8；跟着背吉他的人，直到看到地铁/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果无法跟随，转到#66", nextCard: 66 }
+        ]
+    },
+    {
+        id: 20,
+        content: "走到最近的路口；向南走；边走边搜寻以下目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到贩卖食品的人，转到#58", nextCard: 58 },
+            { text: "如果看到派发传单的人，转到#59", nextCard: 59 },
+            { text: "如果看到一边走路一边打手机的人，转到#80", nextCard: 80 }
+        ]
+    },
+    {
+        id: 21,
+        content: "找到最近的公交车站；站在公交车站，留意一同候车的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果比你矮的人多，转到#94", nextCard: 94 },
+            { text: "如果比你高的人多，转到#86", nextCard: 86 },
+            { text: "如果没有其他人、无法分辨或是一样多，转到#105", nextCard: 105 }
+        ]
+    },
+    {
+        id: 22,
+        content: "留意你最近的报刊亭或者能买到报纸的地方",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有请转到#35", nextCard: 35 },
+            { text: "买一份报纸，找个地方坐下，随意翻看", nextCard: 43 },
+            { text: "如果看完报纸，转到#70", nextCard: 70 }
+        ]
+    },
+    {
+        id: 23,
+        content: "站在邮箱前；留意街对面",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有咖啡店，转到#27", nextCard: 27 },
+            { text: "如果有拉面店，转到#129", nextCard: 129 },
+            { text: "如果有眼镜店，转到#34", nextCard: 34 },
+            { text: "如果都没有，转到#15", nextCard: 15 }
+        ]
+    },
+    {
+        id: 24,
+        content: "停下等待一名戴帽子或戴眼镜的路人；当一名戴帽子或戴眼镜的路人经过时开始记录路人的人数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "当下一名帽子或戴眼镜的路人出现时，停止计数", nextCard: 47 },
+            { text: "如果少于10，转到#47", nextCard: 47 },
+            { text: "如果11～15，转到#48", nextCard: 48 },
+            { text: "如果16～30，转到#39", nextCard: 39 },
+            { text: "如果31～50，转到#55", nextCard: 55 },
+            { text: "如果51以上，转到#74", nextCard: 74 }
+        ]
+    },
+    {
+        id: 25,
+        content: "等待公交车；上车并计算你的手机号码的最后4位数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于等于20，下车，转到#74", nextCard: 74 },
+            { text: "如果大于20，下车并找到最近的咖啡店或饮料店，转到#44", nextCard: 44 }
+        ]
+    },
+    {
+        id: 26,
+        content: "数一数在公交车站候车的人数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有1人，和这个人同时上下车，转到#48", nextCard: 48 },
+            { text: "如果有2人，乘坐下一辆公交车，并坐2个站下车，转到#49", nextCard: 49 },
+            { text: "如果有3人，乘坐下一辆公交车，并坐3个站下车，转到#105", nextCard: 105 },
+            { text: "如果有4人，乘坐下一辆公交车，并坐4个站下车，转到#48", nextCard: 48 },
+            { text: "如果有5人以上，乘坐下一辆公交车，并坐5个站下车，转到#104", nextCard: 104 }
+        ]
+    },
+    {
+        id: 27,
+        content: "走进到咖啡店附近",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果周围有卖刮刮乐，转到#71", nextCard: 71 },
+            { text: "如果没有卖刮刮乐，进咖啡店点一杯咖啡", nextCard: 129 },
+            { text: "如果点单的店员穿绿色衣服，请你外带咖啡，走到最近的路口，转到#129", nextCard: 129 },
+            { text: "如果店员没有穿绿色衣服，拿着咖啡找个地方坐下，转到#128", nextCard: 128 }
+        ]
+    },
+    {
+        id: 28,
+        content: "在你所站的地方，闭上眼睛，数到十，面向声音最大的方向",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这个声源是可辨认的，转到#48", nextCard: 48 },
+            { text: "如果不可辨认，转到#82", nextCard: 82 }
+        ]
+    },
+    {
+        id: 29,
+        content: "找到离你最近的墙，背靠墙站立；数15个从你身边经过的路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这需要花太长时间，转到#24", nextCard: 24 },
+            { text: "留意第16个人", nextCard: 51 },
+            { text: "如果ta戴帽子，转到#51", nextCard: 51 },
+            { text: "如果ta烫了头发，转到#41", nextCard: 41 },
+            { text: "如果以上情况都有或都没有，转到#30", nextCard: 30 }
+        ]
+    },
+    {
+        id: 30,
+        content: "站在离你最近的路口；开始行走，找到离你最近的斑马线",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你需要等待汽车停下，转到#41", nextCard: 41 },
+            { text: "如果你不需要，转到#51", nextCard: 51 }
+        ]
+    },
+    {
+        id: 31,
+        content: "走到离你最近的建筑物，背对建筑物站立",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果可以看到太阳，转到#68", nextCard: 68 },
+            { text: "如果看不到太阳，转到#32", nextCard: 32 }
+        ]
+    },
+    {
+        id: 32,
+        content: "找到最近的树",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果树有很多叶子，转到#9", nextCard: 9 },
+            { text: "如果没有很多叶子，转到#91", nextCard: 91 }
+        ]
+    },
+    {
+        id: 33,
+        content: "停下脚步，走到离你最近的路口；从你的位置寻找以下目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到你第一个留意到的目标所对应的页码", nextCard: 41 },
+            { text: "如果是警车或警察，转到#41", nextCard: 41 },
+            { text: "如果是穿高跟鞋的人，转到#80", nextCard: 80 },
+            { text: "如果是被牵着的狗，转到#7", nextCard: 7 },
+            { text: "如果是骑自行车的人，转到#68", nextCard: 68 },
+            { text: "如果是吉他或吉他盒，转到#19", nextCard: 19 },
+            { text: "如果是拿着咖啡的人，转到#124", nextCard: 124 }
+        ]
+    },
+    {
+        id: 34,
+        content: "走到最近的路口；朝逆风的方向走，直到看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到一辆婴儿车，转到#19", nextCard: 19 },
+            { text: "如果看到一辆出租车，转到#38", nextCard: 38 },
+            { text: "如果看到卖食物的摊贩，转到#58", nextCard: 58 },
+            { text: "如果看到一边走路一边打手机的人，转到#127", nextCard: 127 }
+        ]
+    },
+    {
+        id: 35,
+        content: "走到最近的路口；朝着你在本次游戏中起点的方向走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "继续走，直到看见抽烟的人，转到#75", nextCard: 75 }
+        ]
+    },
+    {
+        id: 36,
+        content: "停下来留意周围；找到离你最近的窨井盖",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是圆形，转到#124", nextCard: 124 },
+            { text: "如果是其他形状，转到#51", nextCard: 51 }
+        ]
+    },
+    {
+        id: 37,
+        content: "走到最近的路口；看天空",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到任何飞行物，找个地方坐下，转到#125", nextCard: 125 },
+            { text: "如果没有看到飞行物，寻找最高的建筑物，朝那个方向走，直到在地上看到落叶，找个地方坐下，转到#125", nextCard: 125 },
+            { text: "如果你已经走到那栋建筑物下面，转到#52", nextCard: 52 }
+        ]
+    },
+    {
+        id: 38,
+        content: "向北走；一边走一边试着拦下一辆出租车，上车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果司机戴帽子，转到#101", nextCard: 101 },
+            { text: "如果司机没戴帽子，转到#102", nextCard: 102 }
+        ]
+    },
+    {
+        id: 39,
+        content: "走到最近的路口；向西走；数一数你经过的行道树，直到下一个路口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "根据树的数量", nextCard: 66 },
+            { text: "如果0～1棵，转到#66", nextCard: 66 },
+            { text: "如果2～5棵，转到#81", nextCard: 81 },
+            { text: "如果5～8棵，转到#28", nextCard: 28 },
+            { text: "如果10～11棵，转到#40", nextCard: 40 },
+            { text: "如果12～15棵，转到#35", nextCard: 35 },
+            { text: "如果16棵以上，转到#36", nextCard: 36 }
+        ]
+    },
+    {
+        id: 40,
+        content: "走到最近的路口，面向十字路口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你是男性，向你左手边走，你有几岁就走几步，转到#15", nextCard: 15 },
+            { text: "如果你是女性，向你右手边走，你有几岁就走几步，转到#24", nextCard: 24 }
+        ]
+    },
+    {
+        id: 41,
+        content: "走向离你最近的水体（江、河、湖、池塘）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "看到有人站着不动就停下来，转到#59", nextCard: 59 },
+            { text: "如果你走到了水体周围，转到#124", nextCard: 124 }
+        ]
+    },
+    {
+        id: 42,
+        content: "前往你最近的公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你没有公交卡，转到#14", nextCard: 14 },
+            { text: "如果你有一张地铁卡，查看背面注意序列号", nextCard: 12 },
+            { text: "如果最后一位数是奇数，乘坐下一辆公交车，转到#12", nextCard: 12 },
+            { text: "如果最后一位数是偶数，乘坐下两辆公交车，转到#12", nextCard: 12 }
+        ]
+    },
+    {
+        id: 43,
+        content: "走向最近的路口；找到你视野中最高的建筑物，向那个方向走。如果在前往这栋建筑物的途中，你看到了：",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店，转到#44", nextCard: 44 },
+            { text: "如果看到拉面店，转到#7", nextCard: 7 },
+            { text: "如果看到烟酒专卖店，转到#71", nextCard: 71 },
+            { text: "如果看到银行，转到#100", nextCard: 100 },
+            { text: "如果看到坐在路边长凳的人，转到#54", nextCard: 54 },
+            { text: "如果看到遛狗的人，转到#7", nextCard: 7 },
+            { text: "如果看到黄色的花朵，转到#28", nextCard: 28 }
+        ]
+    },
+    {
+        id: 44,
+        content: "走进咖啡店，点一杯饮品；留意为你点单的店员，然后找个地方坐下",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果为你点单的店员戴帽子，转到#45", nextCard: 45 },
+            { text: "如果戴眼镜，转到#46", nextCard: 46 },
+            { text: "如果都有或都没有，转到#55", nextCard: 55 }
+        ]
+    },
+    {
+        id: 45,
+        content: "当你喝饮料时，留意门口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你看不到门口，离开咖啡店，转到#34", nextCard: 34 },
+            { text: "如果进门的人与以下描述相符，转到对应页码", nextCard: 39 },
+            { text: "如果带小孩的人，转到#39", nextCard: 39 },
+            { text: "如果携带笔记本电脑的人，转到#43", nextCard: 43 },
+            { text: "如果穿红色鞋子的人，转到#37", nextCard: 37 },
+            { text: "如果蓄胡子的人，转到#36", nextCard: 36 },
+            { text: "如果穿着绿色、橙色或黄色T恤或卫衣的人，转到#33", nextCard: 33 },
+            { text: "如果穿着某种制服的人，转到#21", nextCard: 21 },
+            { text: "如果戴眼镜或戴帽子的人，转到#18", nextCard: 18 },
+            { text: "如果进门时摸自己脸的人，转到#32", nextCard: 32 }
+        ]
+    },
+    {
+        id: 46,
+        content: "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人，猜猜谁会最先离开",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "留意这个人，观察到ta有以下动作，转到对应页码", nextCard: 35 },
+            { text: "如果ta摸鼻子，转到#35", nextCard: 35 },
+            { text: "如果ta挠头，转到#37", nextCard: 37 },
+            { text: "如果ta把纸巾揉成一团，转到#43", nextCard: 43 },
+            { text: "如果ta摸耳朵，转到#70", nextCard: 70 },
+            { text: "如果ta和其他人有肢体接触，转到#81", nextCard: 81 },
+            { text: "如果ta和你有眼神接触，转到#55", nextCard: 55 },
+            { text: "如果ta没有做以上任何动作，并且要离开咖啡馆，跟着ta走出咖啡馆，并转到#49", nextCard: 49 }
+        ]
+    },
+    {
+        id: 47,
+        content: "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音。朝着这个声音的大致方向走，直到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到绿色邮筒，转到#23", nextCard: 23 },
+            { text: "如果看到穿红色鞋子的人，转到#38", nextCard: 38 },
+            { text: "如果看到抽烟的人，转到#75", nextCard: 75 }
+        ]
+    },
+    {
+        id: 48,
+        content: "站在离你最近的转角，注意你的影子",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果影子没有与其他物体接触，转到#64", nextCard: 64 },
+            { text: "如果有接触，转到#49", nextCard: 49 },
+            { text: "如果没有明显的影子，朝着你在本次游戏中起点的方向走一个路口，转到#34", nextCard: 34 }
+        ]
+    },
+    {
+        id: 49,
+        content: "站在最近的转角，朝着你视野中最高的建筑的方向走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到贩卖食品的人，转到#58", nextCard: 58 },
+            { text: "如果看到派发传单的人，转到#59", nextCard: 59 },
+            { text: "如果看到一边走路一边打手机的人，转到#127", nextCard: 127 },
+            { text: "如果你已经走到大楼前，转到#105", nextCard: 105 }
+        ]
+    },
+    {
+        id: 50,
+        content: "将所有数字相加",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于12，背对建筑，跟着你看的第一个穿着皮鞋的男性走，走到第一个路口/转角，转到#37", nextCard: 37 },
+            { text: "如果大于等于12，背对建筑，跟着你看的第一个穿着皮鞋的女性走，走到第一个路口/转角，转到#51", nextCard: 51 },
+            { text: "如果无法跟随，转到#31", nextCard: 31 }
+        ]
+    },
+    {
+        id: 51,
+        content: "走到最近的转角；找到你最近的倒影/镜像，观察它",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果能在背景中看到一栋的物体，转到#52", nextCard: 52 },
+            { text: "如果不能，转到#17", nextCard: 17 }
+        ]
+    },
+    {
+        id: 52,
+        content: "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店，转到#44", nextCard: 44 },
+            { text: "如果看到坐在路边长凳的人，转到#54", nextCard: 54 },
+            { text: "如果看到遛狗的人，转到#19", nextCard: 19 },
+            { text: "如果看到黄色的花朵，转到#53", nextCard: 53 }
+        ]
+    },
+    {
+        id: 53,
+        content: "站在最近的转角；在不改变位置的情况下，寻找旗杆。如果看不到旗杆，向左手边走到转角，重复上述步骤",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果发现旗杆后，转到#67", nextCard: 67 },
+            { text: "如果一直找不到旗杆，转到#62", nextCard: 62 }
+        ]
+    },
+    {
+        id: 54,
+        content: "留意坐在路边长凳的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的两只脚都着地，转到#81", nextCard: 81 },
+            { text: "如果一只脚着地，转到#89", nextCard: 89 },
+            { text: "如果都没有着地，转到#64", nextCard: 64 }
+        ]
+    },
+    {
+        id: 55,
+        content: "找到离你最近的卖水的地方；买一瓶水；站在路边喝水",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果喝水的过程中听到喇叭声，转到#104", nextCard: 104 },
+            { text: "如果没有听到喇叭声，转到#105", nextCard: 105 }
+        ]
+    },
+    {
+        id: 56,
+        content: "环顾四周，试着找到一只鸟",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到三只或三只以上，转到#55", nextCard: 55 },
+            { text: "如果少于三只，转到#104", nextCard: 104 }
+        ]
+    },
+    {
+        id: 57,
+        content: "如果这辆车被贴了小广告，转到#56",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这辆车没有小广告，请你继续走，直到这辆车离开你的视线，转到#56", nextCard: 56 }
+        ]
+    },
+    {
+        id: 58,
+        content: "仔细观察对方",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的头发比你长，转到#108", nextCard: 108 },
+            { text: "如果ta的头发比你短，转到#55", nextCard: 55 },
+            { text: "如果无法判断，转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 59,
+        content: "留意这个人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta在抽烟，转到#75", nextCard: 75 },
+            { text: "如果ta没有抽烟，转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 60,
+        content: "留意自行车的锁，如果是",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果带数字的密码锁，转到#63", nextCard: 63 },
+            { text: "如果用钥匙的开的锁，转到#64", nextCard: 64 },
+            { text: "如果是其他类型，转到#4", nextCard: 4 }
+        ]
+    },
+    {
+        id: 61,
+        content: "向北走；走到最近的地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 62,
+        content: "站在街角；向南走，直到你看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店，转到#27", nextCard: 27 },
+            { text: "如果看到地铁站/公交站，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 63,
+        content: "注意密码锁当前数字的第一位",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是0，转到#62", nextCard: 62 },
+            { text: "如果是1，转到#20", nextCard: 20 },
+            { text: "如果是2，转到#21", nextCard: 21 },
+            { text: "如果是3，转到#61", nextCard: 61 },
+            { text: "如果是4，转到#28", nextCard: 28 },
+            { text: "如果是5，转到#29", nextCard: 29 },
+            { text: "如果是6，转到#30", nextCard: 30 },
+            { text: "如果是7，转到#85", nextCard: 85 },
+            { text: "如果是8，转到#32", nextCard: 32 },
+            { text: "如果是9，转到#64", nextCard: 64 }
+        ]
+    },
+    {
+        id: 64,
+        content: "走到最近的转角；环顾四周",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到任何旗帜，转到#20", nextCard: 20 },
+            { text: "如果看不到旗帜，转到#65", nextCard: 65 }
+        ]
+    },
+    {
+        id: 65,
+        content: "向着除了北边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 66,
+        content: "向着除了东边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 67,
+        content: "留意旗杆",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果旗杆上没有任何旗帜，转到#34", nextCard: 34 },
+            { text: "如果旗杆是在建筑物的屋顶，转到#78", nextCard: 78 },
+            { text: "如果旗杆在交通工具上，转到#38", nextCard: 38 },
+            { text: "如果旗杆在酒店前，转到#29", nextCard: 29 },
+            { text: "如果旗杆不属于以上任何一类，转到#105", nextCard: 105 }
+        ]
+    },
+    {
+        id: 68,
+        content: "留意你周围的外卖骑手",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是美团，转到#11", nextCard: 11 },
+            { text: "如果是饿了么，转到#30", nextCard: 30 },
+            { text: "其他，转到#53", nextCard: 53 }
+        ]
+    },
+    {
+        id: 69,
+        content: "向着除了南边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 70,
+        content: "向着除了西边之外的任意方向行走；直到听到喇叭声",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果途中经过便利店，停留在便利店周围，翻到#71", nextCard: 71 },
+            { text: "如果没有经过便利店，翻到#105", nextCard: 105 }
+        ]
+    },
+    {
+        id: 71,
+        content: "如果在便利店附近能买到刮刮乐彩票",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "买一张最便宜的刮刮乐，离开，转到#72", nextCard: 72 },
+            { text: "如果没有刮刮乐，转到#77", nextCard: 77 }
+        ]
+    },
+    {
+        id: 72,
+        content: "留意刮刮乐的序列号，注意刮开的第一个数字；假设是数字是X；向北走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在街上看到数字X，转到#120", nextCard: 120 },
+            { text: "如果看到地铁站/公交站，转到#126", nextCard: 126 },
+            { text: "如果发现一个专供休憩的公共建筑，转到#74", nextCard: 74 }
+        ]
+    },
+    {
+        id: 73,
+        content: "找个舒适的地方坐下，翻到#76",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 74,
+        content: "找个地方休息一下，聆听鸟叫声（鸟叫声会带来好运）刮开刮刮乐",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果中奖了，奖金比上个月的收入高，回家，游戏结束", nextCard: null },
+            { text: "如果中了小金额的奖，转到#51", nextCard: 51 },
+            { text: "如果没中奖，转到#97", nextCard: 97 }
+        ]
+    },
+    {
+        id: 75,
+        content: "留意这个人将香烟放到嘴边的次数；记住这个数字",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta在吸完烟之后把烟头扔到地上，转到#55", nextCard: 55 },
+            { text: "如果抛到垃圾桶或烟灰缸，转到#66", nextCard: 66 },
+            { text: "如果不太确定，转到#70", nextCard: 70 }
+        ]
+    },
+    {
+        id: 76,
+        content: "走到最近的角落，留意穿着有橙色的人（包括背包和配饰）；一边寻找一边深呼吸20次",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这期间没有发现，转到#51", nextCard: 51 },
+            { text: "如果有发现，转到#80", nextCard: 80 }
+        ]
+    },
+    {
+        id: 77,
+        content: "买一瓶水，转到#73",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果买不到，转到#34", nextCard: 34 }
+        ]
+    },
+    {
+        id: 78,
+        content: "如果没有门卫或保安，转到#81",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有门卫或保安，转到#90", nextCard: 90 }
+        ]
+    },
+    {
+        id: 79,
+        content: "留意最近的戴着耳机的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有找到，在下一站下车出站，转到#122", nextCard: 122 },
+            { text: "如果找到之后请留意", nextCard: 130 },
+            { text: "如果ta摇头晃脑或摆动身体，转到#130", nextCard: 130 },
+            { text: "如果没有，转到#131", nextCard: 131 }
+        ]
+    },
+    {
+        id: 80,
+        content: "跟随符合以下描述的人；注意ta走路的姿势，判断ta习惯先迈哪一只脚",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果先迈左脚，跟随ta到下一个转角，或者向左手边走到下一个转角，转到#52", nextCard: 52 },
+            { text: "如果先迈右脚，跟随ta走两个路口，或是直到跟丢ta，转到#51", nextCard: 51 },
+            { text: "如果无法判断，转到#84", nextCard: 84 }
+        ]
+    },
+    {
+        id: 81,
+        content: "搜寻符合以下描述的目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "男人、打领带、穿皮鞋、没有蓄须，发现后跟随ta到最近的转角，转到#51", nextCard: 51 },
+            { text: "如果花了太长时间没有找到，转到#52", nextCard: 52 }
+        ]
+    },
+    {
+        id: 82,
+        content: "找到最近的公共建筑，坐下",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果今天的日子日期是奇数，转到#36", nextCard: 36 },
+            { text: "如果是偶数，转到#109", nextCard: 109 }
+        ]
+    },
+    {
+        id: 83,
+        content: "注意坐着的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta有戴手表，转到#64", nextCard: 64 },
+            { text: "如果没有或无法判断，转到#104", nextCard: 104 }
+        ]
+    },
+    {
+        id: 84,
+        content: "找到离你最近的红绿灯；站在红绿灯底下；仔细听有没有「叮叮」声",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#65", nextCard: 65 },
+            { text: "如果没有，转到#68", nextCard: 68 }
+        ]
+    },
+    {
+        id: 85,
+        content: "走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有看到建筑工人，转到#91", nextCard: 91 },
+            { text: "如果没有看到，转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 86,
+        content: "乘坐公交车；留意下一站第一个上车的乘客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "和ta在同一个站下车，转到#92", nextCard: 92 }
+        ]
+    },
+    {
+        id: 87,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 88,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 89,
+        content: "环顾四周；搜寻出租车；当你看到出租车后，立即屏住呼吸，走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在憋住气的情况下走到转角，转到#70（记得喘气）", nextCard: 70 },
+            { text: "如果没有在憋住气的情况下走到转角，转到#69", nextCard: 69 }
+        ]
+    },
+    {
+        id: 90,
+        content: "朝着你在本次游戏中起点的方向走；直到和一个比你矮的路人擦肩而过；留意ta",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta穿着高跟鞋，转到#104", nextCard: 104 },
+            { text: "如果ta穿着运动鞋，转到#64", nextCard: 64 },
+            { text: "如果ta打着领带，转到#36", nextCard: 36 },
+            { text: "如果ta在地上匍匐前进，转到#33", nextCard: 33 },
+            { text: "如果不符合以上任何一种或同时符合几种，转到#40", nextCard: 40 }
+        ]
+    },
+    {
+        id: 91,
+        content: "向北走；一直走，直到看到坐在室外的人；绕着ta所在的街区走一圈",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果回来时那个人依然坐在外面，转到#9", nextCard: 9 },
+            { text: "如果那个人还在室外，但没有坐着，转到#37", nextCard: 37 },
+            { text: "如果那个人还在你的视线范围内，但不在原来的位置，转到#65", nextCard: 65 },
+            { text: "如果找不到那个人，转到#9", nextCard: 9 }
+        ]
+    },
+    {
+        id: 92,
+        content: "下车后，走到离你最近的转角；开始垂直于你刚才乘坐的公交线路的方向走（不要横穿马路）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "沿着这个方向走3个路口；走过3个路口之后，找到最近的咖啡店/饮品店，转到#27", nextCard: 27 }
+        ]
+    },
+    {
+        id: 93,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 94,
+        content: "上车；寻找你认为车上最有「电影明星气质」的乘客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是男性，和他在同一站下车，转到#80", nextCard: 80 },
+            { text: "如果是女性，在她下一站下车，转到#62", nextCard: 62 }
+        ]
+    },
+    {
+        id: 95,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 96,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 97,
+        content: "看看你的鞋",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你觉得你需要买一双新鞋，转到#62", nextCard: 62 },
+            { text: "如果你不觉得你需要买一双新鞋，转到#68", nextCard: 68 }
+        ]
+    },
+    {
+        id: 98,
+        content: "进入地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果地铁线路/公交线路的数字是奇数，转到#99", nextCard: 99 },
+            { text: "如果是偶数，转到#117", nextCard: 118 }
+        ]
+    },
+    {
+        id: 99,
+        content: "找到一个舒适的作为站着或坐下；到达下一站时，留意上车的、距离你最近的乘客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "对照以下描述，有一项符合则计一份，计算总分", nextCard: 119 },
+            { text: "1～4分，转到#119", nextCard: 119 },
+            { text: "5～8分，转到#79", nextCard: 79 },
+            { text: "9～10分，转到#130", nextCard: 130 }
+        ]
+    },
+    {
+        id: 100,
+        content: "走到银行附近；留意第一个出门的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "跟随ta，转到#80", nextCard: 80 },
+            { text: "如果银行关门了，转到#82", nextCard: 82 }
+        ]
+    },
+    {
+        id: 101,
+        content: "让司机送你到起步价范围内的、南边的、最远的地方（你可以事先在地图上辨认）。在路途中注意聆听。",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你听到你知道名字的音乐，在到达目的地后，转到#55", nextCard: 55 },
+            { text: "如果你不知道听到的音乐叫什么名字，在到达目的地后，转到#51", nextCard: 51 },
+            { text: "如果没有音乐，到达目的地后，转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 102,
+        content: "让司机送你到起步价范围内的、北边的、最远的地方（你可以事先在地图上辨认）。在路途中注意车外，如果发现",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果发现婴儿车，转到#19", nextCard: 19 },
+            { text: "如果发现轮椅，转到#56", nextCard: 56 },
+            { text: "如果发现运动健身器材，转到#70", nextCard: 70 },
+            { text: "如果发现不戴头盔的骑手，转到#29", nextCard: 29 },
+            { text: "如果以上都没有，转到#30", nextCard: 30 }
+        ]
+    },
+    {
+        id: 103,
+        content: "朝着你在本次游戏中起点的方向走；询问你认为合适的人，最近的公交车站在哪里",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果对方用东南西北描述，转到#70", nextCard: 70 },
+            { text: "如果对方用前后左右描述，转到#66", nextCard: 66 },
+            { text: "其他情况，转到#51", nextCard: 51 }
+        ]
+    },
+    {
+        id: 104,
+        content: "观察离你最近的两个路灯，想象将它们连成一条直线",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左手边的路灯代表你出生的时刻，右手边的路灯代表现在；估算一下，你所站的地方代表几岁", nextCard: 113 },
+            { text: "如果未满18岁，转到#113", nextCard: 113 },
+            { text: "如果超过18岁，转到#110", nextCard: 110 },
+            { text: "如果正好18岁，转到#36", nextCard: 36 }
+        ]
+    },
+    {
+        id: 105,
+        content: "找到离你最近的舒适的地方坐下；观察窗外的活动",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你戴眼镜，请摘下眼镜，拿着它，转到#106", nextCard: 106 },
+            { text: "如果你没有戴眼镜，转到#107", nextCard: 107 }
+        ]
+    },
+    {
+        id: 106,
+        content: "如果你右手拿着眼镜，走到右手边最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你左手拿着眼镜，走到左手边最近的转角", nextCard: 68 },
+            { text: "走到转角后，转到#68", nextCard: 68 }
+        ]
+    },
+    {
+        id: 107,
+        content: "留意大多数行人行进的方向，朝那个方向走。当你看到以下目标时，停下来",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是儿童或婴儿，转到#55", nextCard: 55 },
+            { text: "如果是戴鸭舌帽的人，转到#48", nextCard: 48 },
+            { text: "如果是地铁站/公交站，转到#98", nextCard: 98 }
+        ]
+    },
+    {
+        id: 108,
+        content: "停下来，想一想你的身份证放在哪",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在身体左侧，向你左侧看", nextCard: 51 },
+            { text: "如果在身体右侧，向你右侧看", nextCard: 51 },
+            { text: "如果没有身份证，直视前方", nextCard: 51 },
+            { text: "当你朝某个方向看时，试着做出某种预测", nextCard: 51 },
+            { text: "如果预测成真，转到#51", nextCard: 51 },
+            { text: "如果预测没有应验，转到#76", nextCard: 76 }
+        ]
+    },
+    {
+        id: 109,
+        content: "在你的视线范围内，找到最高的两栋建筑",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "想象有一条直线连接两栋建筑物的最高点；估计这条直线与水平线的夹角大约是", nextCard: 65 },
+            { text: "如果0度，转到#65", nextCard: 65 },
+            { text: "如果30度，转到#39", nextCard: 39 },
+            { text: "如果45度，转到#76", nextCard: 76 },
+            { text: "如果60度，转到#51", nextCard: 51 },
+            { text: "如果90度，转到#74", nextCard: 74 }
+        ]
+    },
+    {
+        id: 110,
+        content: "向南走两个路口；留意有没有灯光之外的光源",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#97", nextCard: 97 },
+            { text: "如果没有，转到#68", nextCard: 68 }
+        ]
+    },
+    {
+        id: 111,
+        content: "站在转角；聆听以下声音",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "当声音停止时，转到#112", nextCard: 112 }
+        ]
+    },
+    {
+        id: 112,
+        content: "找到最近的戴帽子的人；沿着ta最初行走的方向行走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果遇到戴着鸭舌帽的人，转到#68", nextCard: 68 },
+            { text: "如果看到看地图的人，转到#32", nextCard: 32 },
+            { text: "如果看到一辆锁好的自行车，转到#3", nextCard: 3 },
+            { text: "如果看到穿红色鞋子的人，转到#80", nextCard: 80 },
+            { text: "如果看到抽烟的人，转到#75", nextCard: 75 }
+        ]
+    },
+    {
+        id: 113,
+        content: "走到最近的转角；留意你视线范围内的二维码",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#112", nextCard: 112 },
+            { text: "如果没有，转到82", nextCard: 82 }
+        ]
+    },
+    {
+        id: 114,
+        content: "空",
+        tags: ["街头侦探", "时间旅人"],
+        options: []
+    },
+    {
+        id: 115,
+        content: "目测餐厅有多少顾客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于等于5，离开餐厅之后走到最近的转角，转到#52", nextCard: 52 },
+            { text: "如果6～10，离开餐厅之后走到最近的转角，转到#51", nextCard: 51 },
+            { text: "如果大于等于11，离开餐厅之后走到最近的转角，转到#26", nextCard: 26 }
+        ]
+    },
+    {
+        id: 116,
+        content: "【第一步】寻找一个你觉得最有吸引力的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "【第二部】跟随ta，直到", nextCard: 56 },
+            { text: "如果无法跟随，转到#56", nextCard: 56 },
+            { text: "如果你看到一个地铁站/公交站，转到#98", nextCard: 98 },
+            { text: "如果你听到5次车辆喇叭声，转到#55", nextCard: 55 },
+            { text: "如果你看到一个更有吸引力的人，重复【第二步】", nextCard: 55 }
+        ]
+    },
+    {
+        id: 117,
+        content: "找一个舒适的地方站立或坐下；当到达下一站，有新乘客上车时，注意最后上车的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你们有眼神接触，转到#119", nextCard: 119 },
+            { text: "如果没有眼神接触，转到#118", nextCard: 118 }
+        ]
+    },
+    {
+        id: 118,
+        content: "注意这个人的手",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta手里有东西，在下一站下车出站，转到#117", nextCard: 117 },
+            { text: "如果ta手里没有东西，在下两站下车出站，转到#120", nextCard: 120 }
+        ]
+    },
+    {
+        id: 119,
+        content: "数一数周围你觉的「怪异」的乘客的数量",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "假设有X名乘客，你就坐X站，下车出站，转到#55", nextCard: 55 },
+            { text: "如果没有，在下一站下车站，转到#117", nextCard: 110 }
+        ]
+    },
+    {
+        id: 120,
+        content: "如果你的惯用手是",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左手，走到左手边的转角，转到#116", nextCard: 116 },
+            { text: "右手，走到右手边的转角，转到#121", nextCard: 121 }
+        ]
+    },
+    {
+        id: 121,
+        content: "走到最近的转角；观察周围有没有运动的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有，转到#122", nextCard: 122 },
+            { text: "如果没有，转到#107", nextCard: 107 }
+        ]
+    },
+    {
+        id: 122,
+        content: "开始加快你的脚步；像竞走比赛那样，超过5个行人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "转到#55", nextCard: 55 }
+        ]
+    },
+    {
+        id: 123,
+        content: "留意你第一眼看到的店面招牌，如果周围没有招牌，你可以随意走走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "留意招牌的名称，根据招牌的第一个字或字母，转到对应页码", nextCard: 9 },
+            { text: "如果是#9", nextCard: 9 },
+            { text: "如果是#104", nextCard: 104 },
+            { text: "如果是#39", nextCard: 39 },
+            { text: "如果是#53", nextCard: 53 },
+            { text: "如果是#9", nextCard: 9 },
+            { text: "如果是#11", nextCard: 11 },
+            { text: "如果是#36", nextCard: 36 },
+            { text: "如果是#40", nextCard: 40 },
+            { text: "如果是#109", nextCard: 109 },
+            { text: "如果是#35", nextCard: 35 },
+            { text: "如果是#10", nextCard: 10 },
+            { text: "如果是#37", nextCard: 37 },
+            { text: "如果是#9", nextCard: 9 },
+            { text: "如果是#29", nextCard: 29 },
+            { text: "如果是#36", nextCard: 36 },
+            { text: "如果是#31", nextCard: 31 },
+            { text: "如果是#105", nextCard: 105 },
+            { text: "如果是#11", nextCard: 11 },
+            { text: "如果是#34", nextCard: 34 },
+            { text: "如果是#108", nextCard: 108 },
+            { text: "如果是#33", nextCard: 33 },
+            { text: "如果是#7", nextCard: 7 },
+            { text: "如果是#10", nextCard: 10 },
+            { text: "如果是#39", nextCard: 39 },
+            { text: "如果是#40", nextCard: 40 },
+            { text: "如果是#34", nextCard: 34 }
+        ]
+    },
+    {
+        id: 124,
+        content: "寻找咖啡店/饮料店；进入你找到的第一家咖啡店/饮料店",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "转到#44", nextCard: 44 }
+        ]
+    },
+    {
+        id: 125,
+        content: "坐下来放松，想想某个你在很长一段时间再也没有见到过的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "准备好后，翻到#90", nextCard: 90 }
+        ]
+    },
+    {
+        id: 126,
+        content: "如果这个地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果只有一条线路，转到#28", nextCard: 28 },
+            { text: "如果有两条线路，转到#91", nextCard: 91 },
+            { text: "如果有三条或以上，转到#22", nextCard: 22 }
+        ]
+    },
+    {
+        id: 127,
+        content: "跟随一个用手机通话的人；直到对方通话结束或者无法跟随为止",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "转到#66", nextCard: 66 }
+        ]
+    },
+    {
+        id: 128,
+        content: "找个地方坐下；如果没有地方坐，带走咖啡走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在你发现下一位顾客之前就喝完咖啡，转到#46", nextCard: 46 },
+            { text: "坐下喝咖啡，观察下一位走进咖啡店的路人", nextCard: 129 },
+            { text: "如果ta是异性，转到#130", nextCard: 130 },
+            { text: "如果ta是同性，转到#131", nextCard: 131 }
+        ]
+    },
+    {
+        id: 129,
+        content: "在最近的转角，观察有没有任何正在播放的影像/视频",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有，转到#103", nextCard: 103 }
+        ]
+    },
+    {
+        id: 130,
+        content: "在下一站下车；试图寻找从路人身上赚钱的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有发现，出站后找个地方坐下，转到#125", nextCard: 125 },
+            { text: "如果有发现，转到#131", nextCard: 131 }
+        ]
+    },
+    {
+        id: 131,
+        content: "如果目标在乞讨，施舍ta一点零钱",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有目光接触，转到#125", nextCard: 125 },
+            { text: "如果没有目光接触，向左手边走两个路口，转到#122", nextCard: 122 },
+            { text: "如果目标是在卖艺，转到#133", nextCard: 133 },
+            { text: "如果是其他情况，转到#125", nextCard: 125 }
+        ]
+    },
+    {
+        id: 132,
+        content: "欣赏一会儿他们的「节目」，观察你的目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的眼睛是闭着的，或是你无法辨别，转到#125", nextCard: 125 },
+            { text: "如果ta的眼镜是睁开的，在节目告一段落后给ta一点零钱", nextCard: 76 },
+            { text: "如果ta对你表示感谢，转到#76", nextCard: 76 },
+            { text: "如果没有，请你返回刚才的公交站/地铁站，乘坐下一班车", nextCard: 76 }
+        ]
+    }
+];
+
+        // 初始化游戏
+        function initGame() {
+            showCard(currentCard);
+        }
+
+        // 显示卡片
+        function showCard(cardId) {
+            const card = cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            document.querySelector('.card-number').textContent = `#${card.id}`;
+            document.querySelector('.card-content').textContent = card.content;
+
+
+
+            // 显示选项
+            const optionsContainer = document.querySelector('.options');
+            optionsContainer.innerHTML = '';
+            card.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option.text;
+                button.onclick = () => selectOption(option.nextCard, option.text);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // 选择选项
+        function selectOption(nextCardId, optionText) {
+            // 在切换到下一张卡片前，将当前卡片添加到历史记录
+            const currentCardData = cards.find(card => card.id === currentCard);
+            if (currentCardData) {
+                addToHistory(currentCardData);
+            }
+            
+            currentCard = nextCardId;
+            showCard(nextCardId);
+        }
+
+        // 添加到历史记录
+        function addToHistory(card) {
+            // 检查历史记录中是否已存在该卡片
+            const existingIndex = history.indexOf(card.id);
+            
+            if (existingIndex !== -1) {
+                // 如果卡片已存在，更新对应的历史记录项
+                const historyItems = document.querySelectorAll('.history-item');
+                const existingItem = historyItems[existingIndex];
+                
+                // 更新现有历史记录项的内容
+                existingItem.innerHTML = '';
+                const cardNumberSpan = document.createElement('span');
+                cardNumberSpan.className = 'card-number-highlight';
+                cardNumberSpan.textContent = `#${card.id}`;
+                existingItem.appendChild(cardNumberSpan);
+                existingItem.appendChild(document.createTextNode(` - ${card.content}`));
+            } else {
+                // 如果是新卡片，创建新的历史记录项
+                const historyItem = document.createElement('li');
+                historyItem.className = 'history-item';
+                const cardNumberSpan = document.createElement('span');
+                cardNumberSpan.className = 'card-number-highlight';
+                cardNumberSpan.textContent = `#${card.id}`;
+                historyItem.appendChild(cardNumberSpan);
+                historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                document.querySelector('.history-list').appendChild(historyItem);
+                history.push(card.id);
+            }
+        }
+
+
+
+        // 定义场所图标
+        const placeIcons = {
+            park: {
+                draw: (ctx, x, y) => {
+                    ctx.beginPath();
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.arc(x, y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 绘制树
+                    ctx.beginPath();
+                    ctx.fillStyle = '#27ae60';
+                    ctx.moveTo(x - 5, y + 5);
+                    ctx.lineTo(x, y - 8);
+                    ctx.lineTo(x + 5, y + 5);
+                    ctx.fill();
+                }
+            },
+            subway: {
+                draw: (ctx, x, y) => {
+                    ctx.beginPath();
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(x - 8, y - 8, 16, 16);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('M', x, y + 4);
+                }
+            },
+            cafe: {
+                draw: (ctx, x, y) => {
+                    ctx.beginPath();
+                    ctx.fillStyle = '#8e44ad';
+                    ctx.arc(x, y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.arc(x, y, 4, 0, Math.PI);
+                    ctx.stroke();
+                }
+            },
+            shop: {
+                draw: (ctx, x, y) => {
+                    ctx.beginPath();
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.moveTo(x - 8, y + 8);
+                    ctx.lineTo(x + 8, y + 8);
+                    ctx.lineTo(x + 6, y - 4);
+                    ctx.lineTo(x - 6, y - 4);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(x - 2, y - 2, 4, 6);
+                }
+            }
+        };
+
+        // 生成探索地图
+        function generateExplorationMap() {
+            const canvas = document.createElement('canvas');
+            // 获取设备宽度，设置响应式画布大小
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            canvas.width = screenWidth > 800 ? 800 : screenWidth - 20; // 留出边距
+            canvas.height = screenWidth > 800 ? 600 : Math.min(screenHeight - 100, canvas.width * 0.75);
+            const ctx = canvas.getContext('2d');
+
+            // 设置背景色和样式
+            ctx.fillStyle = '#e8e8e8';
+            
+            // 绘制网格背景
+            ctx.strokeStyle = '#d4d4d4';
+            ctx.lineWidth = 0.5;
+            // 根据画布大小调整网格尺寸
+            const gridSize = Math.max(20, Math.floor(canvas.width / 20));
+            
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // 添加一些随机的建筑轮廓，调整大小比例
+            ctx.fillStyle = '#f0f0f0';
+            const buildingScale = canvas.width / 800; // 计算缩放比例
+            for (let i = 0; i < 20; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = (10 + Math.random() * 20) * buildingScale;
+                ctx.fillRect(x, y, size, size);
+            }
+            
+            // 添加一些随机的绿地
+            ctx.fillStyle = '#e6ffe6';
+            for (let i = 0; i < 10; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const radius = 15 + Math.random() * 25;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制标题
+            // 根据画布宽度调整字体大小
+            const fontSize = Math.max(16, Math.floor(canvas.width / 25));
+            ctx.font = `${fontSize}px Arial`;
+            ctx.fillStyle = '#2c3e50';
+            ctx.textAlign = 'center';
+            ctx.fillText('城市探索地图', canvas.width / 2, 40);
+
+            // 计算节点位置，根据屏幕大小调整布局
+            const columnCount = canvas.width < 600 ? 2 : 3; // 在较窄屏幕上减少列数
+            const horizontalSpacing = canvas.width / (columnCount + 1);
+            const verticalSpacing = canvas.height / (Math.ceil(history.length / columnCount) + 1);
+            
+            const nodes = history.map((id, index) => {
+                // 基础位置，使用比例布局
+                const baseX = horizontalSpacing + (index % columnCount) * horizontalSpacing;
+                const baseY = verticalSpacing + Math.floor(index / columnCount) * verticalSpacing;
+                
+                // 添加随机偏移，但确保不会超出画布边界
+                const offsetX = (Math.random() - 0.5) * 100;
+                const offsetY = (Math.random() - 0.5) * 100;
+                
+                const x = Math.max(50, Math.min(canvas.width - 100, baseX + offsetX));
+                const y = Math.max(50, Math.min(canvas.height - 100, baseY + offsetY));
+                
+                return { x, y, id };
+            });
+
+            // 绘制街道网络
+            ctx.strokeStyle = '#d3d3d3';
+            ctx.lineWidth = 1;
+            // 水平街道
+            for (let y = 50; y < canvas.height; y += 100) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            // 垂直街道
+            for (let x = 50; x < canvas.width; x += 100) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // 绘制绿地
+            const drawTree = (x, y) => {
+                ctx.fillStyle = '#90EE90';
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
+                ctx.fill();
+            };
+            for (let i = 0; i < 20; i++) {
+                drawTree(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height
+                );
+            }
+
+            // 绘制建筑物
+            const drawBuilding = (x, y) => {
+                ctx.fillStyle = '#A9A9A9';
+                const width = 20 + Math.random() * 20;
+                const height = 20 + Math.random() * 20;
+                ctx.fillRect(x, y, width, height);
+                ctx.strokeStyle = '#696969';
+                ctx.strokeRect(x, y, width, height);
+            };
+            for (let i = 0; i < 15; i++) {
+                drawBuilding(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height
+                );
+            }
+
+            // 绘制水系
+            ctx.fillStyle = '#e6f3ff';
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.3, 0);
+            ctx.quadraticCurveTo(canvas.width * 0.4, canvas.height * 0.5, canvas.width * 0.3, canvas.height);
+            ctx.lineTo(canvas.width * 0.2, canvas.height);
+            ctx.quadraticCurveTo(canvas.width * 0.3, canvas.height * 0.5, canvas.width * 0.2, 0);
+            ctx.fill();
+
+            // 绘制主要道路
+            ctx.strokeStyle = '#d0d0d0';
+            ctx.lineWidth = 4;
+            // 横向主干道
+            for (let y = canvas.height * 0.25; y < canvas.height; y += canvas.height * 0.3) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            // 纵向主干道
+            for (let x = canvas.width * 0.25; x < canvas.width; x += canvas.width * 0.3) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // 绘制手绘风格的连接线，调整线条宽度和样式
+            const lineWidth = canvas.width < 400 ? 1.5 : 2;
+            ctx.lineWidth = lineWidth;
+            for (let i = 0; i < nodes.length - 1; i++) {
+                const startX = nodes[i].x + (canvas.width < 400 ? 20 : 30);
+                const startY = nodes[i].y + (canvas.width < 400 ? 20 : 30);
+                const endX = nodes[i + 1].x + (canvas.width < 400 ? 20 : 30);
+                const endY = nodes[i + 1].y + (canvas.width < 400 ? 20 : 30);
+                
+                // 为每条线段创建多个控制点，形成不规则的手绘效果
+                const points = [];
+                const segments = 5;
+                
+                for (let j = 0; j <= segments; j++) {
+                    const t = j / segments;
+                    const x = startX + (endX - startX) * t;
+                    const y = startY + (endY - startY) * t;
+                    
+                    // 添加随机偏移
+                    const offset = 5 * Math.sin(t * Math.PI);
+                    points.push({
+                        x: x + (Math.random() - 0.5) * offset,
+                        y: y + (Math.random() - 0.5) * offset
+                    });
+                }
+                
+                // 绘制手绘风格的线段
+                ctx.beginPath();
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 2;
+                ctx.moveTo(points[0].x, points[0].y);
+                
+                for (let j = 1; j < points.length; j++) {
+                    ctx.lineTo(points[j].x, points[j].y);
+                }
+                
+                ctx.stroke();
+                
+                // 添加小装饰点
+                ctx.fillStyle = '#8b4513';
+                ctx.beginPath();
+                ctx.arc(startX, startY, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 绘制节点
+            nodes.forEach((node, index) => {
+                const x = node.x + 30;
+                const y = node.y + 30;
+                
+                // 绘制标记点底部阴影
+                ctx.beginPath();
+                ctx.arc(x, y + 2, 15, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fill();
+
+                // 绘制标记点主体
+                ctx.beginPath();
+                ctx.moveTo(x, y - 20);
+                ctx.lineTo(x - 15, y + 10);
+                ctx.lineTo(x + 15, y + 10);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(52, 152, 219, 0.9)';
+                ctx.fill();
+
+                // 绘制标记点圆形部分
+                ctx.beginPath();
+                ctx.arc(x, y - 15, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 绘制节点编号
+                ctx.font = 'bold 14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('#' + node.id, x, y - 15);
+            });
+
+            // 添加场所图标
+            history.forEach((id, index) => {
+                const card = cards.find(c => c.id === id);
+                const content = card.content.toLowerCase();
+                const node = nodes[index];
+                
+                // 根据指令卡内容添加相应图标
+                if (content.includes('公园') || content.includes('广场')) {
+                    placeIcons.park.draw(ctx, node.x + 70, node.y + 30);
+                } else if (content.includes('地铁') || content.includes('公交')) {
+                    placeIcons.subway.draw(ctx, node.x + 70, node.y + 30);
+                } else if (content.includes('咖啡') || content.includes('餐厅')) {
+                    placeIcons.cafe.draw(ctx, node.x + 70, node.y + 30);
+                } else if (content.includes('商店') || content.includes('便利店')) {
+                    placeIcons.shop.draw(ctx, node.x + 70, node.y + 30);
+                }
+            });
+
+            // 添加装饰元素
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#7f8c8d';
+            ctx.fillText('探索开始', 100, 80);
+            ctx.fillText('探索结束', nodes[nodes.length - 1].x + 30, nodes[nodes.length - 1].y + 80);
+
+            // 创建一个新的div来包含地图和tooltip
+            const mapContainer = document.createElement('div');
+            mapContainer.style.position = 'relative';
+            mapContainer.style.marginTop = '60px';
+            mapContainer.style.textAlign = 'center';
+            
+            // 将canvas转换为图片
+            const mapImage = new Image();
+            mapImage.src = canvas.toDataURL();
+            mapImage.style.display = 'block';
+            
+            // 创建tooltip元素
+            const tooltip = document.createElement('div');
+            tooltip.style.position = 'absolute';
+            tooltip.style.display = 'none';
+            tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            tooltip.style.color = 'white';
+            tooltip.style.padding = '8px';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.fontSize = '14px';
+            tooltip.style.maxWidth = '200px';
+            tooltip.style.zIndex = '1000';
+            
+            mapContainer.appendChild(mapImage);
+            mapContainer.appendChild(tooltip);
+
+            // 等待图片加载完成后再添加事件监听器
+            mapImage.onload = () => {
+                // 添加鼠标移动事件监听
+                mapImage.addEventListener('mousemove', (e) => {
+                    const rect = mapImage.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    // 检查鼠标是否在任何图标上
+                    let found = false;
+                    history.forEach((id, index) => {
+                        const node = nodes[index];
+                        const iconX = node.x + 70;
+                        const iconY = node.y + 30;
+                        const dx = x - iconX;
+                        const dy = y - iconY;
+                        
+                        if (dx * dx + dy * dy < 400) { // 20px半径的点击区域
+                            const card = cards.find(c => c.id === id);
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+                            tooltip.style.top = (e.clientY - rect.top + 10) + 'px';
+                            tooltip.textContent = card.content;
+                            found = true;
+                        }
+                    });
+                    
+                    if (!found) {
+                        tooltip.style.display = 'none';
+                    }
+                });
+
+                // 鼠标离开地图时隐藏tooltip
+                mapImage.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+            };
+
+            return mapContainer;
+        }
+
+        // 结束游戏
+        function getRandomCard() {
+            const availableCards = cards.filter(card => !history.includes(card.id));
+            if (availableCards.length === 0) return null;
+            return availableCards[Math.floor(Math.random() * availableCards.length)];
+        }
+
+        function skipCard() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const nextCard = getRandomCard();
+            
+            if (nextCard) {
+                if (currentCardData) {
+                    // 将当前卡片添加到历史记录
+                    history.push(currentCardData.id);
+                    
+                    // 创建新的历史记录项
+                    const historyList = document.querySelector('.history-list');
+                    const historyItem = document.createElement('li');
+                    historyItem.className = 'history-item';
+                    
+                    const cardNumber = document.createElement('span');
+                    cardNumber.className = 'card-number-highlight';
+                    cardNumber.textContent = `#${currentCardData.id}`;
+                    
+                    historyItem.appendChild(cardNumber);
+                    historyItem.appendChild(document.createTextNode(` [已跳过] - ${currentCardData.content}`));
+                    
+                    historyList.appendChild(historyItem);
+                }
+                
+                // 更新当前卡片ID并显示新卡片
+                currentCard = nextCard.id;
+                showCard(nextCard.id);
+            } else {
+                alert('已经浏览过所有卡片，游戏结束！\n你的探索路径：' + history.join(' → '));
+            }
+        }
+
+        async function generateLog() {
+            try {
+                // 创建加载提示元素
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loading-message';
+                loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;';
+                loadingDiv.textContent = '正在生成故事...';
+                document.body.appendChild(loadingDiv);
+
+                // 构建提示词，去除卡片编号
+                const historyItems = document.querySelectorAll('.history-item');
+                let prompt = "基于以下探索历史生成一个简短的故事：\n";
+                historyItems.forEach((item, index) => {
+                    // 移除卡片编号，只保留内容
+                    const content = item.textContent.replace(/^#\d+\s*-\s*/, '');
+                    prompt += `${index + 1}. ${content}\n`;
+                });
+
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: prompt
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API请求失败: ${errorData.error?.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    const story = data.choices[0].message.content;
+                    
+                    // 移除加载提示
+                    loadingDiv.remove();
+
+                    // 创建故事容器
+                    const storyContainer = document.createElement('div');
+                    storyContainer.className = 'story-container';
+                    storyContainer.style.cssText = 'margin: 20px auto; padding: 20px; max-width: 800px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+                    
+                    const storyTitle = document.createElement('h3');
+                    storyTitle.textContent = '你的城市探索故事';
+                    storyTitle.style.cssText = 'color: #2c3e50; margin-bottom: 15px;';
+                    
+                    const storyContent = document.createElement('div');
+                    storyContent.style.cssText = 'white-space: pre-wrap; line-height: 1.6; color: #34495e;';
+                    storyContent.textContent = story;
+                    
+                    storyContainer.appendChild(storyTitle);
+                    storyContainer.appendChild(storyContent);
+                    document.body.appendChild(storyContainer);
+                    
+                    // 滚动到故事位置
+                    storyContainer.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error('API返回数据格式错误');
+                }
+            } catch (error) {
+                console.error('生成日志失败:', error);
+                // 移除加载提示
+                document.getElementById('loading-message')?.remove();
+                alert(`生成日志失败: ${error.message}`);
+            }
+        }
+
+        function endGame() {
+            // 先生成并显示地图
+            const mapContainer = generateExplorationMap();
+            document.body.appendChild(mapContainer);
+
+            // 准备故事生成的API配置
+            const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
+            const DEEPSEEK_API_KEY = 'sk-ca0cdae03cae4ed8812562e1d96dea36';
+
+            // 滚动到地图位置
+            mapContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // 然后询问是否保存
+            const confirmSave = confirm('探索结束！\n你的探索路径：' + history.join(' → ') + '\n\n是否要保存探索历史？');
+            
+            if (confirmSave) {
+                const mapImage = mapContainer.querySelector('img');
+                const mapDataUrl = mapImage.src;
+
+                // 创建探索历史文本内容
+                let historyContent = '城市探索历史记录\n\n';
+                const historyItems = document.querySelectorAll('.history-item');
+                historyItems.forEach(item => {
+                    historyContent += item.textContent + '\n';
+                });
+                historyContent += '\n探索路径：' + history.join(' → ');
+
+                // 显示地图
+                const mapWindow = window.open();
+                mapWindow.document.write(`
+                    <html>
+                        <head><title>探索地图</title></head>
+                        <body style="margin: 0; display: flex; flex-direction: column; align-items: center; background-color: #f0f0f0; padding: 20px;">
+                            <h2 style="color: #2c3e50;">你的城市探索地图</h2>
+                            <img src="${mapDataUrl}" style="max-width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">打印地图</button>
+                        </body>
+                    </html>
+                `);
+                
+                // 构建故事生成的提示词
+                let storyPrompt = '基于以下的城市探索经历，创作一个有趣的短篇故事：\n';
+                historyItems.forEach(item => {
+                    storyPrompt += item.textContent.replace(/^#\d+\s*-\s*/, '') + '\n';
+                });
+
+                // 调用DeepSeek API生成故事
+                fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [{
+                            role: 'user',
+                            content: storyPrompt
+                        }],
+                        temperature: 0.7,
+                        max_tokens: 1000
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const generatedStory = data.choices[0].message.content;
+
+                    // 将生成的故事添加到历史内容中
+                    historyContent += '\n\n生成的故事：\n' + generatedStory;
+                    // 创建Blob对象
+                    const blob = new Blob([historyContent], { type: 'text/plain;charset=utf-8' });
+                    
+                    // 显示生成的故事
+                    const storyDiv = document.createElement('div');
+                    storyDiv.style.cssText = 'margin: 20px; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px;';
+                    storyDiv.innerHTML = `<h3 style="color: #2c3e50; margin-bottom: 15px;">你的探索故事</h3><p style="line-height: 1.6;">${generatedStory}</p>`;
+                    document.body.appendChild(storyDiv);
+
+                    // 创建下载链接
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = '城市探索历史.txt';
+                    
+                    // 触发下载
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // 清理URL对象
+                    URL.revokeObjectURL(downloadLink.href);
+                })
+                .catch(error => {
+                    console.error('生成故事时出错:', error);
+                    // 如果生成故事失败，仍然创建原始的Blob对象
+                    const blob = new Blob([historyContent], { type: 'text/plain;charset=utf-8' });
+                    
+                    // 创建下载链接
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = '城市探索历史.txt';
+                    
+                    // 触发下载
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // 清理URL对象
+                    URL.revokeObjectURL(downloadLink.href);
+                });
+            }
+        }
+
+        function showShareDialog() {
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('shareDialog').classList.add('active');
+            document.getElementById('shareUrl').value = window.location.href;
+        }
+
+        function closeShareDialog() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('shareDialog').classList.remove('active');
+        }
+
+        function copyShareLink() {
+            const shareUrl = document.getElementById('shareUrl');
+            shareUrl.select();
+            document.execCommand('copy');
+            alert('链接已复制到剪贴板！');
+        }
+
+        // 点击遮罩层关闭分享对话框
+        document.getElementById('overlay').addEventListener('click', closeShareDialog);
+
+        // 启动游戏
+        initGame();
+    </script>
+</body>
+</html>

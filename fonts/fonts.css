@@ -1,0 +1,37 @@
+/* 字体管理文件 */
+/* 提示：请先将字体文件(.ttf, .woff, .woff2, .otf)放入fonts目录，然后再更新此文件以声明字体。
+
+使用示例：
+   1. 将字体文件(.ttf, .woff, .woff2, .otf)放入fonts目录
+   2. 使用@font-face声明字体
+   3. 在样式中使用font-family应用字体
+
+   示例：
+   @font-face {
+     font-family: 'CustomFont';
+     src: url('./your-font.woff2') format('woff2'),
+          url('./your-font.woff') format('woff'),
+          url('./your-font.ttf') format('truetype');
+     font-weight: normal;
+     font-style: normal;
+   }
+
+   .your-element {
+     font-family: 'CustomFont', sans-serif;
+   }
+*/
+
+/* 请在此处添加您的字体声明 */
+
+@font-face {
+  font-family: 'DinkieBitmap';
+  src: url('./DinkieBitmap-9px.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 全局字体设置 */
+* {
+  font-family: 'DinkieBitmap', sans-serif !important;
+  font-size: 16px !important;
+}

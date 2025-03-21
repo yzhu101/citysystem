@@ -55,13 +55,14 @@
             background-color: #F8C653;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 16px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             margin: 15px 10px;
-            width: 100%;
-            max-width: 200px;
+            width: auto;
+            min-width: 80px;
+            white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
             transition: background-color 20ms ease-in 0s;
             user-select: none;
@@ -249,11 +250,10 @@
         </div>
     </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center;">
-        <button class="skip-button" onclick="skipCard()">跳过</button>
-        <button class="end-button" onclick="endGame()">结束探索</button>
-        <button class="generate-log-button" onclick="generateLog()">生成日志</button>
-
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: nowrap; width: 100%; max-width: 500px;">
+        <button class="skip-button" style="width: auto; min-width: 80px; max-width: none;" onclick="skipCard()">跳过</button>
+        <button class="end-button" style="width: auto; min-width: 80px;" onclick="endGame()">结束探索</button>
+        <button class="generate-log-button" style="width: auto; min-width: 80px;" onclick="generateLog()">生成日志</button>
     </div>
 
 

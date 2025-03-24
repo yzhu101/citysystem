@@ -108,7 +108,7 @@
 
         .card-number {
             font-size: 18px;
-            color: rgba(55, 53, 47, 0.65);
+            color: #252525;
             margin-bottom: 12px;
             font-weight: 500;
             line-height: 1.4;
@@ -118,7 +118,7 @@
             font-size: 20px;
             line-height: 1.8;
             margin-bottom: 20px;
-            color: rgb(55, 53, 47);
+            color: #252525;
             white-space: pre-line;
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(55, 53, 47, 0.09);
@@ -136,7 +136,7 @@
 
         .options-title {
             font-size: 18px;
-            color: rgba(55, 53, 47, 0.65);
+            color: #252525;
             margin-bottom: 12px;
             font-weight: 500;
             line-height: 1.4;
@@ -144,7 +144,7 @@
 
         .option-button {
             background: transparent;
-            color: rgb(55, 53, 47);
+            color: #252525;
             border: 1px solid rgba(55, 53, 47, 0.16);
             padding: 8px 12px;
             border-radius: 3px;
@@ -170,7 +170,7 @@
 
         .history h3 {
             margin-top: 0;
-            color: rgb(55, 53, 47);
+            color: #252525;
             font-size: 14px;
             font-weight: 500;
         }
@@ -184,7 +184,7 @@
         .history-item {
             padding: 8px 0;
             border-bottom: 1px solid rgba(55, 53, 47, 0.09);
-            color: rgb(55, 53, 47);
+            color: #252525;
             font-size: 14px;
         }
         @media screen and (max-width: 480px) {
@@ -1727,7 +1727,12 @@
                 const button = document.createElement('button');
                 button.className = 'option-button';
                 button.textContent = option.text;
-                button.onclick = () => selectOption(option.nextCard, option.text);
+                button.onclick = () => {
+                    if (!gameStartTime) {
+                        gameStartTime = new Date();
+                    }
+                    selectOption(option.nextCard, option.text);
+                };
                 optionsContainer.appendChild(button);
             });
         }

@@ -19,8 +19,6 @@
             font-size: 16px;
         }
 
-
-
         .card {
             background: white;
             border-radius: 8px;
@@ -32,28 +30,18 @@
             transition: background 100ms ease-out 0s;
         }
 
-
-
         @media screen and (min-width: 768px) {
             .card {
                 width: calc(100% - 20px);
             }
-
-
             .history {
                 width: calc(100% - 20px);
             }
-
-
         }
-
-
 
         .card:hover {
             background-color: rgba(55, 53, 47, 0.03);
         }
-
-
 
         .end-button {
             background-color: #EC6E5F;
@@ -72,8 +60,6 @@
             user-select: none;
         }
 
-
-
         .skip-button {
             background-color: #F8C653;
             color: white;
@@ -91,19 +77,13 @@
             user-select: none;
         }
 
-
-
         .skip-button:hover {
             background-color: #F8C653;
         }
 
-
-
         .end-button:hover {
             background-color: #EC6E5F;
-        }
-
-        .generate-log-button {
+        }        .generate-log-button {
             background-color: #4B7B91;
             color: white;
             border: none;
@@ -120,13 +100,9 @@
             user-select: none;
         }
 
-
-
         .generate-log-button:hover {
             background-color: #4B7B91;
         }
-
-
 
         .edit-button {
             background-color: #4CAF50;
@@ -145,13 +121,9 @@
             user-select: none;
         }
 
-
-
         .edit-button:hover {
             background-color: #45a049;
         }
-
-
 
         .card-number {
             font-size: 18px;
@@ -160,8 +132,6 @@
             font-weight: 500;
             line-height: 1.4;
         }
-
-
 
         .card-content {
             font-size: 20px;
@@ -173,8 +143,6 @@
             border-bottom: 1px solid rgba(55, 53, 47, 0.09);
         }
 
-
-
         .options {
             display: flex;
             flex-direction: column;
@@ -183,8 +151,6 @@
             padding-top: 16px;
         }
 
-
-
         .options-title {
             font-size: 18px;
             color: #252525;
@@ -192,8 +158,6 @@
             font-weight: 500;
             line-height: 1.4;
         }
-
-
 
         .option-button {
             background: transparent;
@@ -207,13 +171,9 @@
             transition: background-color 20ms ease-in 0s;
         }
 
-
-
         .option-button:hover {
             background-color: rgba(55, 53, 47, 0.08);
         }
-
-
 
         .history {
             margin-top: 20px;
@@ -225,8 +185,6 @@
             max-width: 500px;
         }
 
-
-
         .history h3 {
             margin-top: 0;
             color: #252525;
@@ -234,15 +192,11 @@
             font-weight: 500;
         }
 
-
-
         .history-list {
             list-style-type: none;
             padding: 0;
             margin: 0;
         }
-
-
 
         .history-item {
             padding: 8px 0;
@@ -250,21 +204,15 @@
             color: #252525;
             font-size: 14px;
         }
-
-
         @media screen and (max-width: 480px) {
             body {
                 padding: 10px 5px;
             }
 
-
-
             .card {
                 padding: 15px;
                 margin: 8px auto;
             }
-
-
 
             .card-content {
                 font-size: 16px;
@@ -273,13 +221,9 @@
                 padding-bottom: 15px;
             }
 
-
-
             .options {
                 gap: 6px;
             }
-
-
 
             .option-button {
                 padding: 12px 16px;
@@ -287,31 +231,21 @@
                 min-height: 44px;
             }
 
-
-
             .history {
                 padding: 15px;
                 margin: 8px auto;
             }
-
-
 
             .history-item {
                 padding: 10px 0;
                 font-size: 14px;
             }
 
-
-
             .tag {
                 padding: 6px 14px;
                 font-size: 14px;
             }
-
-
         }
-
-
 
         /* 添加触摸反馈效果 */
         @media (hover: none) {
@@ -323,11 +257,7 @@
                 opacity: 0.7;
                 transform: scale(0.98);
             }
-
-
         }
-
-
         
         /* 新增的AI生成选项按钮样式 */
         .generate-options-button {
@@ -341,21 +271,15 @@
             margin-top: 10px;
             transition: background-color 0.2s;
         }
-
-
         
         .generate-options-button:hover {
             background-color: #2980b9;
         }
-
-
         
         .generate-options-button:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
         }
-
-
         
         /* 编辑模式中的加载状态 */
         .loading-spinner {
@@ -369,14 +293,10 @@
             margin-right: 8px;
             vertical-align: middle;
         }
-
-
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-
     </style>
 </head>
 <body>
@@ -532,22 +452,33 @@
                     nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
                     
                     const deleteButton = document.createElement('button');
-                    deleteButton.textContent = '删除';
+                    deleteButton.textContent = 'X';
                     deleteButton.className = 'edit-button';
                     deleteButton.style.backgroundColor = '#EC6E5F';
-                    deleteButton.style.padding = '6px 10px';
+                    deleteButton.style.padding = '0';
+                    deleteButton.style.borderRadius = '6px';
+                    deleteButton.style.fontSize = '14px';
+                    deleteButton.style.color = 'white';
+                    deleteButton.style.border = 'none';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.style.lineHeight = '1';
+                    deleteButton.style.width = '32px';
+                    deleteButton.style.height = '32px';
+                    deleteButton.style.display = 'flex';
+                    deleteButton.style.alignItems = 'center';
+                    deleteButton.style.justifyContent = 'center';
+                    deleteButton.style.minWidth = '32px';
+                    deleteButton.style.maxWidth = '32px';
+                    deleteButton.style.flexShrink = '0';
+                    deleteButton.style.flexGrow = '0';
                     deleteButton.onclick = () => optionRow.remove();
                     
                     optionRow.appendChild(optionText);
                     optionRow.appendChild(nextCardInput);
                     optionRow.appendChild(deleteButton);
                     optionsContainer.appendChild(optionRow);
-                }
-
-);
+                });
             }
-
-
             
             // 添加新选项按钮
             const addOptionButton = document.createElement('button');
@@ -580,25 +511,36 @@
                 nextCardInput.style.marginLeft = '8px';
                 
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = '删除';
+                deleteButton.textContent = 'X';
                 deleteButton.className = 'edit-button';
                 deleteButton.style.backgroundColor = '#EC6E5F';
-                deleteButton.style.padding = '10px 15px';
-                deleteButton.style.marginLeft = '8px';
+                deleteButton.style.padding = '0';
                 deleteButton.style.borderRadius = '6px';
                 deleteButton.style.fontSize = '14px';
                 deleteButton.style.color = 'white';
                 deleteButton.style.border = 'none';
                 deleteButton.style.cursor = 'pointer';
+                deleteButton.style.lineHeight = '1';
+                deleteButton.style.width = '32px';
+                deleteButton.style.height = '32px';
+                deleteButton.style.display = 'flex';
+                deleteButton.style.alignItems = 'center';
+                deleteButton.style.justifyContent = 'center';
+                deleteButton.style.minWidth = '32px';
+                deleteButton.style.maxWidth = '32px';
+                deleteButton.style.flexShrink = '0';
+                deleteButton.style.flexGrow = '0';
+                deleteButton.style.minWidth = '32px';
+                deleteButton.style.maxWidth = '32px';
+                deleteButton.style.flexShrink = '0';
+                deleteButton.style.flexGrow = '0';
                 deleteButton.onclick = () => optionRow.remove();
                 
                 optionRow.appendChild(optionText);
                 optionRow.appendChild(nextCardInput);
                 optionRow.appendChild(deleteButton);
                 optionsContainer.appendChild(optionRow);
-            }
-
-;
+            };
             
             // 添加AI生成选项按钮
             const generateOptionsButton = document.createElement('button');
@@ -610,8 +552,6 @@
                     alert('请先填写指令内容');
                     return;
                 }
-
-
                 
                 // 禁用按钮并显示加载状态
                 generateOptionsButton.disabled = true;
@@ -649,19 +589,32 @@
                         nextCardInput.placeholder = '卡片号';
                         
                         const deleteButton = document.createElement('button');
-                        deleteButton.textContent = '删除';
+                        deleteButton.textContent = 'X';
                         deleteButton.className = 'edit-button';
                         deleteButton.style.backgroundColor = '#EC6E5F';
-                        deleteButton.style.padding = '6px 10px';
+                        deleteButton.style.padding = '0';
+                        deleteButton.style.borderRadius = '6px';
+                        deleteButton.style.fontSize = '14px';
+                        deleteButton.style.color = 'white';
+                        deleteButton.style.border = 'none';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.lineHeight = '1';
+                        deleteButton.style.width = '32px';
+                        deleteButton.style.height = '32px';
+                        deleteButton.style.display = 'flex';
+                        deleteButton.style.alignItems = 'center';
+                        deleteButton.style.justifyContent = 'center';
+                        deleteButton.style.minWidth = '32px';
+                        deleteButton.style.maxWidth = '32px';
+                        deleteButton.style.flexShrink = '0';
+                        deleteButton.style.flexGrow = '0';
                         deleteButton.onclick = () => optionRow.remove();
                         
                         optionRow.appendChild(optionText);
                         optionRow.appendChild(nextCardInput);
                         optionRow.appendChild(deleteButton);
                         optionsContainer.appendChild(optionRow);
-                    }
-
-);
+                    });
                     
                     // 显示成功消息
                     const successMessage = document.createElement('div');
@@ -671,23 +624,15 @@
                     successMessage.style.marginTop = '10px';
                     optionsContainer.appendChild(successMessage);
                     
-                }
-
- catch (error) {
+                } catch (error) {
                     console.error('生成选项失败:', error);
                     alert('生成选项失败: ' + error.message);
-                }
-
- finally {
+                } finally {
                     // 恢复按钮状态
                     generateOptionsButton.disabled = false;
                     generateOptionsButton.textContent = 'AI生成选项';
                 }
-
-
-            }
-
-;
+            };
             
             optionsEditArea.appendChild(optionsLabel);
             optionsEditArea.appendChild(optionsContainer);
@@ -701,11 +646,11 @@
             // 创建按钮容器
             const buttonContainer = document.createElement('div');
             buttonContainer.style.display = 'flex';
-            buttonContainer.style.gap = '15px';
+            buttonContainer.style.gap = '10px';
             buttonContainer.style.marginTop = '25px';
-            buttonContainer.style.flexDirection = 'row';
+            buttonContainer.style.flexDirection = 'column';
             buttonContainer.style.justifyContent = 'flex-start';
-            buttonContainer.style.alignItems = 'center';
+            buttonContainer.style.alignItems = 'flex-start';
             buttonContainer.style.backgroundColor = '#f0f9f1';
             buttonContainer.style.padding = '15px';
             buttonContainer.style.borderRadius = '6px';
@@ -714,7 +659,8 @@
             buttonTip.textContent = '完成编辑后，记得保存你的修改：';
             buttonTip.style.fontSize = '14px';
             buttonTip.style.color = '#666';
-            buttonTip.style.marginRight = '10px';
+            buttonTip.style.marginBottom = '10px';
+            buttonTip.style.width = '100%';
             
             const saveButton = document.createElement('button');
             saveButton.textContent = '保存修改';
@@ -737,17 +683,11 @@
                         alert('请输入有效的跳转编号！');
                         return null;
                     }
-
-
                     return {
                         text: text,
                         nextCard: nextCard
-                    }
-
-;
-                }
-
-).filter(option => option !== null);
+                    };
+                }).filter(option => option !== null);
                 
                 // 恢复显示
                 const newCardContent = document.createElement('div');
@@ -756,9 +696,7 @@
                 editContainer.parentNode.replaceChild(newCardContent, editContainer);
                 buttonContainer.remove();
                 updateCardDisplay();
-            }
-
-;
+            };
             
             const cancelButton = document.createElement('button');
             cancelButton.textContent = '取消编辑';
@@ -772,9 +710,7 @@
                 newCardContent.className = 'card-content';
                 newCardContent.textContent = currentCardData.content;
                 editContainer.parentNode.replaceChild(newCardContent, editContainer);
-            }
-
-;
+            };
             
             buttonContainer.appendChild(buttonTip);
             buttonContainer.appendChild(saveButton);
@@ -785,24 +721,11 @@
             cardContent.parentNode.replaceChild(editContainer, cardContent);
         }
 
-
-
-        // 使用AI生成选项（优化版）
+        // 使用AI生成选项
         async function generateOptionsWithAI(instruction) {
             try {
-                // 构建更详细的提示词，要求AI模仿现有选项风格
-                const prompt = `你是一个城市探索游戏的AI设计师。基于以下游戏指令，请生成3-5个合理的行动选项，每个选项应:
-1. 使用简洁明确的指令语言
-2. 模仿示例中的条件判断风格（如"如果...转到#"）
-3. 每个选项格式为: "选项描述|卡片编号"
-4. 卡片编号为1-132之间的随机数字
-
-示例选项格式:
-"如果看到咖啡店，转到#27|27"
-"数一数经过的行人，如果是奇数，转到#15|15"
-"向东走三个街区，转到#84|84"
-
-当前指令内容: "${instruction}"`;
+                // 构建提示词
+                const prompt = `你是一个城市探索游戏的AI设计师。基于以下游戏指令，请生成3-5个合理的行动选项，每个选项应包含描述文本和跳转的卡片编号(随机生成1-132之间的数字)。格式为: "选项描述|卡片编号"。指令内容: "${instruction}"`;
                 
                 // 调用DeepSeek API
                 const response = await fetch(DEEPSEEK_API_ENDPOINT, {
@@ -810,75 +733,54 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-                    }
-
-,
+                    },
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [{
                             role: "user",
                             content: prompt
-                        }
-
-],
+                        }],
                         temperature: 0.7,
                         max_tokens: 500
-                    }
-
-)
-                }
-
-);
+                    })
+                });
 
                 if (!response.ok) {
                     throw new Error(`API请求失败: ${response.statusText}`);
                 }
-
-
 
                 const data = await response.json();
                 if (data.choices && data.choices[0]) {
                     const aiResponse = data.choices[0].message.content;
                     
                     // 解析AI返回的选项
-                    // 更健壮的解析逻辑
-                    const optionLines = aiResponse.split('\n')
-                        .filter(line => line.trim() && line.includes('|'));
-                    
+                    const optionLines = aiResponse.split('\n').filter(line => line.includes('|'));
                     const options = optionLines.map(line => {
-                        const [text, nextCard] = line.split('|').map(s => s.trim());
-                        const cardNum = parseInt(nextCard) || Math.floor(Math.random() * 132) + 1;
+                        const [text, nextCard] = line.split('|');
                         return {
-                            text: text.replace(/^["']|["']$/g, ''), // 去除可能的引号
-                            nextCard: Math.max(1, Math.min(132, cardNum)) // 确保在1-132范围内
-                        }
-
-;
-                    }
-
-).filter(opt => opt.text && !isNaN(opt.nextCard));
+                            text: text.trim(),
+                            nextCard: parseInt(nextCard.trim()) || Math.floor(Math.random() * 132) + 1
+                        };
+                    });
                     
-                    // 如果解析失败，返回默认选项
-                    return options.length > 0 ? options.slice(0, 5) : generateDefaultOptions(instruction);
-                }
-
- else {
+                    return options.length > 0 ? options : [
+                        { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                    ];
+                } else {
                     throw new Error('API返回数据格式错误');
                 }
-
-
-            }
-
- catch (error) {
+            } catch (error) {
                 console.error('AI生成选项失败:', error);
                 // 如果API调用失败，返回默认选项
-                return generateDefaultOptions(instruction);
+                return [
+                    { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                    { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                    { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                ];
             }
-
-
         }
-
-
 
         function saveCard() {
             const editContent = document.getElementById('editContent');
@@ -896,8 +798,6 @@
             // 隐藏编辑表单
             cancelEdit();
         }
-
-
 
         function updateHistoryDisplay() {
             const historyList = document.querySelector('.history-list');
@@ -918,37 +818,25 @@
                     
                     historyList.appendChild(historyItem);
                 }
-
-
-            }
-
-);
+            });
         }
-
-
 
         function cancelEdit() {
             document.getElementById('editForm').style.display = 'none';
         }
 
-
-
         function updateCardDisplay() {
             const currentCardData = cards.find(card => card.id === currentCard);
-            if (!currentCardData) return;
-            
             const cardContent = document.querySelector('.card-content');
             const optionsContainer = document.querySelector('.options');
-            
-            // 更新卡片编号
-            document.querySelector('.card-number').textContent = `#${currentCardData.id}`;
             
             // 清除原有内容
             cardContent.textContent = '';
             optionsContainer.innerHTML = '';
             
-            // 设置卡片内容
-            cardContent.textContent = currentCardData.content;
+            // 分离主要文本和选项
+            const mainContent = currentCardData.content.split('\n').filter(line => !line.match(/^\d+\.|转到#/)).join('\n');
+            cardContent.textContent = mainContent;
             
             // 添加选项标题
             if (currentCardData.options && currentCardData.options.length > 0) {
@@ -961,7 +849,7 @@
                 currentCardData.options.forEach(option => {
                     const button = document.createElement('button');
                     button.className = 'option-button';
-                    button.textContent = option.text;
+                    button.textContent = `${option.text} (转到 #${option.nextCard})`;
                     button.onclick = () => {
                         if (!gameStartTime) {
                             gameStartTime = new Date();
@@ -971,11 +859,7 @@
                     optionsContainer.appendChild(button);
                 });
             }
-
-
         }
-
-
 
         // 游戏卡片数据 - 可以根据需要自定义卡片内容
         // 每个卡片对象包含：
@@ -2288,8 +2172,6 @@
             showCard(currentCard);
         }
 
-
-
         // 显示卡片
         function showCard(cardId) {
             const card = cards.find(c => c.id === cardId);
@@ -2315,8 +2197,6 @@
             });
         }
 
-
-
         // 选择选项
         function selectOption(nextCardId, optionText) {
             // 在切换到下一张卡片前，将当前卡片添加到历史记录
@@ -2328,8 +2208,6 @@
             currentCard = nextCardId;
             showCard(nextCardId);
         }
-
-
 
         // 添加到历史记录
         function addToHistory(card) {
@@ -2348,9 +2226,7 @@
                 cardNumberSpan.textContent = `#${card.id}`;
                 existingItem.appendChild(cardNumberSpan);
                 existingItem.appendChild(document.createTextNode(` - ${card.content}`));
-            }
-
- else {
+            } else {
                 // 如果是新卡片，创建新的历史记录项
                 const historyItem = document.createElement('li');
                 historyItem.className = 'history-item';
@@ -2362,11 +2238,7 @@
                 document.querySelector('.history-list').appendChild(historyItem);
                 history.push(card.id);
             }
-
-
         }
-
-
 
         // 定义场所图标
         const placeIcons = {
@@ -2384,11 +2256,7 @@
                     ctx.lineTo(x + 5, y + 5);
                     ctx.fill();
                 }
-
-
-            }
-
-,
+            },
             subway: {
                 draw: (ctx, x, y) => {
                     ctx.beginPath();
@@ -2399,11 +2267,7 @@
                     ctx.textAlign = 'center';
                     ctx.fillText('M', x, y + 4);
                 }
-
-
-            }
-
-,
+            },
             cafe: {
                 draw: (ctx, x, y) => {
                     ctx.beginPath();
@@ -2415,11 +2279,7 @@
                     ctx.arc(x, y, 4, 0, Math.PI);
                     ctx.stroke();
                 }
-
-
-            }
-
-,
+            },
             shop: {
                 draw: (ctx, x, y) => {
                     ctx.beginPath();
@@ -2432,14 +2292,8 @@
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(x - 2, y - 2, 4, 6);
                 }
-
-
             }
-
-
-        }
-
-;
+        };
 
         // 生成探索地图
         function generateExplorationMap() {
@@ -2466,8 +2320,6 @@
                 ctx.lineTo(x, canvas.height);
                 ctx.stroke();
             }
-
-
             
             for (let y = 0; y < canvas.height; y += gridSize) {
                 ctx.beginPath();
@@ -2475,8 +2327,6 @@
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
             }
-
-
             
             // 添加一些随机的建筑轮廓，调整大小比例
             ctx.fillStyle = '#f0f0f0';
@@ -2487,8 +2337,6 @@
                 const size = (10 + Math.random() * 20) * buildingScale;
                 ctx.fillRect(x, y, size, size);
             }
-
-
             
             // 添加一些随机的绿地
             ctx.fillStyle = '#e6ffe6';
@@ -2500,8 +2348,6 @@
                 ctx.arc(x, y, radius, 0, Math.PI * 2);
                 ctx.fill();
             }
-
-
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // 绘制标题
@@ -2530,9 +2376,7 @@
                 const y = Math.max(50, Math.min(canvas.height - 100, baseY + offsetY));
                 
                 return { x, y, id };
-            }
-
-);
+            });
 
             // 绘制街道网络
             ctx.strokeStyle = '#d3d3d3';
@@ -2544,8 +2388,6 @@
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
             }
-
-
             // 垂直街道
             for (let x = 50; x < canvas.width; x += 100) {
                 ctx.beginPath();
@@ -2554,25 +2396,19 @@
                 ctx.stroke();
             }
 
-
-
             // 绘制绿地
             const drawTree = (x, y) => {
                 ctx.fillStyle = '#90EE90';
                 ctx.beginPath();
                 ctx.arc(x, y, 10, 0, Math.PI * 2);
                 ctx.fill();
-            }
-
-;
+            };
             for (let i = 0; i < 20; i++) {
                 drawTree(
                     Math.random() * canvas.width,
                     Math.random() * canvas.height
                 );
             }
-
-
 
             // 绘制建筑物
             const drawBuilding = (x, y) => {
@@ -2582,17 +2418,13 @@
                 ctx.fillRect(x, y, width, height);
                 ctx.strokeStyle = '#696969';
                 ctx.strokeRect(x, y, width, height);
-            }
-
-;
+            };
             for (let i = 0; i < 15; i++) {
                 drawBuilding(
                     Math.random() * canvas.width,
                     Math.random() * canvas.height
                 );
             }
-
-
 
             // 绘制水系
             ctx.fillStyle = '#e6f3ff';
@@ -2613,8 +2445,6 @@
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
             }
-
-
             // 纵向主干道
             for (let x = canvas.width * 0.25; x < canvas.width; x += canvas.width * 0.3) {
                 ctx.beginPath();
@@ -2622,8 +2452,6 @@
                 ctx.lineTo(x, canvas.height);
                 ctx.stroke();
             }
-
-
 
             // 绘制手绘风格的连接线，调整线条宽度和样式
             const lineWidth = canvas.width < 400 ? 1.5 : 2;
@@ -2648,12 +2476,8 @@
                     points.push({
                         x: x + (Math.random() - 0.5) * offset,
                         y: y + (Math.random() - 0.5) * offset
-                    }
-
-);
+                    });
                 }
-
-
                 
                 // 绘制手绘风格的线段
                 ctx.beginPath();
@@ -2664,8 +2488,6 @@
                 for (let j = 1; j < points.length; j++) {
                     ctx.lineTo(points[j].x, points[j].y);
                 }
-
-
                 
                 ctx.stroke();
                 
@@ -2675,8 +2497,6 @@
                 ctx.arc(startX, startY, 3, 0, Math.PI * 2);
                 ctx.fill();
             }
-
-
 
             // 绘制节点
             nodes.forEach((node, index) => {
@@ -2709,9 +2529,7 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('#' + node.id, x, y - 15);
-            }
-
-);
+            });
 
             // 添加场所图标
             history.forEach((id, index) => {
@@ -2722,24 +2540,14 @@
                 // 根据指令卡内容添加相应图标
                 if (content.includes('公园') || content.includes('广场')) {
                     placeIcons.park.draw(ctx, node.x + 70, node.y + 30);
-                }
-
- else if (content.includes('地铁') || content.includes('公交')) {
+                } else if (content.includes('地铁') || content.includes('公交')) {
                     placeIcons.subway.draw(ctx, node.x + 70, node.y + 30);
-                }
-
- else if (content.includes('咖啡') || content.includes('餐厅')) {
+                } else if (content.includes('咖啡') || content.includes('餐厅')) {
                     placeIcons.cafe.draw(ctx, node.x + 70, node.y + 30);
-                }
-
- else if (content.includes('商店') || content.includes('便利店')) {
+                } else if (content.includes('商店') || content.includes('便利店')) {
                     placeIcons.shop.draw(ctx, node.x + 70, node.y + 30);
                 }
-
-
-            }
-
-);
+            });
 
             // 添加装饰元素
             ctx.font = '14px Arial';
@@ -2798,35 +2606,21 @@
                             tooltip.textContent = card.content;
                             found = true;
                         }
-
-
-                    }
-
-);
+                    });
                     
                     if (!found) {
                         tooltip.style.display = 'none';
                     }
-
-
-                }
-
-);
+                });
 
                 // 鼠标离开地图时隐藏tooltip
                 mapImage.addEventListener('mouseleave', () => {
                     tooltip.style.display = 'none';
-                }
-
-);
-            }
-
-;
+                });
+            };
 
             return mapContainer;
         }
-
-
 
         // 结束游戏
         function getRandomCard() {
@@ -2834,8 +2628,6 @@
             if (availableCards.length === 0) return null;
             return availableCards[Math.floor(Math.random() * availableCards.length)];
         }
-
-
 
         function skipCard() {
             const currentCardData = cards.find(card => card.id === currentCard);
@@ -2860,22 +2652,14 @@
                     
                     historyList.appendChild(historyItem);
                 }
-
-
                 
                 // 更新当前卡片ID并显示新卡片
                 currentCard = nextCard.id;
                 showCard(nextCard.id);
-            }
-
- else {
+            } else {
                 alert('已经浏览过所有卡片，游戏结束！\n你的探索路径：' + history.join(' → '));
             }
-
-
         }
-
-
 
         async function generateLog() {
             try {
@@ -2893,9 +2677,7 @@
                     // 移除卡片编号，只保留内容
                     const content = item.textContent.replace(/^#\d+\s*-\s*/, '');
                     prompt += `${index + 1}. ${content}\n`;
-                }
-
-);
+                });
 
                 // 调用DeepSeek API
                 const response = await fetch(DEEPSEEK_API_ENDPOINT, {
@@ -2903,31 +2685,21 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-                    }
-
-,
+                    },
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [{
                             role: "user",
                             content: prompt + "\n请生成一个不超过500字的简短故事。"
-                        }
-
-],
+                        }],
                         max_tokens: 800
-                    }
-
-)
-                }
-
-);
+                    })
+                });
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(`API请求失败: ${errorData.error?.message || response.statusText}`);
                 }
-
-
 
                 const data = await response.json();
                 if (data.choices && data.choices[0]) {
@@ -2945,9 +2717,7 @@
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false
-                    }
-
-);
+                    });
 
                     // 创建故事容器
                     const storyContainer = document.createElement('div');
@@ -2967,9 +2737,7 @@
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false
-                    }
-
-);
+                    });
                     timeInfo.textContent = `游戏时间：${startTimeStr}～${formattedTime}`;
                     
                     const storyContent = document.createElement('div');
@@ -2983,16 +2751,10 @@
                     
                     // 滚动到故事位置
                     storyContainer.scrollIntoView({ behavior: 'smooth' });
-                }
-
- else {
+                } else {
                     throw new Error('API返回数据格式错误');
                 }
-
-
-            }
-
- catch (error) {
+            } catch (error) {
                 console.error('生成日志失败:', error);
                 // 移除加载提示
                 document.getElementById('loading-message')?.remove();
@@ -3001,29 +2763,17 @@
                 let errorMessage = '生成日志失败: ';
                 if (error.message === 'Failed to fetch') {
                     errorMessage += '网络连接失败，请检查您的网络连接并重试。';
-                }
-
- else if (error.name === 'TypeError') {
+                } else if (error.name === 'TypeError') {
                     errorMessage += '服务暂时不可用，请稍后重试。';
-                }
-
- else if (error.response) {
+                } else if (error.response) {
                     errorMessage += `服务器返回错误(${error.response.status}): ${error.response.statusText}`;
-                }
-
- else {
+                } else {
                     errorMessage += error.message;
                 }
-
-
                 
                 alert(errorMessage);
             }
-
-
         }
-
-
 
         function endGame() {
             // 先生成并显示地图
@@ -3049,9 +2799,7 @@
                 const historyItems = document.querySelectorAll('.history-item');
                 historyItems.forEach(item => {
                     historyContent += item.textContent + '\n';
-                }
-
-);
+                });
                 historyContent += '\n探索路径：' + history.join(' → ');
 
                 // 显示地图
@@ -3071,9 +2819,7 @@
                 let storyPrompt = '基于以下的城市探索经历，创作一个有趣的短篇故事：\n';
                 historyItems.forEach(item => {
                     storyPrompt += item.textContent.replace(/^#\d+\s*-\s*/, '') + '\n';
-                }
-
-);
+                });
 
                 // 获取当前时间
                 const currentTime = new Date();
@@ -3084,9 +2830,7 @@
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
-                }
-
-);
+                });
 
                 // 调用DeepSeek API生成故事
                 fetch(DEEPSEEK_API_ENDPOINT, {
@@ -3094,25 +2838,17 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-                    }
-
-,
+                    },
                     body: JSON.stringify({
                         model: 'deepseek-chat',
                         messages: [{
                             role: 'user',
                             content: storyPrompt + '\n请生成一个不超过500字的简短故事。'
-                        }
-
-],
+                        }],
                         temperature: 0.7,
                         max_tokens: 800
-                    }
-
-)
-                }
-
-)
+                    })
+                })
                 .then(response => response.json())
                 .then(data => {
                     const generatedStory = data.choices[0].message.content;
@@ -3132,9 +2868,7 @@
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false
-                    }
-
-);
+                    });
                     storyDiv.innerHTML = `<h3 style="color: #2c3e50; margin-bottom: 15px;">你的探索故事</h3><p style="color: #666; margin-bottom: 10px; font-size: 14px;">游戏时间：${startTimeStr}～${formattedTime}</p><p style="line-height: 1.6;">${generatedStory}</p>`;
 
                     document.body.appendChild(storyDiv);
@@ -3151,9 +2885,7 @@
                     
                     // 清理URL对象
                     URL.revokeObjectURL(downloadLink.href);
-                }
-
-)
+                })
                 .catch(error => {
                     console.error('生成故事时出错:', error);
                     // 如果生成故事失败，仍然创建原始的Blob对象
@@ -3171,15 +2903,9 @@
                     
                     // 清理URL对象
                     URL.revokeObjectURL(downloadLink.href);
-                }
-
-);
+                });
             }
-
-
         }
-
-
 
         // 启动游戏
         initGame();

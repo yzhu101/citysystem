@@ -21,13 +21,18 @@
 
         .card {
             background: white;
-            border-radius: 8px;
-            box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-            padding: 15px;
-            width: calc(100% - 30px);
+            border-radius: 16px;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: calc(100% - 40px);
             max-width: 500px;
-            margin: 8px auto;
-            transition: background 100ms ease-out 0s;
+            margin: 12px auto;
+            transition: all 200ms ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 0 rgba(0, 0, 0, 0.1);
         }
 
         @media screen and (max-width: 480px) {
@@ -99,13 +104,14 @@
         }
 
         .card:hover {
-            background-color: rgba(55, 53, 47, 0.03);
+            transform: translateY(-2px);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 8px 24px, rgba(0, 0, 0, 0.1) 0px 2px 4px;
         }
 
         .end-button {
             background-color: #EC6E5F;
             color: white;
-            border: none;
+            border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
@@ -117,13 +123,13 @@
             -webkit-tap-highlight-color: transparent;
             transition: all 200ms ease-in-out;
             user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .skip-button {
             background-color: #F8C653;
             color: white;
-            border: none;
+            border: 1px solid #252525;
             padding: 14px 20px;
             border-radius: 8px;
             cursor: pointer;
@@ -135,19 +141,23 @@
             -webkit-tap-highlight-color: transparent;
             transition: all 200ms ease-in-out;
             user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .skip-button:hover {
-            background-color: #F8C653;
+            background-color: #f5bb3a;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .end-button:hover {
-            background-color: #EC6E5F;
+            background-color: #e85d4d;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 #252525
         }        .generate-log-button {
             background-color: #4B7B91;
             color: white;
-            border: none;
+            border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
@@ -159,17 +169,19 @@
             -webkit-tap-highlight-color: transparent;
             transition: all 200ms ease-in-out;
             user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .generate-log-button:hover {
-            background-color: #4B7B91;
+            background-color: #436f84;
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .edit-button {
             background-color: #4CAF50;
             color: white;
-            border: none;
+            border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
@@ -181,11 +193,13 @@
             -webkit-tap-highlight-color: transparent;
             transition: all 200ms ease-in-out;
             user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 3px 3px 0 #252525
         }
 
         .edit-button:hover {
             background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 0 1px rgba(0,0,0,0.1), 0 6px 0 rgba(0,0,0,0.1);
         }
 
         .card-number {
@@ -223,22 +237,25 @@
         }
 
         .option-button {
-            background: transparent;
+            background: white;
             color: #252525;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            padding: 12px 16px;
-            border-radius: 3px;
+            border: 1px solid #252525;
+            padding: 14px 18px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
             text-align: left;
-            transition: background-color 20ms ease-in 0s;
+            transition: all 200ms ease-out;
             min-height: 44px;
             width: 100%;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            box-shadow: 3px 3px 0 #252525;
         }
 
         .option-button:hover {
-            background-color: rgba(55, 53, 47, 0.08);
+            background-color: #f7f7f7;
+            transform: translateY(-1px);
+            box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
         }
 
         .history {
@@ -568,6 +585,12 @@
             addOptionButton.textContent = '添加选项';
             addOptionButton.className = 'edit-button';
             addOptionButton.style.alignSelf = 'flex-start';
+            addOptionButton.style.backgroundColor = '#F5F1E6';
+            addOptionButton.style.border = '2px dashed #4B7B91';
+            addOptionButton.style.color = '#4B7B91';
+            addOptionButton.style.padding = '10px 20px';
+            addOptionButton.style.fontSize = '15px';
+            addOptionButton.style.fontWeight = '500';
             addOptionButton.onclick = () => {
                 const optionRow = document.createElement('div');
                 optionRow.style.display = 'flex';

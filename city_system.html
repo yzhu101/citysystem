@@ -434,8 +434,9 @@
             contentEditArea.style.borderRadius = '6px';
             contentEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
             contentEditArea.style.margin = '0 auto';
-            contentEditArea.style.maxWidth = 'calc(100% - 40px)';
+            contentEditArea.style.maxWidth = '100%';
             contentEditArea.style.width = '100%';
+            contentEditArea.style.boxSizing = 'border-box';
             
             const contentLabel = document.createElement('div');
             contentLabel.textContent = '编辑指令内容';
@@ -461,6 +462,10 @@
             textarea.style.fontSize = '15px';
             textarea.style.lineHeight = '1.5';
             textarea.style.boxSizing = 'border-box';
+            textarea.style.maxWidth = '100%';
+            textarea.style.minWidth = '100%';
+            textarea.style.overflowX = 'hidden';
+            textarea.style.wordWrap = 'break-word';
             
             contentEditArea.appendChild(contentLabel);
             contentEditArea.appendChild(contentDescription);
@@ -476,8 +481,9 @@
             optionsEditArea.style.borderRadius = '6px';
             optionsEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
             optionsEditArea.style.margin = '0 auto';
-            optionsEditArea.style.maxWidth = 'calc(100% - 40px)';
+            optionsEditArea.style.maxWidth = '100%';
             optionsEditArea.style.width = '100%';
+            optionsEditArea.style.boxSizing = 'border-box';
             
             const optionsLabel = document.createElement('div');
             optionsLabel.textContent = '编辑选项';

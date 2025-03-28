@@ -517,14 +517,16 @@
                     optionText.style.padding = '8px';
                     optionText.style.borderRadius = '4px';
                     optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                    optionText.style.minWidth = '0';
                     
                     const nextCardInput = document.createElement('input');
                     nextCardInput.type = 'number';
                     nextCardInput.value = option.nextCard;
-                    nextCardInput.style.width = '80px';
+                    nextCardInput.style.width = '60px';
                     nextCardInput.style.padding = '8px';
                     nextCardInput.style.borderRadius = '4px';
                     nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                    nextCardInput.style.flexShrink = '0';
                     
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'X';
@@ -574,16 +576,18 @@
                 optionText.style.borderRadius = '6px';
                 optionText.style.border = '1px solid #ddd';
                 optionText.style.fontSize = '14px';
+                optionText.style.minWidth = '0';
                 
                 const nextCardInput = document.createElement('input');
                 nextCardInput.type = 'number';
                 nextCardInput.placeholder = '卡片号';
-                nextCardInput.style.width = '100px';
+                nextCardInput.style.width = '60px';
                 nextCardInput.style.padding = '10px';
                 nextCardInput.style.borderRadius = '6px';
                 nextCardInput.style.border = '1px solid #ddd';
                 nextCardInput.style.fontSize = '14px';
                 nextCardInput.style.marginLeft = '8px';
+                nextCardInput.style.flexShrink = '0';
                 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'X';

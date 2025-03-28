@@ -9,24 +9,24 @@
         body {
             font-family: "DinkieBitmap", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
             margin: 0;
-            padding: 20px 10px;
+            padding: 10px 5px;
             background-color: #F5F1E6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: #252525;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .card {
             background: white;
             border-radius: 8px;
             box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-            padding: 20px;
-            width: calc(100% - 52px);
+            padding: 15px;
+            width: calc(100% - 30px);
             max-width: 500px;
-            margin: 10px auto;
+            margin: 8px auto;
             transition: background 100ms ease-out 0s;
         }
 
@@ -47,34 +47,36 @@
             background-color: #EC6E5F;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 15px 10px;
+            margin: 10px 5px;
             width: auto;
-            min-width: 120px;
+            min-width: 100px;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 20ms ease-in 0s;
+            transition: all 200ms ease-in-out;
             user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .skip-button {
             background-color: #F8C653;
             color: white;
             border: none;
-            padding: 12px 16px;
+            padding: 14px 20px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 15px 10px;
+            margin: 10px 5px;
             width: auto;
             min-width: 80px;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 20ms ease-in 0s;
+            transition: all 200ms ease-in-out;
             user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .skip-button:hover {
@@ -87,17 +89,18 @@
             background-color: #4B7B91;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 15px 10px;
+            margin: 10px 5px;
             width: auto;
-            min-width: 120px;
+            min-width: 100px;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 20ms ease-in 0s;
+            transition: all 200ms ease-in-out;
             user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .generate-log-button:hover {
@@ -108,17 +111,18 @@
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 15px 10px;
+            margin: 10px 5px;
             width: auto;
-            min-width: 120px;
+            min-width: 100px;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 20ms ease-in 0s;
+            transition: all 200ms ease-in-out;
             user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .edit-button:hover {
@@ -163,12 +167,15 @@
             background: transparent;
             color: #252525;
             border: 1px solid rgba(55, 53, 47, 0.16);
-            padding: 8px 12px;
+            padding: 12px 16px;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             text-align: left;
             transition: background-color 20ms ease-in 0s;
+            min-height: 44px;
+            width: 100%;
+            margin-bottom: 8px;
         }
 
         .option-button:hover {
@@ -253,9 +260,12 @@
             .option-button:active,
             .end-button:active,
             .skip-button:active,
-            .edit-button:active {
-                opacity: 0.7;
+            .edit-button:active,
+            .generate-log-button:active,
+            .generate-options-button:active {
+                opacity: 0.8;
                 transform: scale(0.98);
+                transition: all 100ms ease-out;
             }
         }
         
@@ -264,12 +274,18 @@
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 14px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-            transition: background-color 0.2s;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 100px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .generate-options-button:hover {
@@ -315,7 +331,7 @@
         </div>
     </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: nowrap; width: 100%; max-width: 500px;">
+    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px; padding: 0 10px;">
         <button class="edit-button" style="width: auto; min-width: 80px;" onclick="editCurrentCard()">编辑</button>
         <button class="skip-button" style="width: auto; min-width: 80px; max-width: none;" onclick="skipCard()">跳过</button>
         <button class="end-button" style="width: auto; min-width: 80px;" onclick="endGame()">结束探索</button>
@@ -543,33 +559,27 @@
             };
             
             // 添加AI生成选项按钮
-            const generateOptionsButton = document.createElement('button');
-            generateOptionsButton.className = 'generate-options-button';
-            generateOptionsButton.textContent = 'AI生成选项';
-            generateOptionsButton.onclick = async () => {
-                const instruction = textarea.value;
-                if (!instruction.trim()) {
-                    alert('请先填写指令内容');
-                    return;
-                }
-                
-                // 禁用按钮并显示加载状态
-                generateOptionsButton.disabled = true;
-                generateOptionsButton.innerHTML = '<span class="loading-spinner"></span>AI正在生成选项...';
-                
+            const generateButton = document.createElement('button');
+            generateButton.textContent = 'AI生成选项';
+            generateButton.className = 'edit-button';
+            generateButton.style.backgroundColor = '#4B7B91';
+            generateButton.style.padding = '10px 20px';
+            generateButton.style.fontSize = '15px';
+            generateButton.style.fontWeight = '500';
+            generateButton.onclick = async () => {
                 try {
-                    // 调用DeepSeek API生成选项
-                    const options = await generateOptionsWithAI(instruction);
+                    // 显示加载状态
+                    generateButton.disabled = true;
+                    generateButton.style.opacity = '0.7';
+                    generateButton.textContent = '生成中...';
                     
-                    // 清除现有选项
-                    optionsContainer.innerHTML = '';
-                    
-                    // 添加生成的选项
+                    const options = await generateOptionsWithAI(textarea.value);
                     options.forEach(option => {
                         const optionRow = document.createElement('div');
                         optionRow.style.display = 'flex';
                         optionRow.style.gap = '10px';
                         optionRow.style.alignItems = 'center';
+                        optionRow.style.animation = 'fadeIn 0.3s ease-in-out';
                         
                         const optionText = document.createElement('input');
                         optionText.type = 'text';
@@ -581,12 +591,11 @@
                         
                         const nextCardInput = document.createElement('input');
                         nextCardInput.type = 'number';
-                        nextCardInput.value = option.nextCard || '';
+                        nextCardInput.value = option.nextCard;
                         nextCardInput.style.width = '80px';
                         nextCardInput.style.padding = '8px';
                         nextCardInput.style.borderRadius = '4px';
                         nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
-                        nextCardInput.placeholder = '卡片号';
                         
                         const deleteButton = document.createElement('button');
                         deleteButton.textContent = 'X';
@@ -608,32 +617,36 @@
                         deleteButton.style.maxWidth = '32px';
                         deleteButton.style.flexShrink = '0';
                         deleteButton.style.flexGrow = '0';
-                        deleteButton.onclick = () => optionRow.remove();
+                        deleteButton.onclick = () => {
+                            optionRow.style.animation = 'fadeOut 0.3s ease-in-out';
+                            setTimeout(() => optionRow.remove(), 300);
+                        };
                         
                         optionRow.appendChild(optionText);
                         optionRow.appendChild(nextCardInput);
                         optionRow.appendChild(deleteButton);
                         optionsContainer.appendChild(optionRow);
                     });
-                    
-                    // 显示成功消息
-                    const successMessage = document.createElement('div');
-                    successMessage.textContent = 'AI已生成选项，请检查并修改卡片编号';
-                    successMessage.style.color = '#27ae60';
-                    successMessage.style.fontSize = '14px';
-                    successMessage.style.marginTop = '10px';
-                    optionsContainer.appendChild(successMessage);
-                    
                 } catch (error) {
                     console.error('生成选项失败:', error);
-                    alert('生成选项失败: ' + error.message);
+                    alert('生成选项失败，请稍后重试');
                 } finally {
                     // 恢复按钮状态
-                    generateOptionsButton.disabled = false;
-                    generateOptionsButton.textContent = 'AI生成选项';
+                    generateButton.disabled = false;
+                    generateButton.style.opacity = '1';
+                    generateButton.textContent = 'AI生成选项';
                 }
             };
             
+            const generateOptionsButton = document.createElement('button');
+            generateOptionsButton.textContent = 'AI生成选项';
+            generateOptionsButton.className = 'edit-button';
+            generateOptionsButton.style.backgroundColor = '#4B7B91';
+            generateOptionsButton.style.padding = '10px 20px';
+            generateOptionsButton.style.fontSize = '15px';
+            generateOptionsButton.style.fontWeight = '500';
+            generateOptionsButton.onclick = generateButton.onclick;
+
             optionsEditArea.appendChild(optionsLabel);
             optionsEditArea.appendChild(optionsContainer);
             optionsEditArea.appendChild(addOptionButton);
@@ -648,9 +661,9 @@
             buttonContainer.style.display = 'flex';
             buttonContainer.style.gap = '10px';
             buttonContainer.style.marginTop = '25px';
-            buttonContainer.style.flexDirection = 'column';
-            buttonContainer.style.justifyContent = 'flex-start';
-            buttonContainer.style.alignItems = 'flex-start';
+            buttonContainer.style.flexDirection = 'row';
+            buttonContainer.style.justifyContent = 'flex-end';
+            buttonContainer.style.alignItems = 'center';
             buttonContainer.style.backgroundColor = '#f0f9f1';
             buttonContainer.style.padding = '15px';
             buttonContainer.style.borderRadius = '6px';
@@ -659,11 +672,11 @@
             buttonTip.textContent = '完成编辑后，记得保存你的修改：';
             buttonTip.style.fontSize = '14px';
             buttonTip.style.color = '#666';
-            buttonTip.style.marginBottom = '10px';
-            buttonTip.style.width = '100%';
+            buttonTip.style.marginRight = 'auto';
+            buttonTip.style.width = 'auto';
             
             const saveButton = document.createElement('button');
-            saveButton.textContent = '保存修改';
+            saveButton.textContent = '保存';
             saveButton.className = 'edit-button';
             saveButton.style.backgroundColor = '#4CAF50';
             saveButton.style.padding = '10px 20px';
@@ -694,12 +707,38 @@
                 newCardContent.className = 'card-content';
                 newCardContent.textContent = textarea.value;
                 editContainer.parentNode.replaceChild(newCardContent, editContainer);
+                
+                // 清除原有选项
+                const oldOptions = document.querySelector('.options');
+                if (oldOptions) {
+                    oldOptions.remove();
+                }
+                
+                // 创建新的选项容器
+                const newOptions = document.createElement('div');
+                newOptions.className = 'options';
+                const optionsTitle = document.createElement('div');
+                optionsTitle.className = 'options-title';
+                optionsTitle.textContent = '选择你的行动：';
+                newOptions.appendChild(optionsTitle);
+                
+                // 添加编辑后的选项
+                currentCardData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.textContent = option.text;
+                    button.onclick = () => goToCard(option.nextCard);
+                    newOptions.appendChild(button);
+                });
+                
+                // 将新选项添加到卡片中
+                document.querySelector('.card').appendChild(newOptions);
                 buttonContainer.remove();
                 updateCardDisplay();
             };
             
             const cancelButton = document.createElement('button');
-            cancelButton.textContent = '取消编辑';
+            cancelButton.textContent = '取消';
             cancelButton.className = 'edit-button';
             cancelButton.style.backgroundColor = '#EC6E5F';
             cancelButton.style.padding = '10px 20px';
@@ -723,9 +762,28 @@
 
         // 使用AI生成选项
         async function generateOptionsWithAI(instruction) {
+            // 获取所有AI生成选项按钮
+            const generateButtons = document.querySelectorAll('button.edit-button');
+            generateButtons.forEach(button => {
+                if (button.textContent === 'AI生成选项') {
+                    button.disabled = true;
+                    button.style.opacity = '0.7';
+                    button.innerHTML = '<span class="loading-spinner"></span>正在生成中...';
+                }
+            });
+
             try {
                 // 构建提示词
-                const prompt = `你是一个城市探索游戏的AI设计师。基于以下游戏指令，请生成3-5个合理的行动选项，每个选项应包含描述文本和跳转的卡片编号(随机生成1-132之间的数字)。格式为: "选项描述|卡片编号"。指令内容: "${instruction}"`;
+                const prompt = `你是一个城市探索游戏的AI设计师。请基于以下游戏指令内容，生成3-5个合理的行动选项。每个选项都应该引导玩家仔细观察和探索周围的环境细节，包括但不限于：建筑特征、街道布局、自然景观、人文场景、环境氛围等。选项需要激发玩家的好奇心，引导他们发现城市中被忽视的细节。每个选项需包含选项描述和跳转卡片编号(1-132之间)。
+
+要求：
+1. 选项描述应该简洁有力，长度在15-30个字之间
+2. 选项必须以观察和探索环境为主，引导玩家注意周围的细节
+3. 选项之间要有明显的差异性，关注环境的不同方面
+4. 选项的语气要富有探索性和好奇心
+5. 格式为: "选项描述|卡片编号"
+
+当前指令内容: "${instruction}"`;
                 
                 // 调用DeepSeek API
                 const response = await fetch(DEEPSEEK_API_ENDPOINT, {
@@ -757,13 +815,18 @@
                     const optionLines = aiResponse.split('\n').filter(line => line.includes('|'));
                     const options = optionLines.map(line => {
                         const [text, nextCard] = line.split('|');
+                        const trimmedText = text.trim();
+                        // 确保选项文本长度适中
+                        if (trimmedText.length < 5 || trimmedText.length > 40) {
+                            return null;
+                        }
                         return {
-                            text: text.trim(),
+                            text: trimmedText,
                             nextCard: parseInt(nextCard.trim()) || Math.floor(Math.random() * 132) + 1
                         };
-                    });
+                    }).filter(option => option !== null);
                     
-                    return options.length > 0 ? options : [
+                    return options.length >= 3 ? options.slice(0, 5) : [
                         { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
                         { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
                         { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
@@ -779,6 +842,16 @@
                     { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
                     { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
                 ];
+            } finally {
+                // 恢复所有AI生成选项按钮的状态
+                const generateButtons = document.querySelectorAll('button.edit-button');
+                generateButtons.forEach(button => {
+                    if (button.textContent.includes('正在生成中')) {
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                        button.textContent = 'AI生成选项';
+                    }
+                });
             }
         }
 
@@ -2202,6 +2275,7 @@
             // 在切换到下一张卡片前，将当前卡片添加到历史记录
             const currentCardData = cards.find(card => card.id === currentCard);
             if (currentCardData) {
+                currentCardData.selectedOption = optionText; // 记录选择的选项
                 addToHistory(currentCardData);
             }
             
@@ -2226,6 +2300,17 @@
                 cardNumberSpan.textContent = `#${card.id}`;
                 existingItem.appendChild(cardNumberSpan);
                 existingItem.appendChild(document.createTextNode(` - ${card.content}`));
+                
+                // 添加选项内容
+                if (card.selectedOption) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'selected-option';
+                    optionDiv.style.marginLeft = '20px';
+                    optionDiv.style.color = '#666';
+                    optionDiv.style.fontSize = '0.9em';
+                    optionDiv.textContent = `➤ ${card.selectedOption}`;
+                    existingItem.appendChild(optionDiv);
+                }
             } else {
                 // 如果是新卡片，创建新的历史记录项
                 const historyItem = document.createElement('li');
@@ -2235,6 +2320,18 @@
                 cardNumberSpan.textContent = `#${card.id}`;
                 historyItem.appendChild(cardNumberSpan);
                 historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                
+                // 添加选项内容
+                if (card.selectedOption) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'selected-option';
+                    optionDiv.style.marginLeft = '20px';
+                    optionDiv.style.color = '#666';
+                    optionDiv.style.fontSize = '0.9em';
+                    optionDiv.textContent = `➤ ${card.selectedOption}`;
+                    historyItem.appendChild(optionDiv);
+                }
+                
                 document.querySelector('.history-list').appendChild(historyItem);
                 history.push(card.id);
             }
@@ -2672,7 +2769,7 @@
 
                 // 构建提示词，去除卡片编号
                 const historyItems = document.querySelectorAll('.history-item');
-                let prompt = "基于以下探索历史生成一个简短的故事：\n";
+                let prompt = "请基于以下探索历史，以第一人称的视角写一篇散步日志或城市探索日志。在日志中要着重描述城市空间和环境的观察体验，包括建筑、街道、人群、声音、气味等感官细节，以及这些空间给你带来的感受和思考：\n";
                 historyItems.forEach((item, index) => {
                     // 移除卡片编号，只保留内容
                     const content = item.textContent.replace(/^#\d+\s*-\s*/, '');
@@ -2690,7 +2787,7 @@
                         model: "deepseek-chat",
                         messages: [{
                             role: "user",
-                            content: prompt + "\n请生成一个不超过500字的简短故事。"
+                            content: prompt + "\n请生成一篇不超过500字的散步日志，要突出空间感受和个人体验。"
                         }],
                         max_tokens: 800
                     })
@@ -2776,24 +2873,14 @@
         }
 
         function endGame() {
-            // 先生成并显示地图
-            const mapContainer = generateExplorationMap();
-            document.body.appendChild(mapContainer);
-
             // 准备故事生成的API配置
             const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
             const DEEPSEEK_API_KEY = 'sk-ca0cdae03cae4ed8812562e1d96dea36';
-
-            // 滚动到地图位置
-            mapContainer.scrollIntoView({ behavior: 'smooth' });
             
-            // 然后询问是否保存
+            // 询问是否保存探索历史
             const confirmSave = confirm('探索结束！\n你的探索路径：' + history.join(' → ') + '\n\n是否要保存探索历史？');
             
             if (confirmSave) {
-                const mapImage = mapContainer.querySelector('img');
-                const mapDataUrl = mapImage.src;
-
                 // 创建探索历史文本内容
                 let historyContent = '城市探索历史记录\n\n';
                 const historyItems = document.querySelectorAll('.history-item');
@@ -2801,22 +2888,9 @@
                     historyContent += item.textContent + '\n';
                 });
                 historyContent += '\n探索路径：' + history.join(' → ');
-
-                // 显示地图
-                const mapWindow = window.open();
-                mapWindow.document.write(`
-                    <html>
-                        <head><title>探索地图</title></head>
-                        <body style="margin: 0; display: flex; flex-direction: column; align-items: center; background-color: #f0f0f0; padding: 20px;">
-                            <h2 style="color: #2c3e50;">你的城市探索地图</h2>
-                            <img src="${mapDataUrl}" style="max-width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                            <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">打印地图</button>
-                        </body>
-                    </html>
-                `);
                 
                 // 构建故事生成的提示词
-                let storyPrompt = '基于以下的城市探索经历，创作一个有趣的短篇故事：\n';
+                let storyPrompt = '请以中立客观的口吻，根据以下城市探索记录，创作一篇简短的纪实性文章。避免使用具体人名，着重描述城市空间、建筑环境和社会氛围：\n';
                 historyItems.forEach(item => {
                     storyPrompt += item.textContent.replace(/^#\d+\s*-\s*/, '') + '\n';
                 });

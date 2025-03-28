@@ -55,14 +55,25 @@
                 font-size: 14px;
                 min-height: 40px;
             }
+            #button-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 8px;
+                width: 100%;
+                margin: 10px 0;
+            }
             .end-button,
             .skip-button,
             .generate-log-button,
             .edit-button {
-                padding: 10px 16px;
+                padding: 8px 12px;
                 font-size: 14px;
-                margin: 8px 4px;
-                min-width: 80px;
+                margin: 0;
+                min-width: 0;
+                flex: 1;
             }
             .modal {
                 padding: 15px;

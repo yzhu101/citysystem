@@ -20,9 +20,10 @@
         }
 
         .card {
-            background: white;
+            background: #F5F1E6;
             border-radius: 16px;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #252525;
+            box-shadow: 3px 3px 0 #252525;
             padding: 20px;
             width: calc(100% - 40px);
             max-width: 500px;
@@ -32,7 +33,7 @@
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 3px 3px 0 #252525;
         }
 
         @media screen and (max-width: 480px) {
@@ -105,12 +106,12 @@
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: rgba(0, 0, 0, 0.1) 0px 8px 24px, rgba(0, 0, 0, 0.1) 0px 2px 4px;
+            box-shadow: 3px 3px 0 #252525;
         }
 
         .end-button {
-            background-color: #EC6E5F;
-            color: white;
+            background-color: #F0C963;
+            color: #252525;
             border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
@@ -127,8 +128,8 @@
         }
 
         .skip-button {
-            background-color: #F8C653;
-            color: white;
+            background-color: #B7B4AC;
+            color: #252525;
             border: 1px solid #252525;
             padding: 14px 20px;
             border-radius: 8px;
@@ -145,18 +146,18 @@
         }
 
         .skip-button:hover {
-            background-color: #f5bb3a;
+            background-color: #B7B4AC;
             transform: translateY(-2px);
             box-shadow: 3px 3px 0 #252525
         }
 
         .end-button:hover {
-            background-color: #e85d4d;
+            background-color: #B7B4AC;
             transform: translateY(-2px);
             box-shadow: 3px 3px 0 #252525
         }        .generate-log-button {
             background-color: #4B7B91;
-            color: white;
+            color: #252525;
             border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
@@ -173,14 +174,14 @@
         }
 
         .generate-log-button:hover {
-            background-color: #436f84;
+            background-color: #B7B4AC;
             transform: translateY(-2px);
             box-shadow: 3px 3px 0 #252525
         }
 
         .edit-button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #EC6E5F;
+            color: #252525;
             border: 1px solid #252525;
             padding: 14px 24px;
             border-radius: 8px;
@@ -197,9 +198,9 @@
         }
 
         .edit-button:hover {
-            background-color: #45a049;
+            background-color: #B7B4AC;
             transform: translateY(-2px);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 0 1px rgba(0,0,0,0.1), 0 6px 0 rgba(0,0,0,0.1);
+            box-shadow: 3px 3px 0 #252525;
         }
 
         .card-number {
@@ -261,9 +262,10 @@
         .history {
             margin-top: 20px;
             padding: 20px;
-            background: white;
+            background: #F5F1E6;
             border-radius: 8px;
-            box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+            border: 1px solid #252525;
+            box-shadow: 3px 3px 0 #252525;
             width: calc(100% - 52px);
             max-width: 500px;
         }
@@ -756,7 +758,7 @@
             buttonContainer.style.flexDirection = 'row';
             buttonContainer.style.justifyContent = 'flex-end';
             buttonContainer.style.alignItems = 'center';
-            buttonContainer.style.backgroundColor = '#f0f9f1';
+            buttonContainer.style.backgroundColor = 'transparent';
             buttonContainer.style.padding = '15px';
             buttonContainer.style.borderRadius = '6px';
             
@@ -770,7 +772,7 @@
             const saveButton = document.createElement('button');
             saveButton.textContent = '保存';
             saveButton.className = 'edit-button';
-            saveButton.style.backgroundColor = '#4CAF50';
+            saveButton.style.backgroundColor = '#F0C963';
             saveButton.style.padding = '10px 20px';
             saveButton.style.fontSize = '15px';
             saveButton.style.fontWeight = '500';
@@ -832,7 +834,7 @@
             const cancelButton = document.createElement('button');
             cancelButton.textContent = '取消';
             cancelButton.className = 'edit-button';
-            cancelButton.style.backgroundColor = '#EC6E5F';
+            cancelButton.style.backgroundColor = '#B7B4AC';
             cancelButton.style.padding = '10px 20px';
             cancelButton.style.fontSize = '15px';
             cancelButton.style.fontWeight = '500';

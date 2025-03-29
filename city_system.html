@@ -3,9 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>城市系统探索游戏</title>
+    <title>城市漫游向导</title>
     <link rel="stylesheet" href="fonts/fonts.css">
     <style>
+        /* 封面页样式 */
+        .cover-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #F5F1E6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: transform 0.5s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .cover-page.hidden {
+            transform: translateY(-100%);
+        }
+
+        .cover-gif {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            border: 2px solid #252525;
+            border-radius: 16px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 3px 3px 0 #252525;
+        }
+
+        .cover-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #252525;
+        }
+
+        .game-description {
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 30px;
+            color: #252525;
+            padding: 0 20px;
+        }
+
+        .swipe-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: bounce 2s infinite;
+            margin-top: 20px;
+        }
+
+        .swipe-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .arrow-up {
+            width: 20px;
+            height: 20px;
+            border-left: 2px solid #666;
+            border-top: 2px solid #666;
+            transform: rotate(45deg);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
         body {
             font-family: "DinkieBitmap", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
             margin: 0;
@@ -444,6 +540,17 @@
     </style>
 </head>
 <body>
+    <div class="cover-page" id="coverPage">
+        <div class="cover-gif">
+            <img src="assets/walking.gif" alt="Walking Animation" />
+        </div>
+        <h1 class="game-title">城市漫游向导</h1>
+        <p class="game-description">欢迎来到城市探索之旅！你将成为漫游者，随机地探索城市的角落。每一个选择都可能带来不同的发现，一起散步吧。</p>
+        <div class="swipe-indicator">
+            <span class="swipe-text">向上滑动开始探索</span>
+            <div class="arrow-up"></div>
+        </div>
+    </div>
     <div id="card" class="card">
         <div class="card-number"></div>
         <div class="card-content">
@@ -481,6 +588,32 @@
     </div>
 
     <script>
+        // 封面页交互
+        document.addEventListener('DOMContentLoaded', function() {
+            const coverPage = document.getElementById('coverPage');
+            let startY = 0;
+            let currentY = 0;
+
+            coverPage.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            });
+
+            coverPage.addEventListener('touchmove', function(e) {
+                currentY = e.touches[0].clientY;
+                const diff = startY - currentY;
+
+                if (diff > 50) {
+                    coverPage.classList.add('hidden');
+                }
+            });
+
+            coverPage.addEventListener('wheel', function(e) {
+                if (e.deltaY > 0) {
+                    coverPage.classList.add('hidden');
+                }
+            });
+        });
+
         // API配置
         const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
         const DEEPSEEK_API_KEY = 'sk-ca0cdae03cae4ed8812562e1d96dea36';
@@ -1121,7 +1254,7 @@
         content: "到离你最近的公园，或是你所在的城市最热闹的公园/广场；站在楼梯上大约一半的位置",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "站好之后", nextCard: 2 }
+            { text: "👣 站好之后", nextCard: 2 }
         ]
     },
     {
@@ -1129,7 +1262,7 @@
         content: "闭上眼睛，数到十；睁开眼睛，开始跟着离你最近的人走",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "走到第一个路口", nextCard: 3 }
+            { text: "🚥 走到第一个路口", nextCard: 3 }
         ]
     },
     {
@@ -1137,7 +1270,7 @@
         content: "仔细观察这台自行车",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "如果自行车有车座", nextCard: 60 },
+            { text: "如果自行车有车座 🚲", nextCard: 60 },
             { text: "如果没有车座", nextCard: 61 }
         ]
     },
@@ -1146,9 +1279,9 @@
         content: "观察离你最近的垃圾桶；注意垃圾桶中有多少垃圾",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "几乎是空的，请走到离你最近的共享单车附近", nextCard: 16 },
+            { text: "🗑️ 几乎是空的，请走到离你最近的共享单车附近", nextCard: 16 },
             { text: "大概一半", nextCard: 21 },
-            { text: "满了，请走到最近的私人停车位", nextCard: 41 }
+            { text: "🚮 满了，请走到最近的私人停车位", nextCard: 41 }
         ]
     },
     {
@@ -1158,7 +1291,7 @@
         options: [
             { text: "左边的数字大于右边，并向左手边走x个路口", nextCard: 68 },
             { text: "右边的数字大于左边，乘坐下一辆公交车，在x站后下车", nextCard: 68 },
-            { text: "两个数相等，观察离你最近的快的骑手", nextCard: 68 }
+            { text: "🟰 两个数相等，观察离你最近的快的骑手", nextCard: 68 }
         ]
     },
     {
@@ -1166,9 +1299,9 @@
         content: "站立，静止不要动；向下看，注意双脚之间的空间",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "有垃圾", nextCard: 31 },
-            { text: "有口香糖", nextCard: 28 },
-            { text: "没有上述情况，尽量分开双脚", nextCard: 69 }
+            { text: "🚮 有垃圾", nextCard: 31 },
+            { text: "🫧 有口香糖", nextCard: 28 },
+            { text: "👣 没有上述情况，尽量分开双脚", nextCard: 69 }
         ]
     },
     {
@@ -1176,8 +1309,8 @@
         content: "跟着遛狗的路人；直到狗狗拉屎或者吠叫",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "当狗狗拉屎或者吠叫时", nextCard: 74 },
-            { text: "如果在这之前看到地铁口/公交站", nextCard: 98 }
+            { text: "💩 当狗狗拉屎或者吠叫时", nextCard: 74 },
+            { text: "🚉 如果在这之前看到地铁口/公交站", nextCard: 98 }
         ]
     },
     {
@@ -1185,8 +1318,8 @@
         content: "跟着推婴儿车的路人；留意婴儿车和路人",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "如果推车的是男性，则继续跟着，直到找到地铁站/公交站", nextCard: 33 },
-            { text: "如果是女性，继续跟着直到发现另外一个推婴儿车的路人，重复上述步骤", nextCard: 33 },
+            { text: "👨‍🦰如果推车的是男性，则继续跟着，直到找到地铁站/公交站", nextCard: 33 },
+            { text: "👩 如果是女性，继续跟着直到发现另外一个推婴儿车的路人，重复上述步骤", nextCard: 33 },
             { text: "如果你无法跟随", nextCard: 33 }
         ]
     },
@@ -1723,7 +1856,7 @@
         content: "向北走；走到最近的地铁站/公交站",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "", nextCard: 98 }
+            { text: "到达之后点击跳转", nextCard: 98 }
         ]
     },
     {
@@ -1882,10 +2015,12 @@
     },
     {
         id: 78,
-        content: "如果没有门卫或保安",
+        content: "观察离你最近的建筑",
         tags: ["街头侦探", "时间旅人"],
         options: [
+            { text: "如果没有门卫或保安", nextCard: 89 },
             { text: "如果有门卫或保安", nextCard: 90 }
+            
         ]
     },
     {
@@ -2253,14 +2388,13 @@
     },
     {
         id: 116,
-        content: "【第一步】寻找一个你觉得最有吸引力的人",
+        content: "寻找一个你觉得最有吸引力的人，跟随ta直到",
         tags: ["街头侦探", "时间旅人"],
         options: [
-            { text: "【第二部】跟随ta，直到", nextCard: 56 },
-            { text: "如果无法跟随", nextCard: 56 },
-            { text: "如果你看到一个地铁站/公交站", nextCard: 98 },
-            { text: "如果你听到5次车辆喇叭声", nextCard: 55 },
-            { text: "如果你看到一个更有吸引力的人，重复【第二步】", nextCard: 55 }
+            { text: "无法跟随", nextCard: 56 },
+            { text: "你看到一个地铁站/公交站", nextCard: 98 },
+            { text: "你听到5次车辆喇叭声", nextCard: 55 },
+            { text: "你看到一个更有吸引力的人，重复这道指令", nextCard: 55 }
         ]
     },
     {
@@ -2322,32 +2456,32 @@
         tags: ["街头侦探", "时间旅人"],
         options: [
             { text: "留意招牌的名称，根据招牌的第一个字或字母，转到对应页码", nextCard: 9 },
-            { text: "", nextCard: 9 },
-            { text: "", nextCard: 104 },
-            { text: "", nextCard: 39 },
-            { text: "", nextCard: 53 },
-            { text: "", nextCard: 9 },
-            { text: "", nextCard: 11 },
-            { text: "", nextCard: 36 },
-            { text: "", nextCard: 40 },
-            { text: "", nextCard: 109 },
-            { text: "", nextCard: 35 },
-            { text: "", nextCard: 10 },
-            { text: "", nextCard: 37 },
-            { text: "", nextCard: 9 },
-            { text: "", nextCard: 29 },
-            { text: "", nextCard: 36 },
-            { text: "", nextCard: 31 },
-            { text: "", nextCard: 105 },
-            { text: "", nextCard: 11 },
-            { text: "", nextCard: 34 },
-            { text: "", nextCard: 108 },
-            { text: "", nextCard: 33 },
-            { text: "", nextCard: 7 },
-            { text: "", nextCard: 10 },
-            { text: "", nextCard: 39 },
-            { text: "", nextCard: 40 },
-            { text: "", nextCard: 34 }
+            { text: "A", nextCard: 9 },
+            { text: "B", nextCard: 104 },
+            { text: "C", nextCard: 39 },
+            { text: "D", nextCard: 53 },
+            { text: "E", nextCard: 9 },
+            { text: "F", nextCard: 11 },
+            { text: "G", nextCard: 36 },
+            { text: "H", nextCard: 40 },
+            { text: "I", nextCard: 109 },
+            { text: "J", nextCard: 35 },
+            { text: "K", nextCard: 10 },
+            { text: "L", nextCard: 37 },
+            { text: "M", nextCard: 9 },
+            { text: "N", nextCard: 29 },
+            { text: "O", nextCard: 36 },
+            { text: "P", nextCard: 31 },
+            { text: "Q", nextCard: 105 },
+            { text: "R", nextCard: 11 },
+            { text: "S", nextCard: 34 },
+            { text: "T", nextCard: 108 },
+            { text: "U", nextCard: 33 },
+            { text: "V", nextCard: 7 },
+            { text: "W", nextCard: 10 },
+            { text: "X", nextCard: 39 },
+            { text: "Y", nextCard: 40 },
+            { text: "Z", nextCard: 34 }
         ]
     },
     {

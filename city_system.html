@@ -237,7 +237,9 @@
             flex-direction: column;
             gap: 8px;
             margin-top: 16px;
-            padding-top: 16px;
+            padding: 16px 0;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .options-title {
@@ -252,16 +254,21 @@
             background: white;
             color: #252525;
             border: 1px solid #252525;
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             text-align: left;
             transition: all 200ms ease-out;
             min-height: 44px;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             box-shadow: 3px 3px 0 #252525;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+            max-width: 100%;
         }
 
         .option-button:hover {
@@ -767,18 +774,15 @@
             buttonContainer.style.gap = '10px';
             buttonContainer.style.marginTop = '25px';
             buttonContainer.style.flexDirection = 'row';
-            buttonContainer.style.justifyContent = 'flex-end';
+            buttonContainer.style.justifyContent = 'flex-start';
             buttonContainer.style.alignItems = 'center';
             buttonContainer.style.backgroundColor = 'transparent';
-            buttonContainer.style.padding = '15px';
+            buttonContainer.style.padding = '0';
+            buttonContainer.style.width = '100%';
             buttonContainer.style.borderRadius = '6px';
-            
-            const buttonTip = document.createElement('div');
-            buttonTip.textContent = '完成编辑后，记得保存你的修改：';
-            buttonTip.style.fontSize = '14px';
-            buttonTip.style.color = '#666';
-            buttonTip.style.marginRight = 'auto';
-            buttonTip.style.width = 'auto';
+            buttonContainer.style.boxSizing = 'border-box';
+            buttonContainer.style.marginLeft = '0';
+            buttonContainer.style.marginRight = '0';
             
             const saveButton = document.createElement('button');
             saveButton.textContent = '保存';
@@ -787,6 +791,7 @@
             saveButton.style.padding = '10px 20px';
             saveButton.style.fontSize = '15px';
             saveButton.style.fontWeight = '500';
+            saveButton.style.width = '49%';
             saveButton.onclick = () => {
                 // 保存内容
                 currentCardData.content = textarea.value;
@@ -849,12 +854,20 @@
             cancelButton.style.padding = '10px 20px';
             cancelButton.style.fontSize = '15px';
             cancelButton.style.fontWeight = '500';
+            cancelButton.style.width = '49%';
             cancelButton.onclick = () => {
                 const newCardContent = document.createElement('div');
                 newCardContent.className = 'card-content';
                 newCardContent.textContent = currentCardData.content;
                 editContainer.parentNode.replaceChild(newCardContent, editContainer);
             };
+            
+            // 创建按钮提示文本
+            const buttonTip = document.createElement('div');
+            buttonTip.textContent = '';
+            buttonTip.style.color = '#666';
+            buttonTip.style.fontSize = '14px';
+            buttonTip.style.marginRight = 'auto';
             
             buttonContainer.appendChild(buttonTip);
             buttonContainer.appendChild(saveButton);
@@ -1894,15 +1907,21 @@
     },
     {
         id: 87,
-        content: "空",
+        content: "停下脚步，观察离你最近的广告牌",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "如果广告中有数字，将数字相加后转到对应页码（如和为15则转#15）", nextCard: 15 },
+            { text: "如果没有数字，转到#33", nextCard: 33 }
+        ]
     },
     {
         id: 88,
-        content: "空",
+        content: "寻找穿红色鞋子的路人",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "如果找到，跟随ta走到下一个路口，转到#7", nextCard: 7 },
+            { text: "如果1分钟内未找到，转到#51", nextCard: 51 }
+        ]
     },
     {
         id: 89,
@@ -1946,9 +1965,12 @@
     },
     {
         id: 93,
-        content: "空",
+        content: "原地转三圈后睁开眼，朝你面对的方向直走",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "看到第一个垃圾桶时，转到#4", nextCard: 4 },
+            { text: "看到第一个长椅时，转到#9", nextCard: 9 }
+        ]
     },
     {
         id: 94,
@@ -1961,15 +1983,24 @@
     },
     {
         id: 95,
-        content: "空",
+        content: "寻找视野范围内最鲜艳的颜色",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "如果是红色，转到#75", nextCard: 75 },
+            { text: "如果是蓝色，转到#55", nextCard: 55 },
+            { text: "如果是黄色，转到#28", nextCard: 28 },
+            { text: "其他颜色，转到#33", nextCard: 33 }
+        ]
     },
     {
         id: 96,
-        content: "空",
+        content: "用手机随机播放一首歌",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "如果是中文歌曲，转到#105", nextCard: 105 },
+            { text: "如果是外文歌曲，转到#27", nextCard: 27 },
+            { text: "如果是纯音乐，转到#125", nextCard: 125 }
+        ]
     },
     {
         id: 97,
@@ -2146,9 +2177,12 @@
     },
     {
         id: 114,
-        content: "空",
+        content: "观察离你最近的时钟/手表",
         tags: ["街头侦探", "时间旅人"],
-        options: []
+        options: [
+            { text: "如果时间是偶数分钟，转到#68", nextCard: 68 },
+            { text: "如果是奇数分钟，转到#51", nextCard: 51 }
+        ]
     },
     {
         id: 115,
@@ -2328,7 +2362,7 @@
         options: [
             { text: "如果有目光接触，转到#125", nextCard: 125 },
             { text: "如果没有目光接触，向左手边走两个路口，转到#122", nextCard: 122 },
-            { text: "如果目标是在卖艺，转到#133", nextCard: 133 },
+            { text: "如果目标是在卖艺，转到#132", nextCard: 132 },
             { text: "如果是其他情况，转到#125", nextCard: 125 }
         ]
     },

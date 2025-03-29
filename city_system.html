@@ -237,9 +237,7 @@
             flex-direction: column;
             gap: 8px;
             margin-top: 16px;
-            padding: 16px 0;
-            max-width: 100%;
-            box-sizing: border-box;
+            padding-top: 16px;
         }
 
         .options-title {
@@ -254,21 +252,16 @@
             background: white;
             color: #252525;
             border: 1px solid #252525;
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             text-align: left;
             transition: all 200ms ease-out;
             min-height: 44px;
             width: 100%;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             box-shadow: 3px 3px 0 #252525;
-            white-space: normal;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            line-height: 1.5;
-            max-width: 100%;
         }
 
         .option-button:hover {
@@ -774,15 +767,18 @@
             buttonContainer.style.gap = '10px';
             buttonContainer.style.marginTop = '25px';
             buttonContainer.style.flexDirection = 'row';
-            buttonContainer.style.justifyContent = 'flex-start';
+            buttonContainer.style.justifyContent = 'flex-end';
             buttonContainer.style.alignItems = 'center';
             buttonContainer.style.backgroundColor = 'transparent';
-            buttonContainer.style.padding = '0';
-            buttonContainer.style.width = '100%';
+            buttonContainer.style.padding = '15px';
             buttonContainer.style.borderRadius = '6px';
-            buttonContainer.style.boxSizing = 'border-box';
-            buttonContainer.style.marginLeft = '0';
-            buttonContainer.style.marginRight = '0';
+            
+            const buttonTip = document.createElement('div');
+            buttonTip.textContent = '完成编辑后，记得保存你的修改：';
+            buttonTip.style.fontSize = '14px';
+            buttonTip.style.color = '#666';
+            buttonTip.style.marginRight = 'auto';
+            buttonTip.style.width = 'auto';
             
             const saveButton = document.createElement('button');
             saveButton.textContent = '保存';
@@ -791,7 +787,6 @@
             saveButton.style.padding = '10px 20px';
             saveButton.style.fontSize = '15px';
             saveButton.style.fontWeight = '500';
-            saveButton.style.width = '49%';
             saveButton.onclick = () => {
                 // 保存内容
                 currentCardData.content = textarea.value;
@@ -854,20 +849,12 @@
             cancelButton.style.padding = '10px 20px';
             cancelButton.style.fontSize = '15px';
             cancelButton.style.fontWeight = '500';
-            cancelButton.style.width = '49%';
             cancelButton.onclick = () => {
                 const newCardContent = document.createElement('div');
                 newCardContent.className = 'card-content';
                 newCardContent.textContent = currentCardData.content;
                 editContainer.parentNode.replaceChild(newCardContent, editContainer);
             };
-            
-            // 创建按钮提示文本
-            const buttonTip = document.createElement('div');
-            buttonTip.textContent = '';
-            buttonTip.style.color = '#666';
-            buttonTip.style.fontSize = '14px';
-            buttonTip.style.marginRight = 'auto';
             
             buttonContainer.appendChild(buttonTip);
             buttonContainer.appendChild(saveButton);

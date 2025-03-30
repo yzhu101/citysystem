@@ -623,6 +623,7 @@
                     coverPage.style.transform = 'translateY(-100%)';
                     setTimeout(() => {
                         coverPage.classList.add('hidden');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }, 300);
                 } else {
                     coverPage.style.transform = 'translateY(0)';
@@ -637,6 +638,7 @@
                     coverPage.style.transform = 'translateY(-100%)';
                     setTimeout(() => {
                         coverPage.classList.add('hidden');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }, 300);
                 }
             });

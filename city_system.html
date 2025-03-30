@@ -593,23 +593,70 @@
             const coverPage = document.getElementById('coverPage');
             let startY = 0;
             let currentY = 0;
+            let isDragging = false;
+
+            // 添加CSS过渡效果
+            coverPage.style.transition = 'transform 0.3s ease-out';
+
+            function updateCoverPosition(percentage) {
+                if (percentage > 0) {
+                    coverPage.style.transform = `translateY(-${percentage * 100}%)`;
+                } else {
+                    coverPage.style.transform = 'translateY(0)';
+                }
+            }
+
+            function resetCover() {
+                updateCoverPosition(0);
+            }
+
+            function completeCover() {
+                coverPage.classList.add('hidden');
+            }
 
             coverPage.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].clientY;
+                isDragging = true;
+                coverPage.style.transition = 'none';
             });
 
             coverPage.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
                 currentY = e.touches[0].clientY;
                 const diff = startY - currentY;
+                const screenHeight = window.innerHeight;
+                const percentage = Math.max(0, Math.min(1, diff / screenHeight));
+                
+                updateCoverPosition(percentage);
+                
+                // 阻止页面滚动
+                e.preventDefault();
+            });
 
-                if (diff > 50) {
-                    coverPage.classList.add('hidden');
+            coverPage.addEventListener('touchend', function() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                coverPage.style.transition = 'transform 0.3s ease-out';
+                
+                const diff = startY - currentY;
+                const screenHeight = window.innerHeight;
+                const percentage = diff / screenHeight;
+                
+                if (percentage > 0.33) {
+                    completeCover();
+                } else {
+                    resetCover();
                 }
             });
 
             coverPage.addEventListener('wheel', function(e) {
-                if (e.deltaY > 0) {
-                    coverPage.classList.add('hidden');
+                const screenHeight = window.innerHeight;
+                const scrollPercentage = Math.min(1, Math.abs(e.deltaY) / screenHeight);
+                
+                if (scrollPercentage > 0.33) {
+                    completeCover();
                 }
             });
         });

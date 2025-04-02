@@ -545,7 +545,7 @@
             <img src="assets/walking.gif" alt="Walking Animation" />
         </div>
         <h1 class="game-title">城市漫游向导</h1>
-        <p class="game-description">欢迎来到城市探索之旅！你将成为漫游者，随机地探索城市的角落。每一个选择都可能带来不同的发现，一起散步吧。</p>
+        <p class="game-description">Hi！你将成为漫游者，随机地探索城市的角落。每一个选择都可能带来不同的发现，一起散步吧。</p>
         <div class="swipe-indicator">
             <span class="swipe-text">向上滑动开始探索</span>
             <div class="arrow-up"></div>
@@ -2619,7 +2619,20 @@
             card.options.forEach(option => {
                 const button = document.createElement('button');
                 button.className = 'option-button';
-                button.textContent = option.text;
+                
+                // 创建选项文本容器
+                const textSpan = document.createElement('span');
+                textSpan.className = 'option-text';
+                textSpan.textContent = option.text;
+                
+                // 创建序号容器
+                const nextCardSpan = document.createElement('span');
+                nextCardSpan.className = 'option-next-card';
+                nextCardSpan.textContent = option.nextCard ? `#${option.nextCard}` : '';
+                
+                button.appendChild(textSpan);
+                button.appendChild(nextCardSpan);
+                
                 button.onclick = () => {
                     if (!gameStartTime) {
                         gameStartTime = new Date();

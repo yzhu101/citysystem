@@ -1,0 +1,3137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市漫游向导</title>
+    <link rel="stylesheet" href="fonts/fonts.css">
+    <style>
+        /* 全局样式 */
+        :root {
+            --color-background: #F5F1E6;
+            --color-text: #252525;
+            --color-red: #EC6E5F;
+            --color-yellow: #F0C963;
+            --color-blue: #4B7B91;
+            --color-gray: #B7B4AC;
+            --border-radius-lg: 16px;
+            --border-radius-md: 8px;
+            --shadow-default: 3px 3px 0 var(--color-text);
+            --transition-default: all 200ms ease-in-out;
+        }
+
+        /* 封面页样式 */
+        .cover-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--color-background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: transform 0.5s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .cover-page.hidden {
+            transform: translateY(-100%);
+        }
+
+        .cover-gif {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            border: 2px solid var(--color-text);
+            border-radius: 16px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-default);
+        }
+
+        .cover-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--color-text);
+        }
+
+        .game-description {
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 30px;
+            color: var(--color-text);
+            padding: 0 20px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .mode-button {
+            padding: 14px 24px;
+            border-radius: 8px;
+            border: 1px solid var(--color-text);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 200ms ease-in-out;
+            box-shadow: var(--shadow-default);
+            background-color: white;
+        }
+
+        .mode-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .mode-button.default-mode {
+            background-color: var(--color-yellow);
+        }
+
+        .mode-button.ai-mode {
+            background-color: var(--color-blue);
+            color: white;
+        }
+
+        body {
+            font-family: "DinkieBitmap", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 10px 5px;
+            background-color: var(--color-background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--color-background);
+            border-radius: 16px;
+            border: 1px solid var(--color-text);
+            box-shadow: var(--shadow-default);
+            padding: 20px;
+            width: calc(100% - 40px);
+            max-width: 500px;
+            margin: 12px auto;
+            transition: all 0.2s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-default);
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .card {
+                padding: 12px;
+                margin: 6px auto;
+            }
+
+            .card-content {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+            }
+
+            .options {
+                gap: 6px;
+            }
+
+            .option-button {
+                padding: 10px 12px;
+                font-size: 14px;
+                min-height: 40px;
+            }
+
+            .history {
+                padding: 15px;
+                margin: 8px auto;
+            }
+
+            .history-item {
+                padding: 10px 0;
+                font-size: 14px;
+            }
+
+            .tag {
+                padding: 6px 14px;
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (min-width: 481px) {
+            .card {
+                width: calc(100% - 20px);
+                padding: 15px;
+            }
+
+            .history {
+                width: calc(100% - 20px);
+            }
+        }
+
+        .end-button {
+            background-color: var(--color-yellow);
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 100px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: var(--shadow-default);
+        }
+
+        .end-button:hover {
+            background-color: var(--color-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-default);
+        }
+
+        .skip-button {
+            background-color: var(--color-gray);
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 80px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: var(--shadow-default);
+        }
+
+        .skip-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-default);
+        }
+
+        .generate-log-button {
+            background-color: var(--color-blue);
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 100px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: var(--shadow-default);
+        }
+
+        .generate-log-button:hover {
+            background-color: var(--color-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-default);
+        }
+
+        .edit-button {
+            background-color: var(--color-red);
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 100px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: var(--shadow-default);
+        }
+
+        .edit-button:hover {
+            background-color: var(--color-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-default);
+        }
+
+        .card-number {
+            font-size: 18px;
+            color: var(--color-text);
+            margin-bottom: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .card-content {
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: var(--color-text);
+            white-space: pre-line;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(59, 59, 59, 0.09);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 16px 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .options-title {
+            font-size: 18px;
+            color: var(--color-text);
+            margin-bottom: 12px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .option-button {
+            background: white;
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: all 0.2s ease-out;
+            min-height: 44px;
+            width: 100%;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-default);
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-text {
+            flex: 1;
+        }
+
+        .option-next-card {
+            background: var(--color-background);
+            color: var(--color-text);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: 1px solid var(--color-text);
+            white-space: nowrap;
+        }
+
+        .option-button:hover {
+            background-color: #f7f7f7;
+            transform: translateY(-1px);
+            box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+        }
+
+        .history {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--color-background);
+            border-radius: 8px;
+            border: 1px solid var(--color-text);
+            box-shadow: var(--shadow-default);
+            width: calc(100% - 52px);
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .history h3 {
+            margin-top: 0;
+            color: var(--color-text);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(59, 59, 59, 0.09);
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        @media (hover: none) {
+            .card:active,
+            .option-button:active,
+            .end-button:active,
+            .skip-button:active,
+            .edit-button:active,
+            .generate-log-button:active,
+            .generate-options-button:active {
+                opacity: 0.8;
+                transform: scale(0.98);
+                transition: all 100ms ease-out;
+            }
+        }
+
+        /* 添加触摸反馈效果 */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* AI模式页面样式 */
+        .ai-mode-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--color-background);
+            z-index: 900;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .ai-mode-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .prompt-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid var(--color-text);
+            border-radius: var(--border-radius-md);
+            margin: 20px 0;
+            font-size: 16px;
+            resize: vertical;
+            background-color: white;
+            box-shadow: var(--shadow-default);
+        }
+
+        .confirm-button {
+            background-color: var(--color-blue);
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            padding: 14px 24px;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-default);
+        }
+
+        .confirm-button:hover {
+            background-color: var(--color-gray);
+            transform: translateY(-2px);
+        }
+
+        /* 新增的AI生成选项按钮样式 */
+        .generate-options-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            width: auto;
+            min-width: 100px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 200ms ease-in-out;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .generate-options-button:hover {
+            background-color: #2980b9;
+        }
+
+        .generate-options-button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* 编辑模式中的AI生成选项按钮样式 */
+        .edit-button.generate-options-button {
+            background-color: var(--color-blue);
+            color: white;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="cover-page" id="coverPage">
+        <div class="cover-gif">
+            <img src="assets/walking.gif" alt="Walking Animation" />
+        </div>
+        <h1 class="game-title">城市漫游向导</h1>
+        <p class="game-description">Hi！你将成为漫游者，随机地探索城市的角落。每一个选择都可能带来不同的发现，一起散步吧。</p>
+        <div class="mode-buttons">
+            <button class="mode-button default-mode" onclick="startDefaultMode()">默认模式</button>
+            <button class="mode-button ai-mode" onclick="startAIMode()">AI模式</button>
+        </div>
+    </div>
+    
+    <div id="card" class="card">
+        <div class="card-number"></div>
+        <div class="card-content">
+            1. 这是一个示例卡片的内容。
+            2. 在这里你可以描述当前场景、故事情节。
+            3. 需要玩家执行的动作和观察内容。
+        </div>
+        <div class="options">
+            <div class="options-title">选择你的行动：</div>
+            <button class="option-button">
+                <span class="option-text">示例选项1</span>
+                <span class="option-next-card">#1</span>
+            </button>
+            <button class="option-button">
+                <span class="option-text">示例选项2</span>
+                <span class="option-next-card">#2</span>
+            </button>
+            <button class="option-button">
+                <span class="option-text">示例选项3</span>
+                <span class="option-next-card">#3</span>
+            </button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px; padding: 0 10px;">
+        <button class="edit-button" style="width: auto; min-width: 80px;" onclick="editCurrentCard()">编辑</button>
+        <button class="skip-button" style="width: auto; min-width: 80px; max-width: none;" onclick="skipCard()">跳过</button>
+        <button class="end-button" style="width: auto; min-width: 80px;" onclick="endGame()">结束探索</button>
+        <button class="generate-log-button" style="width: auto; min-width: 80px;" onclick="generateLog()">生成日志</button>
+    </div>
+
+    <div class="history">
+        <h3>探索历史</h3>
+        <ul class="history-list"></ul>
+    </div>
+
+    <!-- AI模式页面 -->
+    <div class="ai-mode-page" id="aiModePage">
+        <div class="ai-mode-content">
+            <h2>AI探索模式</h2>
+            <p>请描述你想探索的环境或主题：</p>
+            <textarea class="prompt-input" id="promptInput" placeholder="例如：我在安徽西递村，想探索徽州古建筑"></textarea>
+            <button class="confirm-button" onclick="generateAIContent()">开始探索</button>
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+        // API配置
+        const DEEPSEEK_API_KEY = 'sk-409f2c172add4eff8f14def52d3c3f7b';
+        const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
+
+        let currentCard = 1;
+        let history = [];
+        let gameStartTime = null;
+
+        // 游戏卡片数据
+        const cards = [
+    {
+        id: 1,
+        content: "到离你最近的公园，或是你所在的城市最热闹的公园/广场；站在楼梯上大约一半的位置",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "👣 站好之后", nextCard: 2 }
+        ]
+    },
+    {
+        id: 2,
+        content: "闭上眼睛，数到十；睁开眼睛，开始跟着离你最近的人走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "🚥 走到第一个路口", nextCard: 3 }
+        ]
+    },
+    {
+        id: 3,
+        content: "仔细观察这台自行车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果自行车有车座 🚲", nextCard: 60 },
+            { text: "如果没有车座", nextCard: 61 }
+        ]
+    },
+    {
+        id: 4,
+        content: "观察离你最近的垃圾桶；注意垃圾桶中有多少垃圾",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "🗑️ 几乎是空的，请走到离你最近的共享单车附近", nextCard: 16 },
+            { text: "大概一半", nextCard: 21 },
+            { text: "🚮 满了，请走到最近的私人停车位", nextCard: 41 }
+        ]
+    },
+    {
+        id: 5,
+        content: "站在最近的公交车站；比较你的手机号码的末尾两位，计算二者差值的绝对值（x）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左边的数字大于右边，并向左手边走x个路口", nextCard: 68 },
+            { text: "右边的数字大于左边，乘坐下一辆公交车，在x站后下车", nextCard: 68 },
+            { text: "🟰 两个数相等，观察离你最近的快的骑手", nextCard: 68 }
+        ]
+    },
+    {
+        id: 6,
+        content: "站立，静止不要动；向下看，注意双脚之间的空间",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "🚮 有垃圾", nextCard: 31 },
+            { text: "🫧 有口香糖", nextCard: 28 },
+            { text: "👣 没有上述情况，尽量分开双脚", nextCard: 69 }
+        ]
+    },
+    {
+        id: 7,
+        content: "跟着遛狗的路人；直到狗狗拉屎或者吠叫",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "💩 当狗狗拉屎或者吠叫时", nextCard: 74 },
+            { text: "🚉 如果在这之前看到地铁口/公交站", nextCard: 98 }
+        ]
+    },
+    {
+        id: 8,
+        content: "跟着推婴儿车的路人；留意婴儿车和路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "👨‍🦰如果推车的是男性，则继续跟着，直到找到地铁站/公交站", nextCard: 33 },
+            { text: "👩 如果是女性，继续跟着直到发现另外一个推婴儿车的路人，重复上述步骤", nextCard: 33 },
+            { text: "如果你无法跟随", nextCard: 33 }
+        ]
+    },
+    {
+        id: 9,
+        content: "在你周围找到一个可以坐着的地方，可以是长凳、门廊、窗台",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有空位，坐下", nextCard: 82 },
+            { text: "如果没有空位，或者你找不到可以做的地方，那么开始漫无目的地走，直到你看到一个独坐的人", nextCard: 83 }
+        ]
+    },
+    {
+        id: 10,
+        content: "向东走；留意迎面走来的行人的嘴",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到有人在微笑，跟着ta走到最近的路口", nextCard: 84 },
+            { text: "如果没有，向东走三个街区", nextCard: 84 }
+        ]
+    },
+    {
+        id: 11,
+        content: "走到离你最近的路口；背对建筑物站立，观察过往行人；等待10名经过你的路人，并留意第11名路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta有眼镜", nextCard: 33 },
+            { text: "如果ta有帽子", nextCard: 40 },
+            { text: "如果ta有胡子", nextCard: 66 },
+            { text: "如果ta牵着狗", nextCard: 7 },
+            { text: "如果以上几项的任意组合", nextCard: 20 },
+            { text: "如果以上都没有，跟着他走两个路口", nextCard: 42 },
+            { text: "如果无法跟随，停下", nextCard: 28 }
+        ]
+    },
+    {
+        id: 12,
+        content: "在公交车上，找出你认为最年长的乘客；和ta在同一站下车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta戴帽子，沿着ta走的方向走到最近的路口", nextCard: 48 },
+            { text: "如果ta戴眼镜，朝着反方向走到最近的路口", nextCard: 48 },
+            { text: "如果二者都有或都没有，过马路走到相反方向的公交车站", nextCard: 21 }
+        ]
+    },
+    {
+        id: 14,
+        content: "上车，做到离司机最远的空位；在下一站留意上车人数，每有一个人上车，向前挪一排",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你觉得这样举止会太怪异，也可以直接计算", nextCard: 89 },
+            { text: "直到前面没有空位，下车", nextCard: 89 }
+        ]
+    },
+    {
+        id: 15,
+        content: "在你所站的地方，寻找周围的建筑有没有外挂的消防楼梯",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 35 },
+            { text: "如果没有", nextCard: 123 }
+        ]
+    },
+    {
+        id: 16,
+        content: "如果共享单车时",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是黄色", nextCard: 55 },
+            { text: "如果是蓝色", nextCard: 51 },
+            { text: "如果是青色", nextCard: 57 },
+            { text: "如果是其他颜色", nextCard: 29 }
+        ]
+    },
+    {
+        id: 17,
+        content: "向南走；留意有没有随意停放的共享单车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 55 },
+            { text: "如果没有", nextCard: 89 }
+        ]
+    },
+    {
+        id: 18,
+        content: "走到最近路口；闭上眼睛，数到十；感觉风从哪个方向吹来，向那个方向走，直到看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "一家餐厅", nextCard: 27 },
+            { text: "公交车站", nextCard: 5 },
+            { text: "带着狗、婴儿车或是吉他的路人", nextCard: 19 },
+            { text: "地铁或公交站", nextCard: 126 }
+        ]
+    },
+    {
+        id: 19,
+        content: "跟着遛狗的人；跟着推婴儿车的人；跟着背吉他的人，直到看到地铁/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果无法跟随", nextCard: 66 }
+        ]
+    },
+    {
+        id: 20,
+        content: "走到最近的路口；向南走；边走边搜寻以下目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到贩卖食品的人", nextCard: 58 },
+            { text: "如果看到派发传单的人", nextCard: 59 },
+            { text: "如果看到一边走路一边打手机的人", nextCard: 80 }
+        ]
+    },
+    {
+        id: 21,
+        content: "找到最近的公交车站；站在公交车站，留意一同候车的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果比你矮的人多", nextCard: 94 },
+            { text: "如果比你高的人多", nextCard: 86 },
+            { text: "如果没有其他人、无法分辨或是一样多", nextCard: 105 }
+        ]
+    },
+    {
+        id: 22,
+        content: "留意你最近的报刊亭或者能买到报纸的地方",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有", nextCard: 35 },
+            { text: "买一份报纸，找个地方坐下，随意翻看", nextCard: 43 },
+            { text: "如果看完报纸", nextCard: 70 }
+        ]
+    },
+    {
+        id: 23,
+        content: "站在邮箱前；留意街对面",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有咖啡店", nextCard: 27 },
+            { text: "如果有拉面店", nextCard: 129 },
+            { text: "如果有眼镜店", nextCard: 34 },
+            { text: "如果都没有", nextCard: 15 }
+        ]
+    },
+    {
+        id: 24,
+        content: "停下等待一名戴帽子或戴眼镜的路人；当一名戴帽子或戴眼镜的路人经过时开始记录路人的人数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "当下一名帽子或戴眼镜的路人出现时，停止计数", nextCard: 47 },
+            { text: "如果少于10", nextCard: 47 },
+            { text: "如果11～15", nextCard: 48 },
+            { text: "如果16～30", nextCard: 39 },
+            { text: "如果31～50", nextCard: 55 },
+            { text: "如果51以上", nextCard: 74 }
+        ]
+    },
+    {
+        id: 25,
+        content: "等待公交车；上车并计算你的手机号码的最后4位数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于等于20，下车", nextCard: 74 },
+            { text: "如果大于20，下车并找到最近的咖啡店或饮料店", nextCard: 44 }
+        ]
+    },
+    {
+        id: 26,
+        content: "数一数在公交车站候车的人数",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有1人，和这个人同时上下车", nextCard: 48 },
+            { text: "如果有2人，乘坐下一辆公交车，并坐2个站下车", nextCard: 49 },
+            { text: "如果有3人，乘坐下一辆公交车，并坐3个站下车", nextCard: 105 },
+            { text: "如果有4人，乘坐下一辆公交车，并坐4个站下车", nextCard: 48 },
+            { text: "如果有5人以上，乘坐下一辆公交车，并坐5个站下车", nextCard: 104 }
+        ]
+    },
+    {
+        id: 27,
+        content: "走进到咖啡店附近",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果周围有卖刮刮乐", nextCard: 71 },
+            { text: "如果没有卖刮刮乐，进咖啡店点一杯咖啡", nextCard: 129 },
+            { text: "如果点单的店员穿绿色衣服，请你外带咖啡，走到最近的路口", nextCard: 129 },
+            { text: "如果店员没有穿绿色衣服，拿着咖啡找个地方坐下", nextCard: 128 }
+        ]
+    },
+    {
+        id: 28,
+        content: "在你所站的地方，闭上眼睛，数到十，面向声音最大的方向",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这个声源是可辨认的", nextCard: 48 },
+            { text: "如果不可辨认", nextCard: 82 }
+        ]
+    },
+    {
+        id: 29,
+        content: "找到离你最近的墙，背靠墙站立；数15个从你身边经过的路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这需要花太长时间", nextCard: 24 },
+            { text: "留意第16个人", nextCard: 51 },
+            { text: "如果ta戴帽子", nextCard: 51 },
+            { text: "如果ta烫了头发", nextCard: 41 },
+            { text: "如果以上情况都有或都没有", nextCard: 30 }
+        ]
+    },
+    {
+        id: 30,
+        content: "站在离你最近的路口；开始行走，找到离你最近的斑马线",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你需要等待汽车停下", nextCard: 41 },
+            { text: "如果你不需要", nextCard: 51 }
+        ]
+    },
+    {
+        id: 31,
+        content: "走到离你最近的建筑物，背对建筑物站立",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果可以看到太阳", nextCard: 68 },
+            { text: "如果看不到太阳", nextCard: 32 }
+        ]
+    },
+    {
+        id: 32,
+        content: "找到最近的树",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果树有很多叶子", nextCard: 9 },
+            { text: "如果没有很多叶子", nextCard: 91 }
+        ]
+    },
+    {
+        id: 33,
+        content: "停下脚步，走到离你最近的路口；从你的位置寻找以下目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到你第一个留意到的目标所对应的页码", nextCard: 41 },
+            { text: "如果是警车或警察", nextCard: 41 },
+            { text: "如果是穿高跟鞋的人", nextCard: 80 },
+            { text: "如果是被牵着的狗", nextCard: 7 },
+            { text: "如果是骑自行车的人", nextCard: 68 },
+            { text: "如果是吉他或吉他盒", nextCard: 19 },
+            { text: "如果是拿着咖啡的人", nextCard: 124 }
+        ]
+    },
+    {
+        id: 34,
+        content: "走到最近的路口；朝逆风的方向走，直到看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到一辆婴儿车", nextCard: 19 },
+            { text: "如果看到一辆出租车", nextCard: 38 },
+            { text: "如果看到卖食物的摊贩", nextCard: 58 },
+            { text: "如果看到一边走路一边打手机的人", nextCard: 127 }
+        ]
+    },
+    {
+        id: 35,
+        content: "走到最近的路口；朝着你在本次游戏中起点的方向走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "继续走，直到看见抽烟的人", nextCard: 75 }
+        ]
+    },
+    {
+        id: 36,
+        content: "停下来留意周围；找到离你最近的窨井盖",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是圆形", nextCard: 124 },
+            { text: "如果是其他形状", nextCard: 51 }
+        ]
+    },
+    {
+        id: 37,
+        content: "走到最近的路口；看天空",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到任何飞行物，找个地方坐下", nextCard: 125 },
+            { text: "如果没有看到飞行物，寻找最高的建筑物，朝那个方向走，直到在地上看到落叶，找个地方坐下", nextCard: 125 },
+            { text: "如果你已经走到那栋建筑物下面", nextCard: 52 }
+        ]
+    },
+    {
+        id: 38,
+        content: "向北走；一边走一边试着拦下一辆出租车，上车",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果司机戴帽子", nextCard: 101 },
+            { text: "如果司机没戴帽子", nextCard: 102 }
+        ]
+    },
+    {
+        id: 39,
+        content: "走到最近的路口；向西走；数一数你经过的行道树，直到下一个路口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "根据树的数量", nextCard: 66 },
+            { text: "如果0～1棵", nextCard: 66 },
+            { text: "如果2～5棵", nextCard: 81 },
+            { text: "如果5～8棵", nextCard: 28 },
+            { text: "如果10～11棵", nextCard: 40 },
+            { text: "如果12～15棵", nextCard: 35 },
+            { text: "如果16棵以上", nextCard: 36 }
+        ]
+    },
+    {
+        id: 40,
+        content: "走到最近的路口，面向十字路口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你是男性，向你左手边走，你有几岁就走几步", nextCard: 15 },
+            { text: "如果你是女性，向你右手边走，你有几岁就走几步", nextCard: 24 }
+        ]
+    },
+    {
+        id: 41,
+        content: "走向离你最近的水体（江、河、湖、池塘）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "看到有人站着不动就停下来", nextCard: 59 },
+            { text: "如果你走到了水体周围", nextCard: 124 }
+        ]
+    },
+    {
+        id: 42,
+        content: "前往你最近的公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你没有公交卡", nextCard: 14 },
+            { text: "如果你有一张地铁卡，查看背面注意序列号", nextCard: 12 },
+            { text: "如果最后一位数是奇数，乘坐下一辆公交车", nextCard: 12 },
+            { text: "如果最后一位数是偶数，乘坐下两辆公交车", nextCard: 12 }
+        ]
+    },
+    {
+        id: 43,
+        content: "走向最近的路口；找到你视野中最高的建筑物，向那个方向走。如果在前往这栋建筑物的途中，你看到了：",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店", nextCard: 44 },
+            { text: "如果看到拉面店", nextCard: 7 },
+            { text: "如果看到烟酒专卖店", nextCard: 71 },
+            { text: "如果看到银行", nextCard: 100 },
+            { text: "如果看到坐在路边长凳的人", nextCard: 54 },
+            { text: "如果看到遛狗的人", nextCard: 7 },
+            { text: "如果看到黄色的花朵", nextCard: 28 }
+        ]
+    },
+    {
+        id: 44,
+        content: "走进咖啡店，点一杯饮品；留意为你点单的店员，然后找个地方坐下",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果为你点单的店员戴帽子", nextCard: 45 },
+            { text: "如果戴眼镜", nextCard: 46 },
+            { text: "如果都有或都没有", nextCard: 55 }
+        ]
+    },
+    {
+        id: 45,
+        content: "当你喝饮料时，留意门口",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你看不到门口，离开咖啡店", nextCard: 34 },
+            { text: "如果进门的人与以下描述相符，转到对应页码", nextCard: 39 },
+            { text: "如果带小孩的人", nextCard: 39 },
+            { text: "如果携带笔记本电脑的人", nextCard: 43 },
+            { text: "如果穿红色鞋子的人", nextCard: 37 },
+            { text: "如果蓄胡子的人", nextCard: 36 },
+            { text: "如果穿着绿色、橙色或黄色T恤或卫衣的人", nextCard: 33 },
+            { text: "如果穿着某种制服的人", nextCard: 21 },
+            { text: "如果戴眼镜或戴帽子的人", nextCard: 18 },
+            { text: "如果进门时摸自己脸的人", nextCard: 32 }
+        ]
+    },
+    {
+        id: 46,
+        content: "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人，猜猜谁会最先离开",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "留意这个人，观察到ta有以下动作，转到对应页码", nextCard: 35 },
+            { text: "如果ta摸鼻子", nextCard: 35 },
+            { text: "如果ta挠头", nextCard: 37 },
+            { text: "如果ta把纸巾揉成一团", nextCard: 43 },
+            { text: "如果ta摸耳朵", nextCard: 70 },
+            { text: "如果ta和其他人有肢体接触", nextCard: 81 },
+            { text: "如果ta和你有眼神接触", nextCard: 55 },
+            { text: "如果ta没有做以上任何动作，并且要离开咖啡馆，跟着ta走出咖啡馆", nextCard: 49 }
+        ]
+    },
+    {
+        id: 47,
+        content: "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音。朝着这个声音的大致方向走，直到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到绿色邮筒", nextCard: 23 },
+            { text: "如果看到穿红色鞋子的人", nextCard: 38 },
+            { text: "如果看到抽烟的人", nextCard: 75 }
+        ]
+    },
+    {
+        id: 48,
+        content: "站在离你最近的转角，注意你的影子",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果影子没有与其他物体接触", nextCard: 64 },
+            { text: "如果有接触", nextCard: 49 },
+            { text: "如果没有明显的影子，朝着你在本次游戏中起点的方向走一个路口", nextCard: 34 }
+        ]
+    },
+    {
+        id: 49,
+        content: "站在最近的转角，朝着你视野中最高的建筑的方向走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到贩卖食品的人", nextCard: 58 },
+            { text: "如果看到派发传单的人", nextCard: 59 },
+            { text: "如果看到一边走路一边打手机的人", nextCard: 127 },
+            { text: "如果你已经走到大楼前", nextCard: 105 }
+        ]
+    },
+    {
+        id: 50,
+        content: "将所有数字相加",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于12，背对建筑，跟着你看的第一个穿着皮鞋的男性走，走到第一个路口/转角", nextCard: 37 },
+            { text: "如果大于等于12，背对建筑，跟着你看的第一个穿着皮鞋的女性走，走到第一个路口/转角", nextCard: 51 },
+            { text: "如果无法跟随", nextCard: 31 }
+        ]
+    },
+    {
+        id: 51,
+        content: "走到最近的转角；找到你最近的倒影/镜像，观察它",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果能在背景中看到一栋的物体", nextCard: 52 },
+            { text: "如果不能", nextCard: 17 }
+        ]
+    },
+    {
+        id: 52,
+        content: "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店", nextCard: 44 },
+            { text: "如果看到坐在路边长凳的人", nextCard: 54 },
+            { text: "如果看到遛狗的人", nextCard: 19 },
+            { text: "如果看到黄色的花朵", nextCard: 53 }
+        ]
+    },
+    {
+        id: 53,
+        content: "站在最近的转角；在不改变位置的情况下，寻找旗杆。如果看不到旗杆，向左手边走到转角，重复上述步骤",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果发现旗杆后", nextCard: 67 },
+            { text: "如果一直找不到旗杆", nextCard: 62 }
+        ]
+    },
+    {
+        id: 54,
+        content: "留意坐在路边长凳的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的两只脚都着地", nextCard: 81 },
+            { text: "如果一只脚着地", nextCard: 89 },
+            { text: "如果都没有着地", nextCard: 64 }
+        ]
+    },
+    {
+        id: 55,
+        content: "找到离你最近的卖水的地方；买一瓶水；站在路边喝水",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果喝水的过程中听到喇叭声", nextCard: 104 },
+            { text: "如果没有听到喇叭声", nextCard: 105 }
+        ]
+    },
+    {
+        id: 56,
+        content: "环顾四周，试着找到一只鸟",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到三只或三只以上", nextCard: 55 },
+            { text: "如果少于三只", nextCard: 104 }
+        ]
+    },
+    {
+        id: 57,
+        content: "如果这辆车被贴了小广告",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这辆车没有小广告，请你继续走，直到这辆车离开你的视线", nextCard: 56 }
+        ]
+    },
+    {
+        id: 58,
+        content: "仔细观察对方",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的头发比你长", nextCard: 108 },
+            { text: "如果ta的头发比你短", nextCard: 55 },
+            { text: "如果无法判断", nextCard: 76 }
+        ]
+    },
+    {
+        id: 59,
+        content: "留意这个人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta在抽烟", nextCard: 75 },
+            { text: "如果ta没有抽烟", nextCard: 76 }
+        ]
+    },
+    {
+        id: 60,
+        content: "留意自行车的锁，如果是",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果带数字的密码锁", nextCard: 63 },
+            { text: "如果用钥匙的开的锁", nextCard: 64 },
+            { text: "如果是其他类型", nextCard: 4 }
+        ]
+    },
+    {
+        id: 61,
+        content: "向北走；走到最近的地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "到达之后点击跳转", nextCard: 98 }
+        ]
+    },
+    {
+        id: 62,
+        content: "站在街角；向南走，直到你看到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到咖啡店", nextCard: 27 },
+            { text: "如果看到地铁站/公交站", nextCard: 98 }
+        ]
+    },
+    {
+        id: 63,
+        content: "注意密码锁当前数字的第一位",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是0", nextCard: 62 },
+            { text: "如果是1", nextCard: 20 },
+            { text: "如果是2", nextCard: 21 },
+            { text: "如果是3", nextCard: 61 },
+            { text: "如果是4", nextCard: 28 },
+            { text: "如果是5", nextCard: 29 },
+            { text: "如果是6", nextCard: 30 },
+            { text: "如果是7", nextCard: 85 },
+            { text: "如果是8", nextCard: 32 },
+            { text: "如果是9", nextCard: 64 }
+        ]
+    },
+    {
+        id: 64,
+        content: "走到最近的转角；环顾四周",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果看到任何旗帜", nextCard: 20 },
+            { text: "如果看不到旗帜", nextCard: 65 }
+        ]
+    },
+    {
+        id: 65,
+        content: "向着除了北边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后", nextCard: 98 }
+        ]
+    },
+    {
+        id: 66,
+        content: "向着除了东边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后", nextCard: 98 }
+        ]
+    },
+    {
+        id: 67,
+        content: "留意旗杆",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果旗杆上没有任何旗帜", nextCard: 34 },
+            { text: "如果旗杆是在建筑物的屋顶", nextCard: 78 },
+            { text: "如果旗杆在交通工具上", nextCard: 38 },
+            { text: "如果旗杆在酒店前", nextCard: 29 },
+            { text: "如果旗杆不属于以上任何一类", nextCard: 105 }
+        ]
+    },
+    {
+        id: 68,
+        content: "留意你周围的外卖骑手",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是美团", nextCard: 11 },
+            { text: "如果是饿了么", nextCard: 30 },
+            { text: "其他", nextCard: 53 }
+        ]
+    },
+    {
+        id: 69,
+        content: "向着除了南边之外的任意方向行走；寻找地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "找到之后", nextCard: 98 }
+        ]
+    },
+    {
+        id: 70,
+        content: "向着除了西边之外的任意方向行走；直到听到喇叭声",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果途中经过便利店，停留在便利店周围", nextCard: 71 },
+            { text: "如果没有经过便利店", nextCard: 105 }
+        ]
+    },
+    {
+        id: 71,
+        content: "如果在便利店附近能买到刮刮乐彩票",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "买一张最便宜的刮刮乐，离开", nextCard: 72 },
+            { text: "如果没有刮刮乐", nextCard: 77 }
+        ]
+    },
+    {
+        id: 72,
+        content: "留意刮刮乐的序列号，注意刮开的第一个数字；假设是数字是X；向北走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在街上看到数字X", nextCard: 120 },
+            { text: "如果看到地铁站/公交站", nextCard: 126 },
+            { text: "如果发现一个专供休憩的公共建筑", nextCard: 74 }
+        ]
+    },
+    {
+        id: 73,
+        content: "找个舒适的地方坐下",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "", nextCard: 76 }
+        ]
+    },
+    {
+        id: 74,
+        content: "找个地方休息一下，聆听鸟叫声（鸟叫声会带来好运）刮开刮刮乐",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果中奖了，奖金比上个月的收入高，回家，游戏结束", nextCard: null },
+            { text: "如果中了小金额的奖", nextCard: 51 },
+            { text: "如果没中奖", nextCard: 97 }
+        ]
+    },
+    {
+        id: 75,
+        content: "留意这个人将香烟放到嘴边的次数；记住这个数字",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta在吸完烟之后把烟头扔到地上", nextCard: 55 },
+            { text: "如果抛到垃圾桶或烟灰缸", nextCard: 66 },
+            { text: "如果不太确定", nextCard: 70 }
+        ]
+    },
+    {
+        id: 76,
+        content: "走到最近的角落，留意穿着有橙色的人（包括背包和配饰）；一边寻找一边深呼吸20次",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果这期间没有发现", nextCard: 51 },
+            { text: "如果有发现", nextCard: 80 }
+        ]
+    },
+    {
+        id: 77,
+        content: "买一瓶水",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果买不到", nextCard: 34 }
+        ]
+    },
+    {
+        id: 78,
+        content: "观察离你最近的建筑",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有门卫或保安", nextCard: 89 },
+            { text: "如果有门卫或保安", nextCard: 90 }
+            
+        ]
+    },
+    {
+        id: 79,
+        content: "留意最近的戴着耳机的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有找到，在下一站下车出站", nextCard: 122 },
+            { text: "如果找到之后请留意", nextCard: 130 },
+            { text: "如果ta摇头晃脑或摆动身体", nextCard: 130 },
+            { text: "如果没有", nextCard: 131 }
+        ]
+    },
+    {
+        id: 80,
+        content: "跟随符合以下描述的人；注意ta走路的姿势，判断ta习惯先迈哪一只脚",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果先迈左脚，跟随ta到下一个转角，或者向左手边走到下一个转角", nextCard: 52 },
+            { text: "如果先迈右脚，跟随ta走两个路口，或是直到跟丢ta", nextCard: 51 },
+            { text: "如果无法判断", nextCard: 84 }
+        ]
+    },
+    {
+        id: 81,
+        content: "搜寻符合以下描述的目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "男人、打领带、穿皮鞋、没有蓄须，发现后跟随ta到最近的转角", nextCard: 51 },
+            { text: "如果花了太长时间没有找到", nextCard: 52 }
+        ]
+    },
+    {
+        id: 82,
+        content: "找到最近的公共建筑，坐下",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果今天的日子日期是奇数", nextCard: 36 },
+            { text: "如果是偶数", nextCard: 109 }
+        ]
+    },
+    {
+        id: 83,
+        content: "注意坐着的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta有戴手表", nextCard: 64 },
+            { text: "如果没有或无法判断", nextCard: 104 }
+        ]
+    },
+    {
+        id: 84,
+        content: "找到离你最近的红绿灯；站在红绿灯底下；仔细听有没有「叮叮」声",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 65 },
+            { text: "如果没有", nextCard: 68 }
+        ]
+    },
+    {
+        id: 85,
+        content: "走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有看到建筑工人", nextCard: 91 },
+            { text: "如果没有看到", nextCard: 76 }
+        ]
+    },
+    {
+        id: 86,
+        content: "乘坐公交车；留意下一站第一个上车的乘客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "和ta在同一个站下车", nextCard: 92 }
+        ]
+    },
+    {
+        id: 87,
+        content: "停下脚步，观察离你最近的广告牌",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果广告中有数字，将数字相加后转到对应页码（如和为15则转#15）", nextCard: 15 },
+            { text: "如果没有数字", nextCard: 33 }
+        ]
+    },
+    {
+        id: 88,
+        content: "寻找穿红色鞋子的路人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果找到，跟随ta走到下一个路口", nextCard: 7 },
+            { text: "如果1分钟内未找到", nextCard: 51 }
+        ]
+    },
+    {
+        id: 89,
+        content: "环顾四周；搜寻出租车；当你看到出租车后，立即屏住呼吸，走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在憋住气的情况下走到转角（记得喘气）", nextCard: 70 },
+            { text: "如果没有在憋住气的情况下走到转角", nextCard: 69 }
+        ]
+    },
+    {
+        id: 90,
+        content: "朝着你在本次游戏中起点的方向走；直到和一个比你矮的路人擦肩而过；留意ta",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta穿着高跟鞋", nextCard: 104 },
+            { text: "如果ta穿着运动鞋", nextCard: 64 },
+            { text: "如果ta打着领带", nextCard: 36 },
+            { text: "如果ta在地上匍匐前进", nextCard: 33 },
+            { text: "如果不符合以上任何一种或同时符合几种", nextCard: 40 }
+        ]
+    },
+    {
+        id: 91,
+        content: "向北走；一直走，直到看到坐在室外的人；绕着ta所在的街区走一圈",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果回来时那个人依然坐在外面", nextCard: 9 },
+            { text: "如果那个人还在室外，但没有坐着", nextCard: 37 },
+            { text: "如果那个人还在你的视线范围内，但不在原来的位置", nextCard: 65 },
+            { text: "如果找不到那个人", nextCard: 9 }
+        ]
+    },
+    {
+        id: 92,
+        content: "下车后，走到离你最近的转角；开始垂直于你刚才乘坐的公交线路的方向走（不要横穿马路）",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "沿着这个方向走3个路口；走过3个路口之后，找到最近的咖啡店/饮品店", nextCard: 27 }
+        ]
+    },
+    {
+        id: 93,
+        content: "原地转三圈后睁开眼，朝你面对的方向直走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "看到第一个垃圾桶时", nextCard: 4 },
+            { text: "看到第一个长椅时", nextCard: 9 }
+        ]
+    },
+    {
+        id: 94,
+        content: "上车；寻找你认为车上最有「电影明星气质」的乘客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是男性，和他在同一站下车", nextCard: 80 },
+            { text: "如果是女性，在她下一站下车", nextCard: 62 }
+        ]
+    },
+    {
+        id: 95,
+        content: "寻找视野范围内最鲜艳的颜色",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是红色", nextCard: 75 },
+            { text: "如果是蓝色", nextCard: 55 },
+            { text: "如果是黄色", nextCard: 28 },
+            { text: "其他颜色", nextCard: 33 }
+        ]
+    },
+    {
+        id: 96,
+        content: "用手机随机播放一首歌",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是中文歌曲", nextCard: 105 },
+            { text: "如果是外文歌曲", nextCard: 27 },
+            { text: "如果是纯音乐", nextCard: 125 }
+        ]
+    },
+    {
+        id: 97,
+        content: "看看你的鞋",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你觉得你需要买一双新鞋", nextCard: 62 },
+            { text: "如果你不觉得你需要买一双新鞋", nextCard: 68 }
+        ]
+    },
+    {
+        id: 98,
+        content: "进入地铁站/公交站，如果地铁线路/公交线路的数字是",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "奇数", nextCard: 99 },
+            { text: "偶数", nextCard: 117 }
+        ]
+    },
+    {
+        id: 99,
+        content: "找到一个舒适的作为站着或坐下；到达下一站时，留意上车的、距离你最近的乘客，对照以下描述，有一项符合则计一分，计算总分： 1. 有帽子🧢； 2. 红色的鞋子👠 3. 手里拿着手机📱 4. 手里拿着饮料🥤 5. 牵着小孩👦 6. 闭眼😑 7. 单脚着地🦶 8. 玩手指甲💅 9. 看报纸/看书📖 10. 与人牵手👫",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "1～4分", nextCard: 119 },
+            { text: "5～8分", nextCard: 79 },
+            { text: "9～10分", nextCard: 130 }
+        ]
+    },
+    {
+        id: 100,
+        content: "走到银行附近；留意第一个出门的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "跟随ta", nextCard: 80 },
+            { text: "如果银行关门了", nextCard: 82 }
+        ]
+    },
+    {
+        id: 101,
+        content: "让司机送你到起步价范围内的、南边的、最远的地方（你可以事先在地图上辨认）。在路途中注意聆听。",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你听到你知道名字的音乐，在到达目的地后", nextCard: 55 },
+            { text: "如果你不知道听到的音乐叫什么名字，在到达目的地后", nextCard: 51 },
+            { text: "如果没有音乐，到达目的地后", nextCard: 76 }
+        ]
+    },
+    {
+        id: 102,
+        content: "让司机送你到起步价范围内的、北边的、最远的地方（你可以事先在地图上辨认）。在路途中注意车外，如果发现",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果发现婴儿车", nextCard: 19 },
+            { text: "如果发现轮椅", nextCard: 56 },
+            { text: "如果发现运动健身器材", nextCard: 70 },
+            { text: "如果发现不戴头盔的骑手", nextCard: 29 },
+            { text: "如果以上都没有", nextCard: 30 }
+        ]
+    },
+    {
+        id: 103,
+        content: "朝着你在本次游戏中起点的方向走；询问你认为合适的人，最近的公交车站在哪里",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果对方用东南西北描述", nextCard: 70 },
+            { text: "如果对方用前后左右描述", nextCard: 66 },
+            { text: "其他情况", nextCard: 51 }
+        ]
+    },
+    {
+        id: 104,
+        content: "观察离你最近的两个路灯，想象将它们连成一条直线",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左手边的路灯代表你出生的时刻，右手边的路灯代表现在；估算一下，你所站的地方代表几岁", nextCard: 113 },
+            { text: "如果未满18岁", nextCard: 113 },
+            { text: "如果超过18岁", nextCard: 110 },
+            { text: "如果正好18岁", nextCard: 36 }
+        ]
+    },
+    {
+        id: 105,
+        content: "找到离你最近的舒适的地方坐下；观察窗外的活动",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你戴眼镜，请摘下眼镜，拿着它", nextCard: 106 },
+            { text: "如果你没有戴眼镜", nextCard: 107 }
+        ]
+    },
+    {
+        id: 106,
+        content: "如果你右手拿着眼镜，走到右手边最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你左手拿着眼镜，走到左手边最近的转角", nextCard: 68 },
+            { text: "走到转角后", nextCard: 68 }
+        ]
+    },
+    {
+        id: 107,
+        content: "留意大多数行人行进的方向，朝那个方向走。当你看到以下目标时，停下来",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果是儿童或婴儿", nextCard: 55 },
+            { text: "如果是戴鸭舌帽的人", nextCard: 48 },
+            { text: "如果是地铁站/公交站", nextCard: 98 }
+        ]
+    },
+    {
+        id: 108,
+        content: "停下来，想一想你的身份证放在哪",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在身体左侧，向你左侧看", nextCard: 51 },
+            { text: "如果在身体右侧，向你右侧看", nextCard: 51 },
+            { text: "如果没有身份证，直视前方", nextCard: 51 },
+            { text: "当你朝某个方向看时，试着做出某种预测", nextCard: 51 },
+            { text: "如果预测成真", nextCard: 51 },
+            { text: "如果预测没有应验", nextCard: 76 }
+        ]
+    },
+    {
+        id: 109,
+        content: "在你的视线范围内，找到最高的两栋建筑",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "想象有一条直线连接两栋建筑物的最高点；估计这条直线与水平线的夹角大约是", nextCard: 65 },
+            { text: "如果0度", nextCard: 65 },
+            { text: "如果30度", nextCard: 39 },
+            { text: "如果45度", nextCard: 76 },
+            { text: "如果60度", nextCard: 51 },
+            { text: "如果90度", nextCard: 74 }
+        ]
+    },
+    {
+        id: 110,
+        content: "向南走两个路口；留意有没有灯光之外的光源",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 97 },
+            { text: "如果没有", nextCard: 68 }
+        ]
+    },
+    {
+        id: 111,
+        content: "站在转角；聆听以下声音",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "当声音停止时", nextCard: 112 }
+        ]
+    },
+    {
+        id: 112,
+        content: "找到最近的戴帽子的人；沿着ta最初行走的方向行走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果遇到戴着鸭舌帽的人", nextCard: 68 },
+            { text: "如果看到看地图的人", nextCard: 32 },
+            { text: "如果看到一辆锁好的自行车", nextCard: 3 },
+            { text: "如果看到穿红色鞋子的人", nextCard: 80 },
+            { text: "如果看到抽烟的人", nextCard: 75 }
+        ]
+    },
+    {
+        id: 113,
+        content: "走到最近的转角；留意你视线范围内的二维码",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 112 },
+            { text: "如果没有", nextCard: 82 }
+        ]
+    },
+    {
+        id: 114,
+        content: "观察离你最近的时钟/手表",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果时间是偶数分钟", nextCard: 68 },
+            { text: "如果是奇数分钟", nextCard: 51 }
+        ]
+    },
+    {
+        id: 115,
+        content: "目测餐厅有多少顾客",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果小于等于5，离开餐厅之后走到最近的转角", nextCard: 52 },
+            { text: "如果6～10，离开餐厅之后走到最近的转角", nextCard: 51 },
+            { text: "如果大于等于11，离开餐厅之后走到最近的转角", nextCard: 26 }
+        ]
+    },
+    {
+        id: 116,
+        content: "寻找一个你觉得最有吸引力的人，跟随ta直到",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "无法跟随", nextCard: 56 },
+            { text: "你看到一个地铁站/公交站", nextCard: 98 },
+            { text: "你听到5次车辆喇叭声", nextCard: 55 },
+            { text: "你看到一个更有吸引力的人，重复这道指令", nextCard: 55 }
+        ]
+    },
+    {
+        id: 117,
+        content: "找一个舒适的地方站立或坐下；当到达下一站，有新乘客上车时，注意最后上车的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果你们有眼神接触", nextCard: 119 },
+            { text: "如果没有眼神接触", nextCard: 118 }
+        ]
+    },
+    {
+        id: 118,
+        content: "注意这个人的手",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta手里有东西，在下一站下车出站", nextCard: 97 },
+            { text: "如果ta手里没有东西，在下两站下车出站", nextCard: 120 }
+        ]
+    },
+    {
+        id: 119,
+        content: "数一数周围你觉的「怪异」的乘客的数量",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "假设有X名乘客，你就坐X站，下车出站", nextCard: 55 },
+            { text: "如果没有，在下一站下车站", nextCard: 110 }
+        ]
+    },
+    {
+        id: 120,
+        content: "如果你的惯用手是",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "左手，走到左手边的转角", nextCard: 116 },
+            { text: "右手，走到右手边的转角", nextCard: 121 }
+        ]
+    },
+    {
+        id: 121,
+        content: "走到最近的转角；观察周围有没有锻炼身体的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有", nextCard: 122 },
+            { text: "如果没有", nextCard: 107 }
+        ]
+    },
+    {
+        id: 122,
+        content: "开始加快你的脚步；像竞走比赛那样，超过5个行人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "", nextCard: 55 }
+        ]
+    },
+    {
+        id: 123,
+        content: "留意你第一眼看到的店面招牌，如果周围没有招牌，你可以随意走走",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "留意招牌的名称，根据招牌的第一个字或字母，转到对应页码", nextCard: 9 },
+            { text: "A", nextCard: 9 },
+            { text: "B", nextCard: 104 },
+            { text: "C", nextCard: 39 },
+            { text: "D", nextCard: 53 },
+            { text: "E", nextCard: 9 },
+            { text: "F", nextCard: 11 },
+            { text: "G", nextCard: 36 },
+            { text: "H", nextCard: 40 },
+            { text: "I", nextCard: 109 },
+            { text: "J", nextCard: 35 },
+            { text: "K", nextCard: 10 },
+            { text: "L", nextCard: 37 },
+            { text: "M", nextCard: 9 },
+            { text: "N", nextCard: 29 },
+            { text: "O", nextCard: 36 },
+            { text: "P", nextCard: 31 },
+            { text: "Q", nextCard: 105 },
+            { text: "R", nextCard: 11 },
+            { text: "S", nextCard: 34 },
+            { text: "T", nextCard: 108 },
+            { text: "U", nextCard: 33 },
+            { text: "V", nextCard: 7 },
+            { text: "W", nextCard: 10 },
+            { text: "X", nextCard: 39 },
+            { text: "Y", nextCard: 40 },
+            { text: "Z", nextCard: 34 }
+        ]
+    },
+    {
+        id: 124,
+        content: "寻找咖啡店/饮料店；进入你找到的第一家咖啡店/饮料店",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "", nextCard: 44 }
+        ]
+    },
+    {
+        id: 125,
+        content: "坐下来放松，想想某个你在很长一段时间再也没有见到过的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "准备好后", nextCard: 90 }
+        ]
+    },
+    {
+        id: 126,
+        content: "如果这个地铁站/公交站",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果只有一条线路", nextCard: 28 },
+            { text: "如果有两条线路", nextCard: 91 },
+            { text: "如果有三条或以上", nextCard: 22 }
+        ]
+    },
+    {
+        id: 127,
+        content: "跟随一个用手机通话的人；直到对方通话结束或者无法跟随为止",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "跳转到下一个指令", nextCard: 66 }
+        ]
+    },
+    {
+        id: 128,
+        content: "找个地方坐下；如果没有地方坐，带走咖啡走到最近的转角",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果在你发现下一位顾客之前就喝完咖啡", nextCard: 46 },
+            { text: "坐下喝咖啡，观察下一位走进咖啡店的路人", nextCard: 129 },
+            { text: "如果ta是异性", nextCard: 130 },
+            { text: "如果ta是同性", nextCard: 131 }
+        ]
+    },
+    {
+        id: 129,
+        content: "在最近的转角，观察有没有任何正在播放的影像/视频",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有", nextCard: 103 }
+        ]
+    },
+    {
+        id: 130,
+        content: "在下一站下车；试图寻找从路人身上赚钱的人",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果没有发现，出站后找个地方坐下", nextCard: 125 },
+            { text: "如果有发现", nextCard: 131 }
+        ]
+    },
+    {
+        id: 131,
+        content: "如果目标在乞讨，施舍ta一点零钱",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果有目光接触", nextCard: 125 },
+            { text: "如果没有目光接触，向左手边走两个路口", nextCard: 122 },
+            { text: "如果目标是在卖艺", nextCard: 132 },
+            { text: "如果是其他情况", nextCard: 125 }
+        ]
+    },
+    {
+        id: 132,
+        content: "欣赏一会儿他们的「节目」，观察你的目标",
+        tags: ["街头侦探", "时间旅人"],
+        options: [
+            { text: "如果ta的眼睛是闭着的，或是你无法辨别", nextCard: 125 },
+            { text: "如果ta的眼镜是睁开的，在节目告一段落后给ta一点零钱", nextCard: 76 },
+            { text: "如果ta对你表示感谢", nextCard: 76 },
+            { text: "如果没有，请你返回刚才的公交站/地铁站，乘坐下一班车", nextCard: 76 }
+        ]
+    }
+];
+
+        // 初始化游戏
+        function initGame() {
+            showCard(currentCard);
+        }
+
+        // 显示卡片
+        function showCard(cardId) {
+            const card = cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            document.querySelector('.card-number').textContent = `#${card.id}`;
+            document.querySelector('.card-content').textContent = card.content;
+
+            // 显示选项
+            const optionsContainer = document.querySelector('.options');
+            optionsContainer.innerHTML = '';
+            card.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'option-text';
+                textSpan.textContent = option.text;
+                
+                const nextCardSpan = document.createElement('span');
+                nextCardSpan.className = 'option-next-card';
+                nextCardSpan.textContent = option.nextCard ? `#${option.nextCard}` : '';
+                
+                button.appendChild(textSpan);
+                button.appendChild(nextCardSpan);
+                
+                button.onclick = () => {
+                    if (!gameStartTime) {
+                        gameStartTime = new Date();
+                    }
+                    selectOption(option.nextCard, option.text);
+                };
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // 选择选项
+        function selectOption(nextCardId, optionText) {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            if (currentCardData) {
+                currentCardData.selectedOption = optionText; // 记录选择的选项
+                addToHistory(currentCardData);
+            }
+            
+            currentCard = nextCardId;
+            showCard(nextCardId);
+        }
+
+        // 添加到历史记录
+        function addToHistory(card) {
+            const existingIndex = history.indexOf(card.id);
+            
+            if (existingIndex !== -1) {
+                const historyItems = document.querySelectorAll('.history-item');
+                const existingItem = historyItems[existingIndex];
+                
+                existingItem.innerHTML = '';
+                const cardNumberSpan = document.createElement('span');
+                cardNumberSpan.className = 'card-number-highlight';
+                cardNumberSpan.textContent = `#${card.id}`;
+                existingItem.appendChild(cardNumberSpan);
+                existingItem.appendChild(document.createTextNode(` - ${card.content}`));
+                
+                if (card.selectedOption) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'selected-option';
+                    optionDiv.style.marginLeft = '20px';
+                    optionDiv.style.color = '#666';
+                    optionDiv.style.fontSize = '0.9em';
+                    optionDiv.textContent = `➤ ${card.selectedOption}`;
+                    existingItem.appendChild(optionDiv);
+                }
+            } else {
+                const historyItem = document.createElement('li');
+                historyItem.className = 'history-item';
+                const cardNumberSpan = document.createElement('span');
+                cardNumberSpan.className = 'card-number-highlight';
+                cardNumberSpan.textContent = `#${card.id}`;
+                historyItem.appendChild(cardNumberSpan);
+                historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                
+                if (card.selectedOption) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'selected-option';
+                    optionDiv.style.marginLeft = '20px';
+                    optionDiv.style.color = '#666';
+                    optionDiv.style.fontSize = '0.9em';
+                    optionDiv.textContent = `➤ ${card.selectedOption}`;
+                    historyItem.appendChild(optionDiv);
+                }
+                
+                document.querySelector('.history-list').appendChild(historyItem);
+                history.push(card.id);
+            }
+        }
+
+        // 封面页交互
+        function startDefaultMode() {
+            const coverPage = document.getElementById('coverPage');
+            coverPage.style.transition = 'transform 0.3s ease-out';
+            coverPage.style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                coverPage.classList.add('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        function startAIMode() {
+            const coverPage = document.getElementById('coverPage');
+            coverPage.style.transition = 'transform 0.3s ease-out';
+            coverPage.style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                coverPage.classList.add('hidden');
+                document.getElementById('aiModePage').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        // 显示加载提示
+        function showLoadingIndicator(message = '生成中...') {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000; display: flex; align-items: center;';
+            
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner';
+            spinner.style.marginRight = '10px';
+            
+            loadingDiv.appendChild(spinner);
+            loadingDiv.appendChild(document.createTextNode(message));
+            document.body.appendChild(loadingDiv);
+            return loadingDiv;
+        }
+
+        // 隐藏加载提示
+        function hideLoadingIndicator() {
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // 生成AI内容
+        async function generateAIContent() {
+            const prompt = document.getElementById('promptInput').value;
+            if (!prompt) {
+                alert('请输入探索主题');
+                return;
+            }
+
+            const loadingIndicator = showLoadingIndicator();
+
+            try {
+                const systemPrompt = `作为一个城市探索向导，你需要根据用户描述的环境或主题，生成一个探索卡片。卡片应包含具体的观察任务或行动指示，以及3-4个后续行动选项。要求：
+1. 内容要具体且可执行
+2. 注重空间和环境的观察
+3. 考虑安全性，不要有危险的建议
+4. 选项要有趣且多样化
+
+返回格式必须是一个JSON对象：
+{
+  "content": "卡片内容",
+  "options": [
+    {"text": "选项1文本", "nextCard": "AI_1"},
+    {"text": "选项2文本", "nextCard": "AI_2"},
+    {"text": "选项3文本", "nextCard": "AI_3"}
+  ]
+}`;
+
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: prompt }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                // 清理返回内容中的Markdown代码块标记
+                let content = data.choices[0].message.content;
+                content = content.replace(/```json\s*|```/g, '').trim();
+                const result = JSON.parse(content);
+
+                // 隐藏AI模式页面，显示游戏界面
+                document.getElementById('aiModePage').style.display = 'none';
+                document.getElementById('card').style.display = 'block';
+                document.getElementById('coverPage').classList.add('hidden');
+
+                // 更新卡片内容和选项
+                const card = document.getElementById('card');
+                card.querySelector('.card-content').textContent = result.content;
+                
+                const optionsContainer = card.querySelector('.options');
+                optionsContainer.innerHTML = '<div class="options-title">选择你的行动：</div>';
+                
+                result.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.innerHTML = `
+                        <span class="option-text">${option.text}</span>
+                        <span class="option-next-card">#${option.nextCard}</span>
+                    `;
+                    button.onclick = () => handleAIOption(option.text, prompt);
+                    optionsContainer.appendChild(button);
+                });
+
+                // 添加到历史记录
+                const historyList = document.querySelector('.history-list');
+                const historyItem = document.createElement('li');
+                historyItem.className = 'history-item';
+                historyItem.textContent = `#${currentCard} - ${result.content}`;
+                historyList.appendChild(historyItem);
+
+                hideLoadingIndicator();
+            } catch (error) {
+                console.error('生成内容时出错:', error);
+                hideLoadingIndicator();
+                alert('生成内容时出错，请重试');
+            }
+        }
+
+        function updateCard(data) {
+            // 保存AI生成的内容到当前卡片
+            const currentCardData = cards.find(card => card.id === currentCard);
+            if (currentCardData) {
+                currentCardData.content = data.content;
+                currentCardData.options = data.options.map((option, index) => ({
+                    text: option.text,
+                    nextCard: index + 1 // 假设AI生成的选项跳转是按顺序的，从1开始
+                }));
+            }
+
+            // 更新显示的卡片内容和选项
+            showCard(currentCard);
+        }
+
+        async function handleAIOption(selectedOption, originalPrompt) {
+            const loadingIndicator = showLoadingIndicator();
+
+            try {
+                const prompt = `基于用户描述的环境："${originalPrompt}"\n\n用户选择了行动："${selectedOption}"\n\n请生成下一个探索卡片，描述用户选择这个行动后的场景和可能遇到的情况。同样需要提供3-4个后续行动选项。\n\n返回格式必须是JSON对象：\n{\n  "content": "卡片内容",\n  "options": [\n    {"text": "选项1文本", "nextCard": "AI_1"},\n    {"text": "选项2文本", "nextCard": "AI_2"},\n    {"text": "选项3文本", "nextCard": "AI_3"}\n  ]\n}`;
+
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                // 清理返回内容中的Markdown代码块标记
+                let content = data.choices[0].message.content;
+                content = content.replace(/```json\s*|```/g, '').trim();
+                const result = JSON.parse(content);
+
+                // 更新卡片内容和选项
+                const card = document.getElementById('card');
+                card.querySelector('.card-content').textContent = result.content;
+                
+                const optionsContainer = card.querySelector('.options');
+                optionsContainer.innerHTML = '<div class="options-title">选择你的行动：</div>';
+                
+                result.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.innerHTML = `
+                        <span class="option-text">${option.text}</span>
+                        <span class="option-next-card">#${option.nextCard}</span>
+                    `;
+                    button.onclick = () => handleAIOption(option.text, originalPrompt);
+                    optionsContainer.appendChild(button);
+                });
+
+                // 添加到历史记录
+                const historyList = document.querySelector('.history-list');
+                const historyItem = document.createElement('li');
+                historyItem.className = 'history-item';
+                historyItem.textContent = `#${++currentCard} - ${result.content}`;
+                historyList.appendChild(historyItem);
+
+                hideLoadingIndicator();
+            } catch (error) {
+                console.error('生成内容时出错:', error);
+                hideLoadingIndicator();
+                alert('生成内容时出错，请重试');
+            }
+        }
+
+        // 自定义主题模态框
+        function openCustomThemeModal() {
+            const modal = document.getElementById('customThemeModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeCustomThemeModal() {
+            const modal = document.getElementById('customThemeModal');
+            modal.style.display = 'none';
+        }
+
+        async function generateCustomTheme() {
+            const themeInput = document.getElementById('customThemeInput').value;
+            if (!themeInput) {
+                alert('请输入探索主题');
+                return;
+            }
+
+            closeCustomThemeModal();
+            document.getElementById('promptInput').value = themeInput;
+            await generateAIContent();
+        }
+
+        // 其他功能函数
+        function editCurrentCard() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const cardContent = document.querySelector('.card-content');
+            
+            // 创建编辑区域容器
+            const editContainer = document.createElement('div');
+            editContainer.style.display = 'flex';
+            editContainer.style.flexDirection = 'column';
+            editContainer.style.gap = '20px';
+            editContainer.style.backgroundColor = '#f7f7f7';
+            editContainer.style.padding = '20px';
+            editContainer.style.borderRadius = '8px';
+            
+            // 创建内容编辑区域
+            const contentEditArea = document.createElement('div');
+            contentEditArea.style.display = 'flex';
+            contentEditArea.style.flexDirection = 'column';
+            contentEditArea.style.gap = '10px';
+            contentEditArea.style.backgroundColor = 'white';
+            contentEditArea.style.padding = '15px';
+            contentEditArea.style.borderRadius = '6px';
+            contentEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            contentEditArea.style.margin = '0 auto';
+            contentEditArea.style.maxWidth = '100%';
+            contentEditArea.style.width = '100%';
+            contentEditArea.style.boxSizing = 'border-box';
+            
+            const contentLabel = document.createElement('div');
+            contentLabel.textContent = '编辑指令内容';
+            contentLabel.style.fontWeight = '600';
+            contentLabel.style.fontSize = '16px';
+            contentLabel.style.marginBottom = '8px';
+            
+            const contentDescription = document.createElement('div');
+            contentDescription.textContent = '在这里编写玩家需要执行的具体指令、观察内容或故事情节。建议使用简洁清晰的语言描述。';
+            contentDescription.style.fontSize = '14px';
+            contentDescription.style.color = '#666';
+            contentDescription.style.marginBottom = '12px';
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = currentCardData.content;
+            textarea.style.width = '100%';
+            textarea.style.margin = '0';
+            textarea.style.height = '150px';
+            textarea.style.resize = 'vertical';
+            textarea.style.padding = '12px';
+            textarea.style.borderRadius = '6px';
+            textarea.style.border = '1px solid #ddd';
+            textarea.style.fontSize = '15px';
+            textarea.style.lineHeight = '1.5';
+            textarea.style.boxSizing = 'border-box';
+            textarea.style.maxWidth = '100%';
+            textarea.style.minWidth = '100%';
+            textarea.style.overflowX = 'hidden';
+            textarea.style.wordWrap = 'break-word';
+            
+            contentEditArea.appendChild(contentLabel);
+            contentEditArea.appendChild(contentDescription);
+            contentEditArea.appendChild(textarea);
+            
+            // 创建选项编辑区域
+            const optionsEditArea = document.createElement('div');
+            optionsEditArea.style.display = 'flex';
+            optionsEditArea.style.flexDirection = 'column';
+            optionsEditArea.style.gap = '10px';
+            optionsEditArea.style.backgroundColor = 'white';
+            optionsEditArea.style.padding = '15px';
+            optionsEditArea.style.borderRadius = '6px';
+            optionsEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            optionsEditArea.style.margin = '0 auto';
+            optionsEditArea.style.maxWidth = '100%';
+            optionsEditArea.style.width = '100%';
+            optionsEditArea.style.boxSizing = 'border-box';
+            
+            const optionsLabel = document.createElement('div');
+            optionsLabel.textContent = '编辑选项';
+            optionsLabel.style.fontWeight = '600';
+            optionsLabel.style.fontSize = '16px';
+            optionsLabel.style.marginBottom = '8px';
+            
+            const optionsDescription = document.createElement('div');
+            optionsDescription.textContent = '添加玩家可以选择的行动选项。每个选项需要设置选项文本和跳转到的卡片编号。';
+            optionsDescription.style.fontSize = '14px';
+            optionsDescription.style.color = '#666';
+            optionsDescription.style.marginBottom = '12px';
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.style.display = 'flex';
+            optionsContainer.style.flexDirection = 'column';
+            optionsContainer.style.gap = '12px';
+            optionsContainer.style.backgroundColor = '#f9f9f9';
+            optionsContainer.style.padding = '12px';
+            optionsContainer.style.borderRadius = '6px';
+            
+            optionsEditArea.appendChild(optionsLabel);
+            optionsEditArea.appendChild(optionsDescription);
+            
+            // 添加现有选项
+            if (currentCardData.options) {
+                currentCardData.options.forEach((option, index) => {
+                    const optionRow = document.createElement('div');
+                    optionRow.style.display = 'flex';
+                    optionRow.style.gap = '10px';
+                    optionRow.style.alignItems = 'center';
+                    
+                    const optionText = document.createElement('input');
+                    optionText.type = 'text';
+                    optionText.value = option.text;
+                    optionText.style.flex = '1';
+                    optionText.style.padding = '8px';
+                    optionText.style.borderRadius = '4px';
+                    optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                    optionText.style.minWidth = '0';
+                    
+                    const nextCardInput = document.createElement('input');
+                    nextCardInput.type = 'number';
+                    nextCardInput.value = option.nextCard;
+                    nextCardInput.style.width = '60px';
+                    nextCardInput.style.padding = '8px';
+                    nextCardInput.style.borderRadius = '4px';
+                    nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                    nextCardInput.style.flexShrink = '0';
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'X';
+                    deleteButton.className = 'edit-button';
+                    deleteButton.style.backgroundColor = '#EC6E5F';
+                    deleteButton.style.padding = '0';
+                    deleteButton.style.borderRadius = '6px';
+                    deleteButton.style.fontSize = '14px';
+                    deleteButton.style.color = 'white';
+                    deleteButton.style.border = 'none';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.style.lineHeight = '1';
+                    deleteButton.style.width = '32px';
+                    deleteButton.style.height = '32px';
+                    deleteButton.style.display = 'flex';
+                    deleteButton.style.alignItems = 'center';
+                    deleteButton.style.justifyContent = 'center';
+                    deleteButton.style.minWidth = '32px';
+                    deleteButton.style.maxWidth = '32px';
+                    deleteButton.style.flexShrink = '0';
+                    deleteButton.style.flexGrow = '0';
+                    deleteButton.onclick = () => optionRow.remove();
+                    
+                    optionRow.appendChild(optionText);
+                    optionRow.appendChild(nextCardInput);
+                    optionRow.appendChild(deleteButton);
+                    optionsContainer.appendChild(optionRow);
+                });
+            }
+            
+            // 添加新选项按钮
+            const addOptionButton = document.createElement('button');
+            addOptionButton.textContent = '添加选项';
+            addOptionButton.className = 'edit-button';
+            addOptionButton.style.alignSelf = 'flex-start';
+            addOptionButton.style.backgroundColor = '#F5F1E6';
+            addOptionButton.style.border = '2px dashed #4B7B91';
+            addOptionButton.style.color = '#4B7B91';
+            addOptionButton.style.padding = '10px 20px';
+            addOptionButton.style.fontSize = '15px';
+            addOptionButton.style.fontWeight = '500';
+            addOptionButton.onclick = () => {
+                const optionRow = document.createElement('div');
+                optionRow.style.display = 'flex';
+                optionRow.style.gap = '10px';
+                optionRow.style.alignItems = 'center';
+                
+                const optionText = document.createElement('input');
+                optionText.type = 'text';
+                optionText.placeholder = '例如："继续向前走" 或 "转向左边"';
+                optionText.style.flex = '1';
+                optionText.style.padding = '10px';
+                optionText.style.borderRadius = '6px';
+                optionText.style.border = '1px solid #ddd';
+                optionText.style.fontSize = '14px';
+                optionText.style.minWidth = '0';
+                
+                const nextCardInput = document.createElement('input');
+                nextCardInput.type = 'number';
+                nextCardInput.placeholder = '卡片号';
+                nextCardInput.style.width = '60px';
+                nextCardInput.style.padding = '10px';
+                nextCardInput.style.borderRadius = '6px';
+                nextCardInput.style.border = '1px solid #ddd';
+                nextCardInput.style.fontSize = '14px';
+                nextCardInput.style.marginLeft = '8px';
+                nextCardInput.style.flexShrink = '0';
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'X';
+                deleteButton.className = 'edit-button';
+                deleteButton.style.backgroundColor = '#EC6E5F';
+                deleteButton.style.padding = '0';
+                deleteButton.style.borderRadius = '6px';
+                deleteButton.style.fontSize = '14px';
+                deleteButton.style.color = 'white';
+                deleteButton.style.border = 'none';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.style.lineHeight = '1';
+                deleteButton.style.width = '32px';
+                deleteButton.style.height = '32px';
+                deleteButton.style.display = 'flex';
+                deleteButton.style.alignItems = 'center';
+                deleteButton.style.justifyContent = 'center';
+                deleteButton.style.minWidth = '32px';
+                deleteButton.style.maxWidth = '32px';
+                deleteButton.style.flexShrink = '0';
+                deleteButton.style.flexGrow = '0';
+                deleteButton.style.minWidth = '32px';
+                deleteButton.style.maxWidth = '32px';
+                deleteButton.style.flexShrink = '0';
+                deleteButton.style.flexGrow = '0';
+                deleteButton.onclick = () => optionRow.remove();
+                
+                optionRow.appendChild(optionText);
+                optionRow.appendChild(nextCardInput);
+                optionRow.appendChild(deleteButton);
+                optionsContainer.appendChild(optionRow);
+            };
+            
+            // 添加AI生成选项按钮
+            const generateButton = document.createElement('button');
+            generateButton.textContent = 'AI生成选项';
+            generateButton.className = 'edit-button';
+            generateButton.style.backgroundColor = '#4B7B91';
+            generateButton.style.padding = '10px 20px';
+            generateButton.style.fontSize = '15px';
+            generateButton.style.fontWeight = '500';
+            generateButton.onclick = async () => {
+                try {
+                    // 显示加载状态
+                    generateButton.disabled = true;
+                    generateButton.style.opacity = '0.7';
+                    generateButton.textContent = '生成中...';
+                    
+                    const options = await generateOptionsWithAI(textarea.value);
+                    options.forEach(option => {
+                        const optionRow = document.createElement('div');
+                        optionRow.style.display = 'flex';
+                        optionRow.style.gap = '10px';
+                        optionRow.style.alignItems = 'center';
+                        optionRow.style.animation = 'fadeIn 0.3s ease-in-out';
+                        
+                        const optionText = document.createElement('input');
+                        optionText.type = 'text';
+                        optionText.value = option.text;
+                        optionText.style.flex = '1';
+                        optionText.style.padding = '8px';
+                        optionText.style.borderRadius = '4px';
+                        optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        
+                        const nextCardInput = document.createElement('input');
+                        nextCardInput.type = 'number';
+                        nextCardInput.value = option.nextCard;
+                        nextCardInput.style.width = '80px';
+                        nextCardInput.style.padding = '8px';
+                        nextCardInput.style.borderRadius = '4px';
+                        nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'X';
+                        deleteButton.className = 'edit-button';
+                        deleteButton.style.backgroundColor = '#EC6E5F';
+                        deleteButton.style.padding = '0';
+                        deleteButton.style.borderRadius = '6px';
+                        deleteButton.style.fontSize = '14px';
+                        deleteButton.style.color = 'white';
+                        deleteButton.style.border = 'none';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.lineHeight = '1';
+                        deleteButton.style.width = '32px';
+                        deleteButton.style.height = '32px';
+                        deleteButton.style.display = 'flex';
+                        deleteButton.style.alignItems = 'center';
+                        deleteButton.style.justifyContent = 'center';
+                        deleteButton.style.minWidth = '32px';
+                        deleteButton.style.maxWidth = '32px';
+                        deleteButton.style.flexShrink = '0';
+                        deleteButton.style.flexGrow = '0';
+                        deleteButton.onclick = () => {
+                            optionRow.style.animation = 'fadeOut 0.3s ease-in-out';
+                            setTimeout(() => optionRow.remove(), 300);
+                        };
+                        
+                        optionRow.appendChild(optionText);
+                        optionRow.appendChild(nextCardInput);
+                        optionRow.appendChild(deleteButton);
+                        optionsContainer.appendChild(optionRow);
+                    });
+                } catch (error) {
+                    console.error('生成选项失败:', error);
+                    alert('生成选项失败，请稍后重试');
+                } finally {
+                    // 恢复按钮状态
+                    generateButton.disabled = false;
+                    generateButton.style.opacity = '1';
+                    generateButton.textContent = 'AI生成选项';
+                }
+            };
+            
+            const generateOptionsButton = document.createElement('button');
+            generateOptionsButton.textContent = 'AI生成选项';
+            generateOptionsButton.className = 'edit-button';
+            generateOptionsButton.style.backgroundColor = '#4B7B91';
+            generateOptionsButton.style.padding = '10px 20px';
+            generateOptionsButton.style.fontSize = '15px';
+            generateOptionsButton.style.fontWeight = '500';
+            generateOptionsButton.onclick = generateButton.onclick;
+
+            optionsEditArea.appendChild(optionsLabel);
+            optionsEditArea.appendChild(optionsContainer);
+            optionsEditArea.appendChild(addOptionButton);
+            optionsEditArea.appendChild(generateOptionsButton);
+            
+            // 添加所有编辑区域到容器
+            editContainer.appendChild(contentEditArea);
+            editContainer.appendChild(optionsEditArea);
+            
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.gap = '10px';
+            buttonContainer.style.marginTop = '25px';
+            buttonContainer.style.flexDirection = 'row';
+            buttonContainer.style.justifyContent = 'flex-start';
+            buttonContainer.style.alignItems = 'center';
+            buttonContainer.style.backgroundColor = 'transparent';
+            buttonContainer.style.padding = '0';
+            buttonContainer.style.width = '100%';
+            buttonContainer.style.borderRadius = '6px';
+            buttonContainer.style.boxSizing = 'border-box';
+            buttonContainer.style.marginLeft = '0';
+            buttonContainer.style.marginRight = '0';
+            
+            const saveButton = document.createElement('button');
+            saveButton.textContent = '保存';
+            saveButton.className = 'edit-button';
+            saveButton.style.backgroundColor = '#F0C963';
+            saveButton.style.padding = '10px 20px';
+            saveButton.style.fontSize = '15px';
+            saveButton.style.fontWeight = '500';
+            saveButton.style.width = '49%';
+            saveButton.onclick = () => {
+                // 保存内容
+                currentCardData.content = textarea.value;
+                
+                // 保存选项
+                const optionRows = optionsContainer.querySelectorAll('div[style*="display: flex"]');
+                currentCardData.options = Array.from(optionRows).map(row => {
+                    const text = row.children[0].value;
+                    const nextCard = parseInt(row.children[1].value);
+                    // 验证跳转编号的有效性
+                    if (isNaN(nextCard) || nextCard < 1) {
+                        alert('请输入有效的跳转编号！');
+                        return null;
+                    }
+                    return {
+                        text: text,
+                        nextCard: nextCard
+                    };
+                }).filter(option => option !== null);
+                
+                // 恢复显示
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = textarea.value;
+                editContainer.parentNode.replaceChild(newCardContent, editContainer);
+                
+                // 清除原有选项
+                const oldOptions = document.querySelector('.options');
+                if (oldOptions) {
+                    oldOptions.remove();
+                }
+                
+                // 创建新的选项容器
+                const newOptions = document.createElement('div');
+                newOptions.className = 'options';
+                const optionsTitle = document.createElement('div');
+                optionsTitle.className = 'options-title';
+                optionsTitle.textContent = '选择你的行动：';
+                newOptions.appendChild(optionsTitle);
+                
+                // 添加编辑后的选项
+                currentCardData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.textContent = option.text;
+                    button.onclick = () => goToCard(option.nextCard);
+                    newOptions.appendChild(button);
+                });
+                
+                // 将新选项添加到卡片中
+                document.querySelector('.card').appendChild(newOptions);
+                buttonContainer.remove();
+                updateCardDisplay();
+            };
+            
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.className = 'edit-button';
+            cancelButton.style.backgroundColor = '#B7B4AC';
+            cancelButton.style.padding = '10px 20px';
+            cancelButton.style.fontSize = '15px';
+            cancelButton.style.fontWeight = '500';
+            cancelButton.style.width = '49%';
+            cancelButton.onclick = () => {
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = currentCardData.content;
+                editContainer.parentNode.replaceChild(newCardContent, editContainer);
+            };
+            
+            // 创建按钮提示文本
+            const buttonTip = document.createElement('div');
+            buttonTip.textContent = '';
+            buttonTip.style.color = '#666';
+            buttonTip.style.fontSize = '14px';
+            buttonTip.style.marginRight = 'auto';
+            
+            buttonContainer.appendChild(buttonTip);
+            buttonContainer.appendChild(saveButton);
+            buttonContainer.appendChild(cancelButton);
+            editContainer.appendChild(buttonContainer);
+            
+            // 替换原有内容
+            cardContent.parentNode.replaceChild(editContainer, cardContent);
+        }
+        // 使用AI生成选项
+        async function generateOptionsWithAI(instruction) {
+            // 获取所有AI生成选项按钮
+            const generateButtons = document.querySelectorAll('button.edit-button');
+            generateButtons.forEach(button => {
+                if (button.textContent === 'AI生成选项') {
+                    button.disabled = true;
+                    button.style.opacity = '0.7';
+                    button.innerHTML = '<span class="loading-spinner"></span>正在生成中...';
+                }
+            });
+
+            try {
+                // 构建提示词
+                const prompt = `你是一个城市探索游戏的AI设计师。请基于以下游戏指令内容，生成3-5个合理的行动选项。每个选项都应该引导玩家仔细观察和探索周围的环境细节，包括但不限于：建筑特征、街道布局、自然景观、人文场景、环境氛围等。选项需要激发玩家的好奇心，引导他们发现城市中被忽视的细节。每个选项需包含选项描述和跳转卡片编号(1-132之间)。
+
+要求：
+- 选项描述应该简洁有力，长度在15-30个字之间
+- 选项必须以观察和探索环境为主，引导玩家注意周围的细节
+- 选项之间要有明显的差异性，关注环境的不同方面
+- 选项的语气要富有探索性和好奇心
+- 格式为: 选项描述|卡片编号
+- 不需要在选项开头生成数字编号
+
+
+当前指令内容: "${instruction}"`;
+                
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: prompt
+                        }],
+                        temperature: 0.7,
+                        max_tokens: 500
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    const aiResponse = data.choices[0].message.content;
+                    
+                    // 解析AI返回的选项
+                    const optionLines = aiResponse.split('\n').filter(line => line.includes('|'));
+                    const options = optionLines.map(line => {
+                        const [text, nextCard] = line.split('|');
+                        const trimmedText = text.trim();
+                        // 确保选项文本长度适中
+                        if (trimmedText.length < 5 || trimmedText.length > 40) {
+                            return null;
+                        }
+                        return {
+                            text: trimmedText,
+                            nextCard: parseInt(nextCard.trim()) || Math.floor(Math.random() * 132) + 1
+                        };
+                    }).filter(option => option !== null);
+                    
+                    return options.length >= 3 ? options.slice(0, 5) : [
+                        { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                    ];
+                } else {
+                    throw new Error('API返回数据格式错误');
+                }
+            } catch (error) {
+                console.error('AI生成选项失败:', error);
+                // 如果API调用失败，返回默认选项
+                return [
+                    { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                    { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                    { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                ];
+            } finally {
+                // 恢复所有AI生成选项按钮的状态
+                const generateButtons = document.querySelectorAll('button.edit-button');
+                generateButtons.forEach(button => {
+                    if (button.textContent.includes('正在生成中')) {
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                        button.textContent = 'AI生成选项';
+                    }
+                });
+            }
+        }
+
+        function saveCard() {
+            const editContent = document.getElementById('editContent');
+            const currentCardData = cards.find(card => card.id === currentCard);
+            
+            // 更新cards数组中的内容
+            currentCardData.content = editContent.value;
+            
+            // 更新当前显示的卡片内容
+            document.querySelector('.card-content').textContent = editContent.value;
+            
+            // 更新历史记录中的显示文本
+            updateHistoryDisplay();
+            
+            // 隐藏编辑表单
+            cancelEdit();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.querySelector('.history-list');
+            historyList.innerHTML = '';
+            
+            history.forEach(cardId => {
+                const card = cards.find(c => c.id === cardId);
+                if (card) {
+                    const historyItem = document.createElement('li');
+                    historyItem.className = 'history-item';
+                    
+                    const cardNumber = document.createElement('span');
+                    cardNumber.className = 'card-number-highlight';
+                    cardNumber.textContent = `#${cardId}`;
+                    
+                    historyItem.appendChild(cardNumber);
+                    historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                    
+                    historyList.appendChild(historyItem);
+                }
+            });
+        }
+
+        function cancelEdit() {
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function updateCardDisplay() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const cardContent = document.querySelector('.card-content');
+            const optionsContainer = document.querySelector('.options');
+            
+            // 清除原有内容
+            cardContent.textContent = '';
+            optionsContainer.innerHTML = '';
+            
+            // 分离主要文本和选项
+            const mainContent = currentCardData.content.split('\n').filter(line => !line.match(/^\d+\.|转到#/)).join('\n');
+            cardContent.textContent = mainContent;
+            
+            // 添加选项标题
+            if (currentCardData.options && currentCardData.options.length > 0) {
+                const optionsTitle = document.createElement('div');
+                optionsTitle.className = 'options-title';
+                optionsTitle.textContent = '选项：';
+                optionsContainer.appendChild(optionsTitle);
+                
+                // 添加选项按钮
+                currentCardData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    
+                    // 创建选项文本容器
+                    const optionText = document.createElement('span');
+                    optionText.className = 'option-text';
+                    optionText.textContent = option.text;
+                    
+                    // 创建跳转编号标签
+                    const nextCardLabel = document.createElement('span');
+                    nextCardLabel.className = 'option-next-card';
+                    nextCardLabel.textContent = `#${option.nextCard}`;
+                    
+                    // 添加文本和编号到按钮
+                    button.appendChild(optionText);
+                    button.appendChild(nextCardLabel);
+                    
+                    button.onclick = () => {
+                        if (!gameStartTime) {
+                            gameStartTime = new Date();
+                        }
+                        selectOption(option.nextCard, option.text);
+                    };
+                    optionsContainer.appendChild(button);
+                });
+            }
+        }
+
+        function skipCard() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const nextCard = getRandomCard();
+            
+            if (nextCard) {
+                if (currentCardData) {
+                    // 将当前卡片添加到历史记录
+                    history.push(currentCardData.id);
+                    
+                    // 创建新的历史记录项
+                    const historyList = document.querySelector('.history-list');
+                    const historyItem = document.createElement('li');
+                    historyItem.className = 'history-item';
+                    
+                    const cardNumber = document.createElement('span');
+                    cardNumber.className = 'card-number-highlight';
+                    cardNumber.textContent = `#${currentCardData.id}`;
+                    
+                    historyItem.appendChild(cardNumber);
+                    historyItem.appendChild(document.createTextNode(` [已跳过] - ${currentCardData.content}`));
+                    
+                    historyList.appendChild(historyItem);
+                }
+                
+                // 更新当前卡片ID并显示新卡片
+                currentCard = nextCard.id;
+                showCard(nextCard.id);
+            } else {
+                alert('已经浏览过所有卡片，游戏结束！\n你的探索路径：' + history.join(' → '));
+            }
+        }
+
+        async function generateLog() {
+            try {
+                // 创建加载提示元素
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loading-message';
+                loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;';
+                loadingDiv.textContent = '正在生成故事...';
+                document.body.appendChild(loadingDiv);
+
+                // 构建提示词，去除卡片编号
+                const historyItems = document.querySelectorAll('.history-item');
+                let prompt = "请基于以下探索历史，写一篇散步日志或城市探索日志。在日志中要着重描述城市空间和环境的观察体验，包括建筑、街道、人群、声音、气味等感官细节，以及这些空间带来的感受和思考。（尽量不要出现具体的人名）：\n";
+                historyItems.forEach((item, index) => {
+                    // 移除卡片编号，只保留内容
+                    const content = item.textContent.replace(/^#\d+\s*-\s*/, '');
+                    prompt += `${index + 1}. ${content}\n`;
+                });
+
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: prompt + "\n请生成一篇不超过300字的散步日志，要突出空间感受和个人体验。"
+                        }],
+                        max_tokens: 800
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API请求失败: ${errorData.error?.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    const story = data.choices[0].message.content;
+                    
+                    // 移除加载提示
+                    loadingDiv.remove();
+
+                    // 获取当前时间
+                    const currentTime = new Date();
+                    const formattedTime = currentTime.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+
+                    // 创建故事容器
+                    const storyContainer = document.createElement('div');
+                    storyContainer.className = 'story-container';
+                    storyContainer.style.cssText = 'margin: 10px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px; width: calc(100% - 52px); max-width: 500px;';
+                    
+                    const storyTitle = document.createElement('h3');
+                    storyTitle.textContent = '你的城市探索故事';
+                    storyTitle.style.cssText = 'color: #2c3e50; margin-bottom: 15px;';
+                    
+                    const timeInfo = document.createElement('p');
+                    timeInfo.style.cssText = 'color: #666; margin-bottom: 10px; font-size: 14px;';
+                    const startTimeStr = (gameStartTime || new Date()).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    timeInfo.textContent = `游戏时间：${startTimeStr}～${formattedTime}`;
+                    
+                    const storyContent = document.createElement('div');
+                    storyContent.style.cssText = 'white-space: pre-wrap; line-height: 1.6; color: #34495e;';
+                    storyContent.textContent = story;
+                    
+                    storyContainer.appendChild(storyTitle);
+                    storyContainer.appendChild(timeInfo);
+                    storyContainer.appendChild(storyContent);
+                    document.body.appendChild(storyContainer);
+                    
+                    // 滚动到故事位置
+                    storyContainer.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error('API返回数据格式错误');
+                }
+            } catch (error) {
+                console.error('生成日志失败:', error);
+                // 移除加载提示
+                document.getElementById('loading-message')?.remove();
+                
+                // 根据错误类型提供更详细的错误信息
+                let errorMessage = '生成日志失败: ';
+                if (error.message === 'Failed to fetch') {
+                    errorMessage += '网络连接失败，请检查您的网络连接并重试。';
+                } else if (error.name === 'TypeError') {
+                    errorMessage += '服务暂时不可用，请稍后重试。';
+                } else if (error.response) {
+                    errorMessage += `服务器返回错误(${error.response.status}): ${error.response.statusText}`;
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
+            }
+        }
+
+        async function generateLog() {
+            try {
+                // 创建加载提示元素
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loading-message';
+                loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;';
+                loadingDiv.textContent = '正在生成故事...';
+                document.body.appendChild(loadingDiv);
+
+                // 构建提示词，去除卡片编号
+                const historyItems = document.querySelectorAll('.history-item');
+                let prompt = "请基于以下探索历史，写一篇散步日志或城市探索日志。在日志中要着重描述城市空间和环境的观察体验，包括建筑、街道、人群、声音、气味等感官细节，以及这些空间给你带来的感受和思考。（不超过300字，尽量不要出现具体的人名）：\n";
+                historyItems.forEach((item, index) => {
+                    // 移除卡片编号，只保留内容
+                    const content = item.textContent.replace(/^#\d+\s*-\s*/, '');
+                    prompt += `${index + 1}. ${content}\n`;
+                });
+
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: prompt + "\n请生成一篇不超过500字的散步日志，要突出空间感受和个人体验。"
+                        }],
+                        max_tokens: 800
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API请求失败: ${errorData.error?.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    const story = data.choices[0].message.content;
+                    
+                    // 移除加载提示
+                    loadingDiv.remove();
+
+                    // 获取当前时间
+                    const currentTime = new Date();
+                    const formattedTime = currentTime.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+
+                    // 创建故事容器
+                    const storyContainer = document.createElement('div');
+                    storyContainer.className = 'story-container';
+                    storyContainer.style.cssText = 'margin: 10px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px; width: calc(100% - 52px); max-width: 500px;';
+                    
+                    const storyTitle = document.createElement('h3');
+                    storyTitle.textContent = '你的城市探索故事';
+                    storyTitle.style.cssText = 'color: #2c3e50; margin-bottom: 15px;';
+                    
+                    const timeInfo = document.createElement('p');
+                    timeInfo.style.cssText = 'color: #666; margin-bottom: 10px; font-size: 14px;';
+                    const startTimeStr = (gameStartTime || new Date()).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    timeInfo.textContent = `游戏时间：${startTimeStr}～${formattedTime}`;
+                    
+                    const storyContent = document.createElement('div');
+                    storyContent.style.cssText = 'white-space: pre-wrap; line-height: 1.6; color: #34495e;';
+                    storyContent.textContent = story;
+                    
+                    storyContainer.appendChild(storyTitle);
+                    storyContainer.appendChild(timeInfo);
+                    storyContainer.appendChild(storyContent);
+                    document.body.appendChild(storyContainer);
+                    
+                    // 滚动到故事位置
+                    storyContainer.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error('API返回数据格式错误');
+                }
+            } catch (error) {
+                console.error('生成日志失败:', error);
+                // 移除加载提示
+                document.getElementById('loading-message')?.remove();
+                
+                // 根据错误类型提供更详细的错误信息
+                let errorMessage = '生成日志失败: ';
+                if (error.message === 'Failed to fetch') {
+                    errorMessage += '网络连接失败，请检查您的网络连接并重试。';
+                } else if (error.name === 'TypeError') {
+                    errorMessage += '服务暂时不可用，请稍后重试。';
+                } else if (error.response) {
+                    errorMessage += `服务器返回错误(${error.response.status}): ${error.response.statusText}`;
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
+            }
+        }
+
+        // 启动游戏
+        initGame();
+    </script>
+</body>
+</html>

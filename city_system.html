@@ -508,7 +508,6 @@
             padding: 20px;
         }
 
-        .suggestions-container,
         .history-container {
             margin: 30px 0;
             padding: 20px;
@@ -518,14 +517,12 @@
             box-shadow: var(--shadow-default);
         }
 
-        .suggestions-container h3,
         .history-container h3 {
             margin: 0 0 15px 0;
             font-size: 18px;
             color: var(--color-text);
         }
 
-        .suggestion-tags,
         .history-tags {
             display: flex;
             flex-wrap: wrap;
@@ -720,20 +717,10 @@
         <div class="ai-mode-content">
             <h2>AI探索模式</h2>
             <p>请描述你想探索的环境或主题：</p>
-            <textarea class="prompt-input" id="promptInput" placeholder="例如：我在安徽西递村，想探索徽州古建筑"></textarea>
+            <textarea class="prompt-input" id="promptInput" placeholder="例如：我在深圳湾公园，想随便走走"></textarea>
             <button class="confirm-button" onclick="generateAIContent()">开始探索</button>
             
-            <div class="suggestions-container">
-                <h3>探索建议</h3>
-                <div class="suggestion-tags">
-                    <span class="tag" onclick="setPrompt('老街区探索')">老街区</span>
-                    <span class="tag" onclick="setPrompt('工业遗迹探索')">工业遗迹</span>
-                    <span class="tag" onclick="setPrompt('城中村探索')">城中村</span>
-                    <span class="tag" onclick="setPrompt('地下空间探索')">地下空间</span>
-                    <span class="tag" onclick="setPrompt('城市公园探索')">城市公园</span>
-                    <span class="tag" onclick="setPrompt('天台探索')">天台</span>
-                </div>
-            </div>
+
             
             <div class="history-container">
                 <h3>最近探索</h3>
@@ -2199,17 +2186,7 @@
             }, 300);
         }
 
-        // 探索建议数据
-        const suggestionTags = [
-            '城市边界探索',
-            '老街区探索',
-            '工业遗迹探索',
-            '城中村探索',
-            '地下空间探索',
-            '城市公园探索',
-            '夜市探索',
-            '天台探索'
-        ];
+
 
         // 全局变量标记AI模式状态
         let isAIMode = false;
@@ -2226,16 +2203,7 @@
                 document.getElementById('aiModePage').style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                // 初始化探索建议标签
-                const suggestionsContainer = document.getElementById('suggestionTags');
-                suggestionsContainer.innerHTML = '';
-                suggestionTags.forEach(tag => {
-                    const tagElement = document.createElement('span');
-                    tagElement.className = 'tag';
-                    tagElement.textContent = tag;
-                    tagElement.onclick = () => setPrompt(tag);
-                    suggestionsContainer.appendChild(tagElement);
-                });
+
 
                 // 加载历史记录
                 updateHistoryTags();

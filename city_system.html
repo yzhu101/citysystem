@@ -2939,6 +2939,9 @@
                 optionsTitle.textContent = '选择你的行动：';
                 newOptions.appendChild(optionsTitle);
                 
+                // 调用新的AI模式编辑后生成函数
+                generateNextCardAfterEdit();
+                
                 // 添加编辑后的选项（AI模式专用，无序号显示）
                 currentCardData.options.forEach(option => {
                     const button = document.createElement('button');
@@ -3520,6 +3523,11 @@
                     };
                 }).filter(option => option !== null);
                 
+                // AI模式下生成下一张指令卡
+                if (isAIMode) {
+                    generateNextCardAfterEdit();
+                }
+                
                 // 恢复显示
                 const newCardContent = document.createElement('div');
                 newCardContent.className = 'card-content';
@@ -3975,24 +3983,40 @@
                             // 异步生成新的卡片内容和选项
                             (async () => {
                                 try {
-                                    // 构建提示词
-                                    const prompt =`玩家刚刚选择了行动："${selectedOptionText}"。请严格模仿以下默认指令库的写法风格生成一个探索卡片：
+                                    // 使用与generateNextCardAfterEdit相同的系统提示词和格式
+                                    const systemPrompt = `作为一个城市探索向导，你需要根据玩家选择的行动，生成下一个探索卡片。请严格参考以下默认指令库的写法风格：
 
 参考风格示例：
 - "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到"
 - "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音"
 - "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人"
+- "找到一个可以坐下的地方；观察经过的人群，注意他们的步伐和表情"
+- "走向最近的商店橱窗；仔细观察展示的商品，思考它们反映的生活方式"
 
-要求：
-1. 内容要具体且可执行，字数控制在100字以内
-2. 使用分号分隔不同的行动步骤
-3. 多用"走到"、"站在"、"留意"、"观察"等动词开头
-4. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
-5. 选项必须以"如果..."开头，描述具体的观察结果
-6. 所有条件判断都应该放在选项中，而不是指令内容中
-7. 语言简洁直接，避免过多修饰词
-8. 注重空间和环境的观察
-9. 考虑安全性，不要有危险的建议`;
+重要要求：
+1. content字段只能包含具体的行动指令，绝对不能包含选项内容或"选项："等文字
+2. 所有选项内容必须单独放在options数组中，不能出现在content字段里
+3. content内容要具体且可执行，和周边环境相关，字数控制在100字以内
+4. 使用分号分隔不同的行动步骤
+5. 多用"走到"、"站在"、"留意"、"观察"、"找到"等动词开头
+6. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
+7. 选项可以以"如果..."开头，描述具体的观察结果
+8. 所有条件判断都应该放在选项中，而不是指令内容中
+9. 语言简洁直接，避免过多修饰词
+10. 注重空间和环境的观察
+11. 考虑安全性，不要有危险的建议
+
+严格按照以下JSON格式返回，不要添加任何额外文字：
+{
+  "content": "只包含行动指令的内容，不包含选项",
+  "options": [
+    {"text": "选项1文本", "nextCard": "AI_1"},
+    {"text": "选项2文本", "nextCard": "AI_2"},
+    {"text": "选项3文本", "nextCard": "AI_3"}
+  ]
+}`;
+                                    
+                                    const userPrompt = `玩家刚刚选择了行动："${selectedOptionText}"。请基于这个选择，严格按照默认指令库的风格生成下一个探索卡片。`;
                                     
                                     // 调用DeepSeek API
                                     const response = await fetch(DEEPSEEK_API_ENDPOINT, {
@@ -4003,10 +4027,10 @@
                                         },
                                         body: JSON.stringify({
                                             model: "deepseek-chat",
-                                            messages: [{
-                                                role: "user",
-                                                content: prompt
-                                            }],
+                                            messages: [
+                                                { role: "system", content: systemPrompt },
+                                                { role: "user", content: userPrompt }
+                                            ],
                                             temperature: 0.7,
                                             max_tokens: 500
                                         })
@@ -4018,20 +4042,56 @@
                                     
                                     const data = await response.json();
                                     if (data.choices && data.choices[0]) {
-                                        const newContent = data.choices[0].message.content;
+                                        // 清理返回内容中的Markdown代码块标记
+                                        let content = data.choices[0].message.content;
+                                        content = content.replace(/```json\s*|```/g, '').trim();
                                         
-                                        // 更新卡片内容
-                                        const cardIndex = cards.findIndex(card => card.id === newCardId);
-                                        if (cardIndex !== -1) {
-                                            cards[cardIndex].content = newContent;
+                                        console.log('AI返回的原始内容:', content);
+                                        
+                                        try {
+                                            const result = JSON.parse(content);
                                             
-                                            // 生成新的选项
-                                            const options = await generateOptionsWithAI(newContent);
-                                            cards[cardIndex].options = options;
+                                            // 验证返回的JSON结构
+                                            if (!result.content || !result.options || !Array.isArray(result.options)) {
+                                                throw new Error('API返回的JSON格式不正确');
+                                            }
                                             
-                                            // 如果当前显示的是这张卡片，更新显示
-                                            if (currentCard === newCardId) {
-                                                updateCardDisplay();
+                                            // 更新卡片内容
+                                            const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                            if (cardIndex !== -1) {
+                                                cards[cardIndex].content = result.content;
+                                                cards[cardIndex].options = result.options.map(option => ({
+                                                    text: option.text,
+                                                    nextCard: `AI_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+                                                }));
+                                                
+                                                // 如果当前显示的是这张卡片，更新显示
+                                                if (currentCard === newCardId) {
+                                                    updateCardDisplay();
+                                                }
+                                            }
+                                            
+                                        } catch (parseError) {
+                                            console.error('JSON解析失败:', parseError);
+                                            console.error('尝试解析的内容:', content);
+                                            
+                                            // 如果JSON解析失败，尝试从纯文本中提取内容
+                                            const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                            if (cardIndex !== -1) {
+                                                // 简单的文本处理：假设第一行是指令，其余是选项
+                                                const lines = content.split('\n').filter(line => line.trim());
+                                                const instructionContent = lines[0] || "继续探索周围的环境";
+                                                
+                                                cards[cardIndex].content = instructionContent;
+                                                cards[cardIndex].options = [
+                                                    { text: "继续向前探索", nextCard: `AI_${Date.now()}_${Math.floor(Math.random() * 1000)}` },
+                                                    { text: "转向左边的小路", nextCard: `AI_${Date.now()}_${Math.floor(Math.random() * 1000)}` },
+                                                    { text: "观察周围的环境", nextCard: `AI_${Date.now()}_${Math.floor(Math.random() * 1000)}` }
+                                                ];
+                                                
+                                                if (currentCard === newCardId) {
+                                                    updateCardDisplay();
+                                                }
                                             }
                                         }
                                     }
@@ -4287,6 +4347,176 @@
                 }
                 
                 alert(errorMessage);
+            }
+        }
+
+        // AI模式编辑后生成下一张指令卡的函数
+        async function generateNextCardAfterEdit() {
+            // 只在AI模式下执行
+            if (!isAIMode) {
+                return;
+            }
+            
+            try {
+                // 获取当前卡片数据
+                const currentCardData = cards.find(card => card.id === currentCard);
+                if (!currentCardData) {
+                    return;
+                }
+                
+                // 获取玩家编辑的选项文字
+                const editedOptions = currentCardData.options.map(option => option.text).join('；');
+                
+                // 构建严格参考默认指令库的系统提示词
+                const systemPrompt = `作为一个城市探索向导，你需要根据玩家编辑的选项内容，生成下一个探索卡片。请严格参考以下默认指令库的写法风格：
+
+参考风格示例：
+- "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到"
+- "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音"
+- "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人"
+- "找到一个可以坐下的地方；观察经过的人群，注意他们的步伐和表情"
+- "走向最近的商店橱窗；仔细观察展示的商品，思考它们反映的生活方式"
+
+重要要求：
+1. content字段只能包含具体的行动指令，绝对不能包含选项内容或"选项："等文字
+2. 所有选项内容必须单独放在options数组中，不能出现在content字段里
+3. content内容要具体且可执行，和周边环境相关，字数控制在100字以内
+4. 使用分号分隔不同的行动步骤
+5. 多用"走到"、"站在"、"留意"、"观察"、"找到"等动词开头
+6. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
+7. 选项可以以"如果..."开头，描述具体的观察结果
+8. 所有条件判断都应该放在选项中，而不是指令内容中
+9. 语言简洁直接，避免过多修饰词
+10. 注重空间和环境的观察
+11. 考虑安全性，不要有危险的建议
+
+严格按照以下JSON格式返回，不要添加任何额外文字：
+{
+  "content": "只包含行动指令的内容，不包含选项",
+  "options": [
+    {"text": "选项1文本", "nextCard": "AI_1"},
+    {"text": "选项2文本", "nextCard": "AI_2"},
+    {"text": "选项3文本", "nextCard": "AI_3"}
+  ]
+}`;
+                
+                // 构建用户提示词
+                const userPrompt = `玩家刚刚编辑了以下选项："${editedOptions}"。请基于这些选项内容，严格按照默认指令库的风格生成下一个探索卡片。`;
+                
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: userPrompt }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    // 清理返回内容中的Markdown代码块标记
+                    let content = data.choices[0].message.content;
+                    content = content.replace(/```json\s*|```/g, '').trim();
+                    
+                    console.log('AI返回的原始内容:', content);
+                    
+                    try {
+                        const result = JSON.parse(content);
+                        
+                        // 验证返回的JSON结构
+                        if (!result.content || !result.options || !Array.isArray(result.options)) {
+                            throw new Error('API返回的JSON格式不正确');
+                        }
+                        
+                        // 生成新的AI卡片ID
+                        const newCardId = `AI_EDIT_${Date.now()}`;
+                        
+                        // 创建新的卡片
+                        const newCard = {
+                            id: newCardId,
+                            content: result.content,
+                            options: result.options.map(option => ({
+                                text: option.text,
+                                nextCard: `AI_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+                            }))
+                        };
+                        
+                        // 添加到卡片集合
+                        cards.push(newCard);
+                        
+                        // 切换到新生成的卡片
+                        currentCard = newCardId;
+                        updateCardDisplay();
+                        
+                        // 显示提示信息
+                        showToast('基于您的编辑内容生成了新的探索卡片', 'success');
+                        
+                        console.log('AI模式编辑后生成的新卡片:', newCard);
+                        
+                    } catch (parseError) {
+                        console.error('JSON解析失败:', parseError);
+                        console.error('尝试解析的内容:', content);
+                        showToast('生成的内容格式有误，请重试', 'error');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('生成编辑后卡片时出错:', error);
+                showToast('生成新卡片时出错，请重试', 'error');
+            }
+        }
+
+        // 结束游戏函数
+        function endGame() {
+            // 确认是否要结束探索
+            if (confirm('确定要结束当前探索吗？这将清除所有历史记录并返回主页。')) {
+                // 重置游戏状态
+                isAIMode = false;
+                currentCardIndex = 0;
+                cardHistory = [];
+                
+                // 清空历史记录显示
+                const historyList = document.querySelector('.history-list');
+                if (historyList) {
+                    historyList.innerHTML = '';
+                }
+                
+                // 清空卡片内容
+                const cardContent = document.querySelector('.card-content');
+                const optionsContainer = document.querySelector('.options');
+                if (cardContent) cardContent.innerHTML = '';
+                if (optionsContainer) optionsContainer.innerHTML = '';
+                
+                // 隐藏AI模式页面
+                const aiModePage = document.getElementById('aiModePage');
+                if (aiModePage) {
+                    aiModePage.style.display = 'none';
+                }
+                
+                // 显示封面页面
+                const coverPage = document.getElementById('coverPage');
+                if (coverPage) {
+                    coverPage.classList.remove('hidden');
+                    coverPage.style.transform = 'translateY(0)';
+                    coverPage.style.transition = 'transform 0.3s ease-out';
+                }
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // 显示提示
+                showToast('探索已结束，欢迎重新开始！', 'success');
             }
         }
 

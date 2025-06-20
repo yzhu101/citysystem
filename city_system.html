@@ -291,26 +291,7 @@
         }
 
         .skip-button {
-            background-color: var(--color-gray);
-            color: var(--color-text);
-            border: 1px solid var(--color-text);
-            padding: 14px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
-            width: auto;
-            min-width: 80px;
-            white-space: nowrap;
-            -webkit-tap-highlight-color: transparent;
-            transition: all 200ms ease-in-out;
-            user-select: none;
-            box-shadow: var(--shadow-default);
-        }
-
-        .skip-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-default);
+            display: none;
         }
 
         .generate-log-button {
@@ -691,10 +672,10 @@
             <img src="assets/walking.gif" alt="Walking Animation" />
         </div>
         <h1 class="game-title">城市漫游向导</h1>
-        <p class="game-description">Hi！你将成为漫游者，随机地探索城市的角落。每一个选择都可能带来不同的发现，一起散步吧。</p>
+        <p class="game-description">Hi！随机地探索城市的角落，每一个选择都可能带来不同的发现，散步快乐。</p>
         <div class="mode-buttons">
             <button class="mode-button default-mode" onclick="startDefaultMode()">默认模式</button>
-            <button class="mode-button ai-mode" onclick="startAIMode()">AI模式</button>
+            <button class="mode-button ai-mode" onclick="startAIMode()">AI模式（beta）</button>
         </div>
     </div>
     
@@ -745,13 +726,11 @@
             <div class="suggestions-container">
                 <h3>探索建议</h3>
                 <div class="suggestion-tags">
-                    <span class="tag" onclick="setPrompt('城市边界探索')">城市边界</span>
                     <span class="tag" onclick="setPrompt('老街区探索')">老街区</span>
                     <span class="tag" onclick="setPrompt('工业遗迹探索')">工业遗迹</span>
                     <span class="tag" onclick="setPrompt('城中村探索')">城中村</span>
                     <span class="tag" onclick="setPrompt('地下空间探索')">地下空间</span>
                     <span class="tag" onclick="setPrompt('城市公园探索')">城市公园</span>
-                    <span class="tag" onclick="setPrompt('夜市探索')">夜市</span>
                     <span class="tag" onclick="setPrompt('天台探索')">天台</span>
                 </div>
             </div>
@@ -2106,7 +2085,8 @@
             const card = cards.find(c => c.id === cardId);
             if (!card) return;
 
-            document.querySelector('.card-number').textContent = `#${card.id}`;
+            // 在AI模式下不显示卡片序号
+            document.querySelector('.card-number').textContent = isAIMode ? '' : `#${card.id}`;
             document.querySelector('.card-content').textContent = card.content;
 
             // 显示选项
@@ -2158,11 +2138,15 @@
                 const existingItem = historyItems[existingIndex];
                 
                 existingItem.innerHTML = '';
-                const cardNumberSpan = document.createElement('span');
-                cardNumberSpan.className = 'card-number-highlight';
-                cardNumberSpan.textContent = `#${card.id}`;
-                existingItem.appendChild(cardNumberSpan);
-                existingItem.appendChild(document.createTextNode(` - ${card.content}`));
+                if (!isAIMode) {
+                    const cardNumberSpan = document.createElement('span');
+                    cardNumberSpan.className = 'card-number-highlight';
+                    cardNumberSpan.textContent = `#${card.id}`;
+                    existingItem.appendChild(cardNumberSpan);
+                    existingItem.appendChild(document.createTextNode(` - ${card.content}`));
+                } else {
+                    existingItem.textContent = card.content;
+                }
                 
                 if (card.selectedOption) {
                     const optionDiv = document.createElement('div');
@@ -2176,11 +2160,15 @@
             } else {
                 const historyItem = document.createElement('li');
                 historyItem.className = 'history-item';
-                const cardNumberSpan = document.createElement('span');
-                cardNumberSpan.className = 'card-number-highlight';
-                cardNumberSpan.textContent = `#${card.id}`;
-                historyItem.appendChild(cardNumberSpan);
-                historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                if (!isAIMode) {
+                    const cardNumberSpan = document.createElement('span');
+                    cardNumberSpan.className = 'card-number-highlight';
+                    cardNumberSpan.textContent = `#${card.id}`;
+                    historyItem.appendChild(cardNumberSpan);
+                    historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                } else {
+                    historyItem.textContent = card.content;
+                }
                 
                 if (card.selectedOption) {
                     const optionDiv = document.createElement('div');
@@ -2199,6 +2187,9 @@
 
         // 封面页交互
         function startDefaultMode() {
+            // 设置为默认模式
+            isAIMode = false;
+            
             const coverPage = document.getElementById('coverPage');
             coverPage.style.transition = 'transform 0.3s ease-out';
             coverPage.style.transform = 'translateY(-100%)';
@@ -2220,7 +2211,13 @@
             '天台探索'
         ];
 
+        // 全局变量标记AI模式状态
+        let isAIMode = false;
+        
         function startAIMode() {
+            // 设置AI模式标记
+            isAIMode = true;
+            
             const coverPage = document.getElementById('coverPage');
             coverPage.style.transition = 'transform 0.3s ease-out';
             coverPage.style.transform = 'translateY(-100%)';
@@ -2379,11 +2376,23 @@
             const loadingIndicator = showLoadingIndicator('正在生成探索内容...');
 
             try {
-                const systemPrompt = `作为一个城市探索向导，你需要根据用户描述的环境或主题，生成一个探索卡片。卡片应包含具体的观察任务或行动指示，以及3-4个后续行动选项。要求：
-1. 内容要具体且可执行
-2. 注重空间和环境的观察
-3. 考虑安全性，不要有危险的建议
-4. 选项要有趣且多样化
+                const systemPrompt = `作为一个城市探索向导，你需要根据用户描述的环境或主题，生成一个探索卡片。请严格参考以下默认指令库的写法风格：
+
+参考风格示例：
+- "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到"
+- "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音"
+- "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人"
+
+要求：
+1. 内容要具体且可执行，和周边环境相关，字数控制在100字以内
+2. 使用分号分隔不同的行动步骤
+3. 多用"走到"、"站在"、"留意"、"观察"等动词开头
+4. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
+5. 选项可以以"如果..."开头，描述具体的观察结果
+6. 所有条件判断都应该放在选项中，而不是指令内容中
+7. 语言简洁直接，避免过多修饰词
+8. 注重空间和环境的观察
+9. 考虑安全性，不要有危险的建议
 
 返回格式必须是一个JSON对象：
 {
@@ -2429,6 +2438,9 @@
                 const card = document.getElementById('card');
                 card.querySelector('.card-content').textContent = result.content;
                 
+                // 在AI模式下不显示卡片序号
+                card.querySelector('.card-number').textContent = '';
+                
                 const optionsContainer = card.querySelector('.options');
                 optionsContainer.innerHTML = '<div class="options-title">选择你的行动：</div>';
                 
@@ -2437,7 +2449,6 @@
                     button.className = 'option-button';
                     button.innerHTML = `
                         <span class="option-text">${option.text}</span>
-                        <span class="option-next-card">#${option.nextCard}</span>
                     `;
                     button.onclick = () => handleAIOption(option.text, prompt);
                     optionsContainer.appendChild(button);
@@ -2447,7 +2458,7 @@
                 const historyList = document.querySelector('.history-list');
                 const historyItem = document.createElement('li');
                 historyItem.className = 'history-item';
-                historyItem.textContent = `#${currentCard} - ${result.content}`;
+                historyItem.textContent = `${result.content}`;
                 historyList.appendChild(historyItem);
 
                 // 添加到历史记录
@@ -2504,7 +2515,7 @@
             setTimeout(() => progressBar.classList.add('active'), 100);
 
             try {
-                const prompt = `基于用户描述的环境："${originalPrompt}"\n\n用户选择了行动："${selectedOption}"\n\n请生成下一个探索卡片，描述用户选择这个行动后的场景和可能遇到的情况。同样需要提供3-4个后续行动选项。\n\n返回格式必须是JSON对象：\n{\n  "content": "卡片内容",\n  "options": [\n    {"text": "选项1文本", "nextCard": "AI_1"},\n    {"text": "选项2文本", "nextCard": "AI_2"},\n    {"text": "选项3文本", "nextCard": "AI_3"}\n  ]\n}`;
+                const prompt = `基于环境："${originalPrompt}"\n选择的行动："${selectedOption}"\n\n请生成下一个探索卡片，要求：\n\n1. 卡片内容：\n- 使用1-3个简短、直接的指令描述当前任务\n- 每条指令都要包含具体的观察或行动要求（看、听、走、停等）\n- 使用数字编号列出每条指令\n- 避免过多修饰词，保持客观描述\n- 指令部分不要包含条件判断（如"如果..."），只描述具体的行动步骤\n\n2. 选项设计（3-4个）：\n- 每个选项必须以"如果"开头，描述观察到的具体情况\n- 包含明确的后续行动建议\n- 选项之间要有显著差异\n- 可以设置具体的条件（数量、颜色、动作等）\n- 所有条件判断都应该放在选项中，而不是指令中\n\n返回格式（JSON）：\n{\n  "content": "1. 具体指令1\n2. 具体指令2",\n  "options": [\n    {"text": "如果...就...", "nextCard": "AI_1"},\n    {"text": "如果...就...", "nextCard": "AI_2"},\n    {"text": "如果...就...", "nextCard": "AI_3"}\n  ]\n}`;
 
                 const response = await fetch(DEEPSEEK_API_ENDPOINT, {
                     method: 'POST',
@@ -2549,11 +2560,7 @@
                 const historyList = document.querySelector('.history-list');
                 const historyItem = document.createElement('li');
                 historyItem.className = 'history-item';
-                const cardNumberSpan = document.createElement('span');
-                cardNumberSpan.className = 'card-number-highlight';
-                cardNumberSpan.textContent = `AI_${history.length + 1}`;
-                historyItem.appendChild(cardNumberSpan);
-                historyItem.appendChild(document.createTextNode(` - ${result.content}`));
+                historyItem.textContent = `${result.content}`;
 
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'selected-option';
@@ -2612,7 +2619,8 @@
         }
 
         // 其他功能函数
-        function editCurrentCard() {
+        // AI模式专用编辑函数
+        function editCurrentCardAI() {
             const currentCardData = cards.find(card => card.id === currentCard);
             const cardContent = document.querySelector('.card-content');
             
@@ -2646,13 +2654,13 @@
             contentLabel.style.marginBottom = '8px';
             
             const contentDescription = document.createElement('div');
-            contentDescription.textContent = '在这里编写玩家需要执行的具体指令、观察内容或故事情节。建议使用简洁清晰的语言描述。';
+            contentDescription.textContent = '在这里编写玩家需要执行的具体指令、观察内容或故事情节。AI模式下，所有内容都由AI生成和管理。';
             contentDescription.style.fontSize = '14px';
             contentDescription.style.color = '#666';
             contentDescription.style.marginBottom = '12px';
             
             const textarea = document.createElement('textarea');
-            textarea.value = currentCardData.content;
+            textarea.value = document.querySelector('.card-content').textContent;
             textarea.style.width = '100%';
             textarea.style.margin = '0';
             textarea.style.height = '150px';
@@ -2693,7 +2701,7 @@
             optionsLabel.style.marginBottom = '8px';
             
             const optionsDescription = document.createElement('div');
-            optionsDescription.textContent = '添加玩家可以选择的行动选项。每个选项需要设置选项文本和跳转到的卡片编号。';
+            optionsDescription.textContent = '添加玩家可以选择的行动选项。在AI模式下，选择选项后将根据选项内容自动生成新的指令卡。';
             optionsDescription.style.fontSize = '14px';
             optionsDescription.style.color = '#666';
             optionsDescription.style.marginBottom = '12px';
@@ -2706,12 +2714,26 @@
             optionsContainer.style.padding = '12px';
             optionsContainer.style.borderRadius = '6px';
             
-            optionsEditArea.appendChild(optionsLabel);
-            optionsEditArea.appendChild(optionsDescription);
-            
-            // 添加现有选项
+            // 添加现有选项（AI模式专用，无序号）
             if (currentCardData.options) {
-                currentCardData.options.forEach((option, index) => {
+                const currentOptionButtons = document.querySelectorAll('.option-button');
+                const currentOptions = [];
+                
+                currentOptionButtons.forEach(button => {
+                    const optionTextElement = button.querySelector('.option-text');
+                    if (optionTextElement) {
+                        const optionText = optionTextElement.textContent;
+                        const nextCard = 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                        currentOptions.push({
+                            text: optionText,
+                            nextCard: nextCard
+                        });
+                    }
+                });
+                
+                const optionsToUse = currentOptions.length > 0 ? currentOptions : currentCardData.options;
+                
+                optionsToUse.forEach((option, index) => {
                     const optionRow = document.createElement('div');
                     optionRow.style.display = 'flex';
                     optionRow.style.gap = '10px';
@@ -2725,15 +2747,6 @@
                     optionText.style.borderRadius = '4px';
                     optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
                     optionText.style.minWidth = '0';
-                    
-                    const nextCardInput = document.createElement('input');
-                    nextCardInput.type = 'number';
-                    nextCardInput.value = option.nextCard;
-                    nextCardInput.style.width = '60px';
-                    nextCardInput.style.padding = '8px';
-                    nextCardInput.style.borderRadius = '4px';
-                    nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
-                    nextCardInput.style.flexShrink = '0';
                     
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'X';
@@ -2758,7 +2771,545 @@
                     deleteButton.onclick = () => optionRow.remove();
                     
                     optionRow.appendChild(optionText);
-                    optionRow.appendChild(nextCardInput);
+                    optionRow.appendChild(deleteButton);
+                    optionsContainer.appendChild(optionRow);
+                });
+            }
+            
+            // 添加新选项按钮（AI模式专用，无序号输入）
+            const addOptionButton = document.createElement('button');
+            addOptionButton.textContent = '添加选项';
+            addOptionButton.className = 'edit-button';
+            addOptionButton.style.alignSelf = 'flex-start';
+            addOptionButton.style.backgroundColor = '#F5F1E6';
+            addOptionButton.style.border = '2px dashed #4B7B91';
+            addOptionButton.style.color = '#4B7B91';
+            addOptionButton.style.padding = '10px 20px';
+            addOptionButton.style.fontSize = '15px';
+            addOptionButton.style.fontWeight = '500';
+            addOptionButton.onclick = () => {
+                const optionRow = document.createElement('div');
+                optionRow.style.display = 'flex';
+                optionRow.style.gap = '10px';
+                optionRow.style.alignItems = 'center';
+                
+                const optionText = document.createElement('input');
+                optionText.type = 'text';
+                optionText.placeholder = '例如："继续向前走" 或 "转向左边"';
+                optionText.style.flex = '1';
+                optionText.style.padding = '10px';
+                optionText.style.borderRadius = '6px';
+                optionText.style.border = '1px solid #ddd';
+                optionText.style.fontSize = '14px';
+                optionText.style.minWidth = '0';
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'X';
+                deleteButton.className = 'edit-button';
+                deleteButton.style.backgroundColor = '#EC6E5F';
+                deleteButton.style.padding = '0';
+                deleteButton.style.borderRadius = '6px';
+                deleteButton.style.fontSize = '14px';
+                deleteButton.style.color = 'white';
+                deleteButton.style.border = 'none';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.style.lineHeight = '1';
+                deleteButton.style.width = '32px';
+                deleteButton.style.height = '32px';
+                deleteButton.style.display = 'flex';
+                deleteButton.style.alignItems = 'center';
+                deleteButton.style.justifyContent = 'center';
+                deleteButton.style.minWidth = '32px';
+                deleteButton.style.maxWidth = '32px';
+                deleteButton.style.flexShrink = '0';
+                deleteButton.style.flexGrow = '0';
+                deleteButton.onclick = () => optionRow.remove();
+                
+                optionRow.appendChild(optionText);
+                optionRow.appendChild(deleteButton);
+                optionsContainer.appendChild(optionRow);
+            };
+            
+            // AI生成选项按钮
+            const generateOptionsButton = document.createElement('button');
+            generateOptionsButton.textContent = 'AI生成选项';
+            generateOptionsButton.className = 'edit-button';
+            generateOptionsButton.style.backgroundColor = '#4B7B91';
+            generateOptionsButton.style.padding = '10px 20px';
+            generateOptionsButton.style.fontSize = '15px';
+            generateOptionsButton.style.fontWeight = '500';
+            generateOptionsButton.onclick = async () => {
+                try {
+                    generateOptionsButton.disabled = true;
+                    generateOptionsButton.style.opacity = '0.7';
+                    generateOptionsButton.textContent = '生成中...';
+                    
+                    const options = await generateOptionsWithAI(textarea.value);
+                    options.forEach(option => {
+                        const optionRow = document.createElement('div');
+                        optionRow.style.display = 'flex';
+                        optionRow.style.gap = '10px';
+                        optionRow.style.alignItems = 'center';
+                        optionRow.style.animation = 'fadeIn 0.3s ease-in-out';
+                        
+                        const optionText = document.createElement('input');
+                        optionText.type = 'text';
+                        optionText.value = option.text;
+                        optionText.style.flex = '1';
+                        optionText.style.padding = '8px';
+                        optionText.style.borderRadius = '4px';
+                        optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'X';
+                        deleteButton.className = 'edit-button';
+                        deleteButton.style.backgroundColor = '#EC6E5F';
+                        deleteButton.style.padding = '0';
+                        deleteButton.style.borderRadius = '6px';
+                        deleteButton.style.fontSize = '14px';
+                        deleteButton.style.color = 'white';
+                        deleteButton.style.border = 'none';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.lineHeight = '1';
+                        deleteButton.style.width = '32px';
+                        deleteButton.style.height = '32px';
+                        deleteButton.style.display = 'flex';
+                        deleteButton.style.alignItems = 'center';
+                        deleteButton.style.justifyContent = 'center';
+                        deleteButton.style.minWidth = '32px';
+                        deleteButton.style.maxWidth = '32px';
+                        deleteButton.style.flexShrink = '0';
+                        deleteButton.style.flexGrow = '0';
+                        deleteButton.onclick = () => {
+                            optionRow.style.animation = 'fadeOut 0.3s ease-in-out';
+                            setTimeout(() => optionRow.remove(), 300);
+                        };
+                        
+                        optionRow.appendChild(optionText);
+                        optionRow.appendChild(deleteButton);
+                        optionsContainer.appendChild(optionRow);
+                    });
+                } catch (error) {
+                    console.error('生成选项失败:', error);
+                    alert('生成选项失败，请稍后重试');
+                } finally {
+                    generateOptionsButton.disabled = false;
+                    generateOptionsButton.style.opacity = '1';
+                    generateOptionsButton.textContent = 'AI生成选项';
+                }
+            };
+            
+            optionsEditArea.appendChild(optionsLabel);
+            optionsEditArea.appendChild(optionsDescription);
+            optionsEditArea.appendChild(optionsContainer);
+            optionsEditArea.appendChild(addOptionButton);
+            optionsEditArea.appendChild(generateOptionsButton);
+            
+            // 添加所有编辑区域到容器
+            editContainer.appendChild(contentEditArea);
+            editContainer.appendChild(optionsEditArea);
+            
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.gap = '10px';
+            buttonContainer.style.marginTop = '25px';
+            buttonContainer.style.flexDirection = 'row';
+            buttonContainer.style.justifyContent = 'flex-start';
+            buttonContainer.style.alignItems = 'center';
+            buttonContainer.style.backgroundColor = 'transparent';
+            buttonContainer.style.padding = '0';
+            buttonContainer.style.width = '100%';
+            buttonContainer.style.borderRadius = '6px';
+            buttonContainer.style.boxSizing = 'border-box';
+            buttonContainer.style.marginLeft = '0';
+            buttonContainer.style.marginRight = '0';
+            
+            const saveButton = document.createElement('button');
+            saveButton.textContent = '保存';
+            saveButton.className = 'edit-button';
+            saveButton.style.backgroundColor = '#F0C963';
+            saveButton.style.padding = '10px 20px';
+            saveButton.style.fontSize = '15px';
+            saveButton.style.fontWeight = '500';
+            saveButton.style.width = '49%';
+            saveButton.onclick = () => {
+                // 保存内容
+                currentCardData.content = textarea.value;
+                
+                // 保存选项（AI模式专用，无序号）
+                const optionRows = optionsContainer.querySelectorAll('div[style*="display: flex"]');
+                currentCardData.options = Array.from(optionRows).map(row => {
+                    const textInput = row.querySelector('input[type="text"]');
+                    const text = textInput ? textInput.value : '';
+                    const nextCard = 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                    
+                    return {
+                        text: text,
+                        nextCard: nextCard
+                    };
+                }).filter(option => option.text.trim() !== '');
+                
+                // 恢复显示
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = textarea.value;
+                editContainer.parentNode.replaceChild(newCardContent, editContainer);
+                
+                // 清除原有选项
+                const oldOptions = document.querySelector('.options');
+                if (oldOptions) {
+                    oldOptions.remove();
+                }
+                
+                // 创建新的选项容器
+                const newOptions = document.createElement('div');
+                newOptions.className = 'options';
+                const optionsTitle = document.createElement('div');
+                optionsTitle.className = 'options-title';
+                optionsTitle.textContent = '选择你的行动：';
+                newOptions.appendChild(optionsTitle);
+                
+                // 添加编辑后的选项（AI模式专用，无序号显示）
+                currentCardData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    
+                    const optionText = document.createElement('span');
+                    optionText.className = 'option-text';
+                    optionText.textContent = option.text;
+                    button.appendChild(optionText);
+                    
+                    // AI模式下的点击事件
+                    button.onclick = () => {
+                        if (!gameStartTime) {
+                            gameStartTime = new Date();
+                        }
+                        
+                        // 生成新的AI卡片ID
+                        const newCardId = `AI_${Date.now()}`;
+                        // 使用选项文本作为prompt
+                        const selectedOptionText = option.text;
+                        
+                        // 创建一个临时卡片，显示加载状态
+                        const tempCard = {
+                            id: newCardId,
+                            content: "正在生成新的探索内容...",
+                            options: []
+                        };
+                        
+                        // 添加到卡片集合
+                        cards.push(tempCard);
+                        
+                        // 先切换到临时卡片
+                        selectOption(newCardId, selectedOptionText);
+                        
+                        // 异步生成新的卡片内容和选项
+                        (async () => {
+                            try {
+                                // 使用与初始生成相同的系统提示词和格式
+                                const systemPrompt = `作为一个城市探索向导，你需要根据用户描述的环境或主题，生成一个探索卡片。卡片应包含具体的观察任务或行动指示，以及3-4个后续行动选项。要求：
+1. 内容要具体且可执行，字数控制在100字以内
+2. 注重空间和环境的观察
+3. 考虑安全性，不要有危险的建议
+4. 选项要有趣且多样化
+
+返回格式必须是一个JSON对象：
+{
+  "content": "卡片内容",
+  "options": [
+    {"text": "选项1文本", "nextCard": "AI_1"},
+    {"text": "选项2文本", "nextCard": "AI_2"},
+    {"text": "选项3文本", "nextCard": "AI_3"}
+  ]
+}`;
+                                
+                                const userPrompt = `基于玩家选择的行动："${selectedOptionText}"，生成下一个探索卡片。`;
+                                
+                                // 调用DeepSeek API
+                                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                    },
+                                    body: JSON.stringify({
+                                        model: "deepseek-chat",
+                                        messages: [
+                                            { role: "system", content: systemPrompt },
+                                            { role: "user", content: userPrompt }
+                                        ],
+                                        temperature: 0.7,
+                                        max_tokens: 500
+                                    })
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`API请求失败: ${response.statusText}`);
+                                }
+                                
+                                const data = await response.json();
+                                if (data.choices && data.choices[0]) {
+                                    // 清理返回内容中的Markdown代码块标记
+                                    let content = data.choices[0].message.content;
+                                    content = content.replace(/```json\s*|```/g, '').trim();
+                                    const result = JSON.parse(content);
+                                    
+                                    // 更新卡片内容
+                                    const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                    if (cardIndex !== -1) {
+                                        cards[cardIndex].content = result.content;
+                                        cards[cardIndex].options = result.options;
+                                        
+                                        // 如果当前显示的是这张卡片，更新显示
+                                        if (currentCard === newCardId) {
+                                            updateCardDisplay();
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('生成新卡片内容失败:', error);
+                                // 更新为错误信息
+                                const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                if (cardIndex !== -1) {
+                                    cards[cardIndex].content = "生成内容失败，请重试或选择其他选项。";
+                                    if (currentCard === newCardId) {
+                                        updateCardDisplay();
+                                    }
+                                }
+                            }
+                        })();
+                    };
+                    
+                    newOptions.appendChild(button);
+                });
+                
+                // 不再显示"添加选项"按钮
+                
+                document.querySelector('.card').appendChild(newOptions);
+            };
+            
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.className = 'edit-button';
+            cancelButton.style.backgroundColor = '#EC6E5F';
+            cancelButton.style.padding = '10px 20px';
+            cancelButton.style.fontSize = '15px';
+            cancelButton.style.fontWeight = '500';
+            cancelButton.style.width = '49%';
+            cancelButton.onclick = () => {
+                const newCardContent = document.createElement('div');
+                newCardContent.className = 'card-content';
+                newCardContent.textContent = cardContent.textContent;
+                editContainer.parentNode.replaceChild(newCardContent, editContainer);
+            };
+            
+            buttonContainer.appendChild(saveButton);
+            buttonContainer.appendChild(cancelButton);
+            editContainer.appendChild(buttonContainer);
+            
+            // 替换当前内容
+            cardContent.parentNode.replaceChild(editContainer, cardContent);
+        }
+        
+        function editCurrentCard() {
+            const currentCardData = cards.find(card => card.id === currentCard);
+            const cardContent = document.querySelector('.card-content');
+            
+            // 如果是AI模式，直接调用AI专用编辑函数
+            if (isAIMode) {
+                editCurrentCardAI();
+                return;
+            }
+            
+            // 创建编辑区域容器
+            const editContainer = document.createElement('div');
+            editContainer.style.display = 'flex';
+            editContainer.style.flexDirection = 'column';
+            editContainer.style.gap = '20px';
+            editContainer.style.backgroundColor = '#f7f7f7';
+            editContainer.style.padding = '20px';
+            editContainer.style.borderRadius = '8px';
+            
+            // 创建内容编辑区域
+            const contentEditArea = document.createElement('div');
+            contentEditArea.style.display = 'flex';
+            contentEditArea.style.flexDirection = 'column';
+            contentEditArea.style.gap = '10px';
+            contentEditArea.style.backgroundColor = 'white';
+            contentEditArea.style.padding = '15px';
+            contentEditArea.style.borderRadius = '6px';
+            contentEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            contentEditArea.style.margin = '0 auto';
+            contentEditArea.style.maxWidth = '100%';
+            contentEditArea.style.width = '100%';
+            contentEditArea.style.boxSizing = 'border-box';
+            
+            const contentLabel = document.createElement('div');
+            contentLabel.textContent = '编辑指令内容';
+            contentLabel.style.fontWeight = '600';
+            contentLabel.style.fontSize = '16px';
+            contentLabel.style.marginBottom = '8px';
+            
+            const contentDescription = document.createElement('div');
+            contentDescription.textContent = '在这里编写玩家需要执行的具体指令、观察内容或故事情节。建议使用简洁清晰的语言描述。';
+            contentDescription.style.fontSize = '14px';
+            contentDescription.style.color = '#666';
+            contentDescription.style.marginBottom = '12px';
+            
+            const textarea = document.createElement('textarea');
+            // 使用当前显示的内容，而不是默认内容
+            textarea.value = document.querySelector('.card-content').textContent;
+            textarea.style.width = '100%';
+            textarea.style.margin = '0';
+            textarea.style.height = '150px';
+            textarea.style.resize = 'vertical';
+            textarea.style.padding = '12px';
+            textarea.style.borderRadius = '6px';
+            textarea.style.border = '1px solid #ddd';
+            textarea.style.fontSize = '15px';
+            textarea.style.lineHeight = '1.5';
+            textarea.style.boxSizing = 'border-box';
+            textarea.style.maxWidth = '100%';
+            textarea.style.minWidth = '100%';
+            textarea.style.overflowX = 'hidden';
+            textarea.style.wordWrap = 'break-word';
+            
+            contentEditArea.appendChild(contentLabel);
+            contentEditArea.appendChild(contentDescription);
+            contentEditArea.appendChild(textarea);
+            
+            // 创建选项编辑区域
+            const optionsEditArea = document.createElement('div');
+            optionsEditArea.style.display = 'flex';
+            optionsEditArea.style.flexDirection = 'column';
+            optionsEditArea.style.gap = '10px';
+            optionsEditArea.style.backgroundColor = 'white';
+            optionsEditArea.style.padding = '15px';
+            optionsEditArea.style.borderRadius = '6px';
+            optionsEditArea.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            optionsEditArea.style.margin = '0 auto';
+            optionsEditArea.style.maxWidth = '100%';
+            optionsEditArea.style.width = '100%';
+            optionsEditArea.style.boxSizing = 'border-box';
+            
+            const optionsLabel = document.createElement('div');
+            optionsLabel.textContent = '编辑选项';
+            optionsLabel.style.fontWeight = '600';
+            optionsLabel.style.fontSize = '16px';
+            optionsLabel.style.marginBottom = '8px';
+            
+            // 根据模式显示不同的描述文本
+            const optionsDescription = document.createElement('div');
+            if (isAIMode) {
+                optionsDescription.textContent = '添加玩家可以选择的行动选项。在AI模式下，选择选项后将根据选项内容自动生成新的指令卡。';
+            } else {
+                optionsDescription.textContent = '添加玩家可以选择的行动选项。每个选项需要设置选项文本和跳转到的卡片编号。';
+            }
+            optionsDescription.style.fontSize = '14px';
+            optionsDescription.style.color = '#666';
+            optionsDescription.style.marginBottom = '12px';
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.style.display = 'flex';
+            optionsContainer.style.flexDirection = 'column';
+            optionsContainer.style.gap = '12px';
+            optionsContainer.style.backgroundColor = '#f9f9f9';
+            optionsContainer.style.padding = '12px';
+            optionsContainer.style.borderRadius = '6px';
+            
+            optionsEditArea.appendChild(optionsLabel);
+            optionsEditArea.appendChild(optionsDescription);
+            
+            // 添加现有选项
+            if (currentCardData.options) {
+                // 获取当前显示的选项按钮
+                const currentOptionButtons = document.querySelectorAll('.option-button');
+                const currentOptions = [];
+                
+                // 收集当前显示的选项文本和跳转编号
+                currentOptionButtons.forEach(button => {
+                    const optionTextElement = button.querySelector('.option-text');
+                    
+                    if (optionTextElement) {
+                        const optionText = optionTextElement.textContent;
+                        let nextCard;
+                        
+                        if (isAIMode) {
+                            // AI模式下，使用特殊的AI卡片ID格式
+                            nextCard = 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                        } else {
+                            // 非AI模式下，从 #123 格式中提取数字
+                            const nextCardElement = button.querySelector('.option-next-card');
+                            const nextCardMatch = nextCardElement ? nextCardElement.textContent.match(/#(\d+)/) : null;
+                            nextCard = nextCardMatch ? parseInt(nextCardMatch[1]) : 1;
+                        }
+                        
+                        currentOptions.push({
+                            text: optionText,
+                            nextCard: nextCard
+                        });
+                    }
+                });
+
+                
+                // 使用当前显示的选项（如果有），否则使用卡片数据中的选项
+                const optionsToUse = currentOptions.length > 0 ? currentOptions : currentCardData.options;
+                
+                optionsToUse.forEach((option, index) => {
+                    const optionRow = document.createElement('div');
+                    optionRow.style.display = 'flex';
+                    optionRow.style.gap = '10px';
+                    optionRow.style.alignItems = 'center';
+                    
+                    const optionText = document.createElement('input');
+                    optionText.type = 'text';
+                    optionText.value = option.text;
+                    optionText.style.flex = '1';
+                    optionText.style.padding = '8px';
+                    optionText.style.borderRadius = '4px';
+                    optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                    optionText.style.minWidth = '0';
+                    
+                    // 只在非AI模式下添加nextCardInput
+                    let nextCardInput;
+                    if (!isAIMode) {
+                        nextCardInput = document.createElement('input');
+                        nextCardInput.type = 'number';
+                        nextCardInput.value = option.nextCard;
+                        nextCardInput.style.width = '60px';
+                        nextCardInput.style.padding = '8px';
+                        nextCardInput.style.borderRadius = '4px';
+                        nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        nextCardInput.style.flexShrink = '0';
+                    }
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'X';
+                    deleteButton.className = 'edit-button';
+                    deleteButton.style.backgroundColor = '#EC6E5F';
+                    deleteButton.style.padding = '0';
+                    deleteButton.style.borderRadius = '6px';
+                    deleteButton.style.fontSize = '14px';
+                    deleteButton.style.color = 'white';
+                    deleteButton.style.border = 'none';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.style.lineHeight = '1';
+                    deleteButton.style.width = '32px';
+                    deleteButton.style.height = '32px';
+                    deleteButton.style.display = 'flex';
+                    deleteButton.style.alignItems = 'center';
+                    deleteButton.style.justifyContent = 'center';
+                    deleteButton.style.minWidth = '32px';
+                    deleteButton.style.maxWidth = '32px';
+                    deleteButton.style.flexShrink = '0';
+                    deleteButton.style.flexGrow = '0';
+                    deleteButton.onclick = () => optionRow.remove();
+                    
+                    optionRow.appendChild(optionText);
+                    if (!isAIMode) {
+                        optionRow.appendChild(nextCardInput);
+                    }
                     optionRow.appendChild(deleteButton);
                     optionsContainer.appendChild(optionRow);
                 });
@@ -2791,16 +3342,20 @@
                 optionText.style.fontSize = '14px';
                 optionText.style.minWidth = '0';
                 
-                const nextCardInput = document.createElement('input');
-                nextCardInput.type = 'number';
-                nextCardInput.placeholder = '卡片号';
-                nextCardInput.style.width = '60px';
-                nextCardInput.style.padding = '10px';
-                nextCardInput.style.borderRadius = '6px';
-                nextCardInput.style.border = '1px solid #ddd';
-                nextCardInput.style.fontSize = '14px';
-                nextCardInput.style.marginLeft = '8px';
-                nextCardInput.style.flexShrink = '0';
+                // 只在非AI模式下添加nextCardInput
+                let nextCardInput;
+                if (!isAIMode) {
+                    nextCardInput = document.createElement('input');
+                    nextCardInput.type = 'number';
+                    nextCardInput.placeholder = '卡片号';
+                    nextCardInput.style.width = '60px';
+                    nextCardInput.style.padding = '10px';
+                    nextCardInput.style.borderRadius = '6px';
+                    nextCardInput.style.border = '1px solid #ddd';
+                    nextCardInput.style.fontSize = '14px';
+                    nextCardInput.style.marginLeft = '8px';
+                    nextCardInput.style.flexShrink = '0';
+                }
                 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'X';
@@ -2829,7 +3384,9 @@
                 deleteButton.onclick = () => optionRow.remove();
                 
                 optionRow.appendChild(optionText);
-                optionRow.appendChild(nextCardInput);
+                if (!isAIMode) {
+                    optionRow.appendChild(nextCardInput);
+                }
                 optionRow.appendChild(deleteButton);
                 optionsContainer.appendChild(optionRow);
             };
@@ -2865,13 +3422,17 @@
                         optionText.style.borderRadius = '4px';
                         optionText.style.border = '1px solid rgba(55, 53, 47, 0.16)';
                         
-                        const nextCardInput = document.createElement('input');
-                        nextCardInput.type = 'number';
-                        nextCardInput.value = option.nextCard;
-                        nextCardInput.style.width = '80px';
-                        nextCardInput.style.padding = '8px';
-                        nextCardInput.style.borderRadius = '4px';
-                        nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        // 只在非AI模式下添加nextCardInput
+                        let nextCardInput;
+                        if (!isAIMode) {
+                            nextCardInput = document.createElement('input');
+                            nextCardInput.type = 'number';
+                            nextCardInput.value = option.nextCard;
+                            nextCardInput.style.width = '80px';
+                            nextCardInput.style.padding = '8px';
+                            nextCardInput.style.borderRadius = '4px';
+                            nextCardInput.style.border = '1px solid rgba(55, 53, 47, 0.16)';
+                        }
                         
                         const deleteButton = document.createElement('button');
                         deleteButton.textContent = 'X';
@@ -2899,7 +3460,9 @@
                         };
                         
                         optionRow.appendChild(optionText);
-                        optionRow.appendChild(nextCardInput);
+                        if (!isAIMode) {
+                            optionRow.appendChild(nextCardInput);
+                        }
                         optionRow.appendChild(deleteButton);
                         optionsContainer.appendChild(optionRow);
                     });
@@ -2963,13 +3526,25 @@
                 // 保存选项
                 const optionRows = optionsContainer.querySelectorAll('div[style*="display: flex"]');
                 currentCardData.options = Array.from(optionRows).map(row => {
-                    const text = row.children[0].value;
-                    const nextCard = parseInt(row.children[1].value);
-                    // 验证跳转编号的有效性
-                    if (isNaN(nextCard) || nextCard < 1) {
-                        alert('请输入有效的跳转编号！');
-                        return null;
+                    // 使用querySelector获取文本输入框的值
+                    const textInput = row.querySelector('input[type="text"]');
+                    const text = textInput ? textInput.value : '';
+                    let nextCard;
+                    
+                    if (isAIMode) {
+                        // AI模式下，自动设置nextCard为特殊的AI卡片ID格式
+                        nextCard = 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                    } else {
+                        // 非AI模式下，从输入框获取nextCard值
+                        const nextCardInput = row.querySelector('input[type="number"]');
+                        nextCard = nextCardInput ? parseInt(nextCardInput.value) : 1;
+                        // 验证跳转编号的有效性
+                        if (isNaN(nextCard) || nextCard < 1) {
+                            alert('请输入有效的跳转编号！');
+                            return null;
+                        }
                     }
+                    
                     return {
                         text: text,
                         nextCard: nextCard
@@ -3000,8 +3575,123 @@
                 currentCardData.options.forEach(option => {
                     const button = document.createElement('button');
                     button.className = 'option-button';
-                    button.textContent = option.text;
-                    button.onclick = () => goToCard(option.nextCard);
+                    
+                    // 创建选项文本元素
+                    const optionText = document.createElement('span');
+                    optionText.className = 'option-text';
+                    optionText.textContent = option.text;
+                    button.appendChild(optionText);
+                    
+                    // 非AI模式下显示卡片序号
+                    if (!isAIMode) {
+                        const nextCardSpan = document.createElement('span');
+                        nextCardSpan.className = 'option-next-card';
+                        nextCardSpan.textContent = ` #${option.nextCard}`;
+                        nextCardSpan.style.fontSize = '12px';
+                        nextCardSpan.style.color = '#888';
+                        button.appendChild(nextCardSpan);
+                    }
+                    
+                    // 根据模式设置不同的点击事件
+                    if (isAIMode) {
+                        button.onclick = () => {
+                            // AI模式下，使用选项文本生成新的指令卡
+                            const selectedOptionText = option.text;
+                            const newCardId = option.nextCard; // 使用保存时生成的AI卡片ID
+                            
+                            // 创建一个临时卡片，显示加载状态
+                            const tempCard = {
+                                id: newCardId,
+                                content: "正在生成新的探索内容...",
+                                options: []
+                            };
+                            
+                            // 添加到卡片集合
+                            cards.push(tempCard);
+                            
+                            // 先切换到临时卡片
+                            selectOption(newCardId, selectedOptionText);
+                            
+                            // 异步生成新的卡片内容和选项
+                            (async () => {
+                                try {
+                                    // 使用与初始生成相同的系统提示词和格式
+                                    const systemPrompt = `作为一个城市探索向导，你需要根据用户描述的环境或主题，生成一个探索卡片。卡片应包含具体的观察任务或行动指示，以及3-4个后续行动选项。要求：
+1. 内容要具体且可执行
+2. 注重空间和环境的观察
+3. 考虑安全性，不要有危险的建议
+4. 选项要有趣且多样化
+
+返回格式必须是一个JSON对象：
+{
+  "content": "卡片内容",
+  "options": [
+    {"text": "选项1文本", "nextCard": "AI_1"},
+    {"text": "选项2文本", "nextCard": "AI_2"},
+    {"text": "选项3文本", "nextCard": "AI_3"}
+  ]
+}`;
+                                    
+                                    const userPrompt = `基于玩家选择的行动："${selectedOptionText}"，生成下一个探索卡片。`;
+                                    
+                                    // 调用DeepSeek API
+                                    const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                        },
+                                        body: JSON.stringify({
+                                            model: "deepseek-chat",
+                                            messages: [
+                                                { role: "system", content: systemPrompt },
+                                                { role: "user", content: userPrompt }
+                                            ],
+                                            temperature: 0.7,
+                                            max_tokens: 500
+                                        })
+                                    });
+                                    
+                                    if (!response.ok) {
+                                        throw new Error(`API请求失败: ${response.statusText}`);
+                                    }
+                                    
+                                    const data = await response.json();
+                                    if (data.choices && data.choices[0]) {
+                                        // 清理返回内容中的Markdown代码块标记
+                                        let content = data.choices[0].message.content;
+                                        content = content.replace(/```json\s*|```/g, '').trim();
+                                        const result = JSON.parse(content);
+                                        
+                                        // 更新卡片内容
+                                        const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                        if (cardIndex !== -1) {
+                                            cards[cardIndex].content = result.content;
+                                            cards[cardIndex].options = result.options;
+                                            
+                                            // 如果当前显示的是这张卡片，更新显示
+                                            if (currentCard === newCardId) {
+                                                updateCardDisplay();
+                                            }
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('生成新卡片内容失败:', error);
+                                    // 更新为错误信息
+                                    const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                    if (cardIndex !== -1) {
+                                        cards[cardIndex].content = "生成内容失败，请重试或选择其他选项。";
+                                        if (currentCard === newCardId) {
+                                            updateCardDisplay();
+                                        }
+                                    }
+                                }
+                            })();
+                        };
+                    } else {
+                        // 非AI模式下，正常跳转到指定卡片
+                        button.onclick = () => goToCard(option.nextCard);
+                    }
                     newOptions.appendChild(button);
                 });
                 
@@ -3054,8 +3744,24 @@
             });
 
             try {
-                // 构建提示词
-                const prompt = `你是一个城市探索游戏的AI设计师。请基于以下游戏指令内容，生成3-5个合理的行动选项。每个选项都应该引导玩家仔细观察和探索周围的环境细节，包括但不限于：建筑特征、街道布局、自然景观、人文场景、环境氛围等。选项需要激发玩家的好奇心，引导他们发现城市中被忽视的细节。每个选项需包含选项描述和跳转卡片编号(1-132之间)。
+                // 使用全局AI模式标记
+                
+                // 根据模式构建不同的提示词
+                let prompt;
+                if (isAIMode) {
+                    prompt = `你是一个城市探索游戏的AI设计师。请基于以下游戏指令内容，生成3-5个合理的行动选项。每个选项都应该引导玩家仔细观察和探索周围的环境细节，包括但不限于：建筑特征、街道布局、自然景观、人文场景、环境氛围等。选项需要激发玩家的好奇心，引导他们发现城市中被忽视的细节。
+
+要求：
+- 选项描述应该简洁有力，长度在15-30个字之间
+- 选项必须以观察和探索环境为主，引导玩家注意周围的细节
+- 选项之间要有明显的差异性，关注环境的不同方面
+- 选项的语气要富有探索性和好奇心
+- 每行只输出一个选项
+- 不需要在选项开头生成数字编号
+
+当前指令内容: "${instruction}"`;
+                } else {
+                    prompt = `你是一个城市探索游戏的AI设计师。请基于以下游戏指令内容，生成3-5个合理的行动选项。每个选项都应该引导玩家仔细观察和探索周围的环境细节，包括但不限于：建筑特征、街道布局、自然景观、人文场景、环境氛围等。选项需要激发玩家的好奇心，引导他们发现城市中被忽视的细节。每个选项需包含选项描述和跳转卡片编号(1-132之间)。
 
 要求：
 - 选项描述应该简洁有力，长度在15-30个字之间
@@ -3065,8 +3771,8 @@
 - 格式为: 选项描述|卡片编号
 - 不需要在选项开头生成数字编号
 
-
 当前指令内容: "${instruction}"`;
+                }
                 
                 // 调用DeepSeek API
                 const response = await fetch(DEEPSEEK_API_ENDPOINT, {
@@ -3093,38 +3799,79 @@
                 const data = await response.json();
                 if (data.choices && data.choices[0]) {
                     const aiResponse = data.choices[0].message.content;
+                    // 使用全局AI模式标记
                     
-                    // 解析AI返回的选项
-                    const optionLines = aiResponse.split('\n').filter(line => line.includes('|'));
-                    const options = optionLines.map(line => {
-                        const [text, nextCard] = line.split('|');
-                        const trimmedText = text.trim();
-                        // 确保选项文本长度适中
-                        if (trimmedText.length < 5 || trimmedText.length > 40) {
-                            return null;
+                    let options;
+                    if (isAIMode) {
+                        // AI模式下，每行一个选项，不需要卡片编号
+                        const optionLines = aiResponse.split('\n').filter(line => line.trim().length > 0);
+                        options = optionLines.map(line => {
+                            const trimmedText = line.trim();
+                            // 确保选项文本长度适中
+                            if (trimmedText.length < 5 || trimmedText.length > 40) {
+                                return null;
+                            }
+                            return {
+                                text: trimmedText,
+                                nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) // 为AI模式生成特殊的卡片ID
+                            };
+                        }).filter(option => option !== null);
+                    } else {
+                        // 非AI模式下，解析包含卡片编号的选项
+                        const optionLines = aiResponse.split('\n').filter(line => line.includes('|'));
+                        options = optionLines.map(line => {
+                            const [text, nextCard] = line.split('|');
+                            const trimmedText = text.trim();
+                            // 确保选项文本长度适中
+                            if (trimmedText.length < 5 || trimmedText.length > 40) {
+                                return null;
+                            }
+                            return {
+                                text: trimmedText,
+                                nextCard: parseInt(nextCard.trim()) || Math.floor(Math.random() * 132) + 1
+                            };
+                        }).filter(option => option !== null);
+                    }
+                    
+                    if (options.length >= 3) {
+                        return options.slice(0, 5);
+                    } else {
+                        // 根据模式生成不同的默认选项
+                        if (isAIMode) {
+                            return [
+                                { text: "继续向前探索", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) },
+                                { text: "转向左边的小路", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) },
+                                { text: "观察周围的环境", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) }
+                            ];
+                        } else {
+                            return [
+                                { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                                { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                                { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                            ];
                         }
-                        return {
-                            text: trimmedText,
-                            nextCard: parseInt(nextCard.trim()) || Math.floor(Math.random() * 132) + 1
-                        };
-                    }).filter(option => option !== null);
-                    
-                    return options.length >= 3 ? options.slice(0, 5) : [
-                        { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
-                        { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
-                        { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
-                    ];
+                    }
                 } else {
                     throw new Error('API返回数据格式错误');
                 }
             } catch (error) {
                 console.error('AI生成选项失败:', error);
-                // 如果API调用失败，返回默认选项
-                return [
-                    { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
-                    { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
-                    { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
-                ];
+                // 使用全局AI模式标记
+                
+                // 根据模式返回不同的默认选项
+                if (isAIMode) {
+                    return [
+                        { text: "继续向前探索", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) },
+                        { text: "转向左边的小路", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) },
+                        { text: "观察周围的环境", nextCard: 'AI_' + Date.now() + '_' + Math.floor(Math.random() * 1000) }
+                    ];
+                } else {
+                    return [
+                        { text: "继续向前探索", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "转向左边的小路", nextCard: Math.floor(Math.random() * 132) + 1 },
+                        { text: "观察周围的环境", nextCard: Math.floor(Math.random() * 132) + 1 }
+                    ];
+                }
             } finally {
                 // 恢复所有AI生成选项按钮的状态
                 const generateButtons = document.querySelectorAll('button.edit-button');
@@ -3165,12 +3912,16 @@
                     const historyItem = document.createElement('li');
                     historyItem.className = 'history-item';
                     
-                    const cardNumber = document.createElement('span');
-                    cardNumber.className = 'card-number-highlight';
-                    cardNumber.textContent = `#${cardId}`;
-                    
-                    historyItem.appendChild(cardNumber);
-                    historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                    if (!isAIMode) {
+                        const cardNumber = document.createElement('span');
+                        cardNumber.className = 'card-number-highlight';
+                        cardNumber.textContent = `#${cardId}`;
+                        
+                        historyItem.appendChild(cardNumber);
+                        historyItem.appendChild(document.createTextNode(` - ${card.content}`));
+                    } else {
+                        historyItem.textContent = card.content;
+                    }
                     
                     historyList.appendChild(historyItem);
                 }
@@ -3186,19 +3937,21 @@
             const cardContent = document.querySelector('.card-content');
             const optionsContainer = document.querySelector('.options');
             
+            // 使用全局AI模式标记
+            
             // 清除原有内容
             cardContent.textContent = '';
             optionsContainer.innerHTML = '';
             
             // 分离主要文本和选项
-            const mainContent = currentCardData.content.split('\n').filter(line => !line.match(/^\d+\.|转到#/)).join('\n');
-            cardContent.textContent = mainContent;
+            // 直接使用卡片内容，不进行过滤，确保AI模式下编辑保存后的指令文字能正常显示
+            cardContent.textContent = currentCardData.content;
             
             // 添加选项标题
             if (currentCardData.options && currentCardData.options.length > 0) {
                 const optionsTitle = document.createElement('div');
                 optionsTitle.className = 'options-title';
-                optionsTitle.textContent = '选项：';
+                optionsTitle.textContent = '选择你的行动：';
                 optionsContainer.appendChild(optionsTitle);
                 
                 // 添加选项按钮
@@ -3211,20 +3964,124 @@
                     optionText.className = 'option-text';
                     optionText.textContent = option.text;
                     
-                    // 创建跳转编号标签
-                    const nextCardLabel = document.createElement('span');
-                    nextCardLabel.className = 'option-next-card';
-                    nextCardLabel.textContent = `#${option.nextCard}`;
-                    
-                    // 添加文本和编号到按钮
+                    // 添加文本到按钮
                     button.appendChild(optionText);
-                    button.appendChild(nextCardLabel);
+                    
+                    // 只在非AI模式下显示卡片序号
+                    if (!isAIMode) {
+                        // 创建跳转编号标签
+                        const nextCardLabel = document.createElement('span');
+                        nextCardLabel.className = 'option-next-card';
+                        nextCardLabel.textContent = ` #${option.nextCard}`;
+                        nextCardLabel.style.fontSize = '12px';
+                        nextCardLabel.style.color = '#888';
+                        button.appendChild(nextCardLabel);
+                    }
                     
                     button.onclick = () => {
                         if (!gameStartTime) {
                             gameStartTime = new Date();
                         }
-                        selectOption(option.nextCard, option.text);
+                        
+                        // 在AI模式下，使用选项文本作为prompt生成新的指令卡与选项
+                        if (isAIMode) {
+                            // 生成新的AI卡片ID
+                            const newCardId = `AI_${Date.now()}`;
+                            // 使用选项文本作为prompt
+                            const selectedOptionText = option.text;
+                            
+                            // 创建一个临时卡片，显示加载状态
+                            const tempCard = {
+                                id: newCardId,
+                                content: "正在生成新的探索内容...",
+                                options: []
+                            };
+                            
+                            // 添加到卡片集合
+                            cards.push(tempCard);
+                            
+                            // 先切换到临时卡片
+                            selectOption(newCardId, selectedOptionText);
+                            
+                            // 异步生成新的卡片内容和选项
+                            (async () => {
+                                try {
+                                    // 构建提示词
+                                    const prompt =`玩家刚刚选择了行动："${selectedOptionText}"。请严格模仿以下默认指令库的写法风格生成一个探索卡片：
+
+参考风格示例：
+- "走到最近的转角；朝着你的家或你在这个城市的住所的方向走，直到你看到"
+- "站在最近的垃圾桶旁边；闭上眼睛，数到十，记下你听到的最突出的声音"
+- "喝咖啡时，请环顾四周；留意所有在视线范围内坐下的人"
+
+要求：
+1. 内容要具体且可执行，字数控制在100字以内
+2. 使用分号分隔不同的行动步骤
+3. 多用"走到"、"站在"、"留意"、"观察"等动词开头
+4. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
+5. 选项必须以"如果..."开头，描述具体的观察结果
+6. 所有条件判断都应该放在选项中，而不是指令内容中
+7. 语言简洁直接，避免过多修饰词
+8. 注重空间和环境的观察
+9. 考虑安全性，不要有危险的建议`;
+                                    
+                                    // 调用DeepSeek API
+                                    const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                        },
+                                        body: JSON.stringify({
+                                            model: "deepseek-chat",
+                                            messages: [{
+                                                role: "user",
+                                                content: prompt
+                                            }],
+                                            temperature: 0.7,
+                                            max_tokens: 500
+                                        })
+                                    });
+                                    
+                                    if (!response.ok) {
+                                        throw new Error(`API请求失败: ${response.statusText}`);
+                                    }
+                                    
+                                    const data = await response.json();
+                                    if (data.choices && data.choices[0]) {
+                                        const newContent = data.choices[0].message.content;
+                                        
+                                        // 更新卡片内容
+                                        const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                        if (cardIndex !== -1) {
+                                            cards[cardIndex].content = newContent;
+                                            
+                                            // 生成新的选项
+                                            const options = await generateOptionsWithAI(newContent);
+                                            cards[cardIndex].options = options;
+                                            
+                                            // 如果当前显示的是这张卡片，更新显示
+                                            if (currentCard === newCardId) {
+                                                updateCardDisplay();
+                                            }
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('生成新卡片内容失败:', error);
+                                    // 更新为错误信息
+                                    const cardIndex = cards.findIndex(card => card.id === newCardId);
+                                    if (cardIndex !== -1) {
+                                        cards[cardIndex].content = "生成内容失败，请重试或选择其他选项。";
+                                        if (currentCard === newCardId) {
+                                            updateCardDisplay();
+                                        }
+                                    }
+                                }
+                            })();
+                        } else {
+                            // 非AI模式下，正常跳转到指定卡片
+                            selectOption(option.nextCard, option.text);
+                        }
                     };
                     optionsContainer.appendChild(button);
                 });
@@ -3232,35 +4089,8 @@
         }
 
         function skipCard() {
-            const currentCardData = cards.find(card => card.id === currentCard);
-            const nextCard = getRandomCard();
-            
-            if (nextCard) {
-                if (currentCardData) {
-                    // 将当前卡片添加到历史记录
-                    history.push(currentCardData.id);
-                    
-                    // 创建新的历史记录项
-                    const historyList = document.querySelector('.history-list');
-                    const historyItem = document.createElement('li');
-                    historyItem.className = 'history-item';
-                    
-                    const cardNumber = document.createElement('span');
-                    cardNumber.className = 'card-number-highlight';
-                    cardNumber.textContent = `#${currentCardData.id}`;
-                    
-                    historyItem.appendChild(cardNumber);
-                    historyItem.appendChild(document.createTextNode(` [已跳过] - ${currentCardData.content}`));
-                    
-                    historyList.appendChild(historyItem);
-                }
-                
-                // 更新当前卡片ID并显示新卡片
-                currentCard = nextCard.id;
-                showCard(nextCard.id);
-            } else {
-                alert('已经浏览过所有卡片，游戏结束！\n你的探索路径：' + history.join(' → '));
-            }
+            // 禁用跳过功能
+            return;
         }
 
         async function generateLog() {

@@ -728,6 +728,7 @@
             <div class="history-container">
                 <h3>最近探索</h3>
                 <div class="history-tags" id="historyTags"></div>
+                <button class="confirm-button" onclick="clearExplorationHistory()" style="background-color: var(--color-red); margin-top: 15px; padding: 8px 16px; font-size: 14px;">清空</button>
             </div>
         </div>
     </div>
@@ -2333,6 +2334,15 @@
             const promptInput = document.getElementById('promptInput');
             promptInput.value = text;
             promptInput.focus();
+        }
+
+        // 清空探索历史
+        function clearExplorationHistory() {
+            if (confirm('确定要清空所有探索历史吗？')) {
+                storage.clear('exploration_history');
+                updateHistoryTags();
+                showToast('历史记录已清空', 'success');
+            }
         }
 
         // 显示提示信息

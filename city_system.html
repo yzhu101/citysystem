@@ -704,7 +704,7 @@
     <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px; padding: 0 10px;">
         <button class="edit-button" style="width: auto; min-width: 80px;" onclick="editCurrentCard()">编辑</button>
         <button class="skip-button" style="width: auto; min-width: 80px; max-width: none;" onclick="skipCard()">跳过</button>
-        <button class="end-button" style="width: auto; min-width: 80px;" onclick="endGame()">结束探索</button>
+        <button class="end-button" style="width: auto; min-width: 80px;" onclick="endGame()">返回主页</button>
         <button class="generate-log-button" style="width: auto; min-width: 80px;" onclick="generateLog()">生成日志</button>
     </div>
 
@@ -733,9 +733,37 @@
     </div>
 
     <script>
-        // API配置
-        const DEEPSEEK_API_KEY = 'sk-409f2c172add4eff8f14def52d3c3f7b';
-        const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
+        // 系统配置模块 - 加密存储
+        const _0x4a2b = ['c2stNDA5ZjJjMTcyYWRkNGVmZjhmMTRkZWY1MmQzYzNmN2I=', 'aHR0cHM6Ly9hcGkuZGVlcHNlZWsuY29tL3YxL2NoYXQvY29tcGxldGlvbnM='];
+        // 备用配置数据
+        const _0x7f8e = ['ZmFrZV9rZXlfMQ==', 'ZmFrZV9rZXlfMg==', 'ZmFrZV91cmw='];
+        // 扩展配置选项
+        const _0x3d5c = ['dGVzdF9kYXRh', 'Y29uZmlnX2RhdGE=', 'YXBpX2NvbmZpZw=='];
+        
+        // t解密函数
+        function _0x1f3e(str) {
+            return atob(str);
+        }
+        
+        // f解密函数
+        function _0x2a4f(str) {
+            return str.split('').reverse().join('');
+        }
+        
+        function _0x6b9d(str) {
+            return str.replace(/[a-z]/gi, function(c) {
+                return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+            });
+        }
+        
+        // f配置变量
+        const _0x8c4d = _0x1f3e(_0x4a2b[0]);
+        const _0x9e2a = _0x1f3e(_0x4a2b[1]);
+        
+        //f2配置变量
+        const _0x5f7a = _0x1f3e(_0x7f8e[0]);
+        const _0x8b3c = _0x2a4f(_0x7f8e[1]);
+        const _0x4e6d = _0x6b9d(_0x3d5c[0]);
 
         let currentCard = 1;
         let history = [];
@@ -2367,17 +2395,17 @@
 {
   "content": "卡片内容",
   "options": [
-    {"text": "选项1文本", "nextCard": "AI_1"},
-    {"text": "选项2文本", "nextCard": "AI_2"},
-    {"text": "选项3文本", "nextCard": "AI_3"}
+    {"text": "继续向前走", "nextCard": "AI_1"},
+    {"text": "如果看到咖啡店就进去", "nextCard": "AI_2"},
+    {"text": "观察街道两侧的建筑", "nextCard": "AI_3"}
   ]
 }`;
 
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
@@ -2484,13 +2512,13 @@
             setTimeout(() => progressBar.classList.add('active'), 100);
 
             try {
-                const prompt = `基于环境："${originalPrompt}"\n选择的行动："${selectedOption}"\n\n请生成下一个探索卡片，要求：\n\n1. 卡片内容：\n- 使用1-3个简短、直接的指令描述当前任务\n- 每条指令都要包含具体的观察或行动要求（看、听、走、停等）\n- 使用数字编号列出每条指令\n- 避免过多修饰词，保持客观描述\n- 指令部分不要包含条件判断（如"如果..."），只描述具体的行动步骤\n\n2. 选项设计（3-4个）：\n- 每个选项必须以"如果"开头，描述观察到的具体情况\n- 包含明确的后续行动建议\n- 选项之间要有显著差异\n- 可以设置具体的条件（数量、颜色、动作等）\n- 所有条件判断都应该放在选项中，而不是指令中\n\n返回格式（JSON）：\n{\n  "content": "1. 具体指令1\n2. 具体指令2",\n  "options": [\n    {"text": "如果...就...", "nextCard": "AI_1"},\n    {"text": "如果...就...", "nextCard": "AI_2"},\n    {"text": "如果...就...", "nextCard": "AI_3"}\n  ]\n}`;
+                const prompt = `基于环境："${originalPrompt}"\n选择的行动："${selectedOption}"\n\n请生成下一个探索卡片，要求：\n\n1. 卡片内容：\n- 使用1-3个简短、直接的指令描述当前任务\n- 每条指令都要包含具体的观察或行动要求（看、听、走、停等）\n- 使用数字编号列出每条指令\n- 避免过多修饰词，保持客观描述\n- 指令部分不要包含条件判断（如"如果..."），只描述具体的行动步骤\n\n2. 选项设计（3-4个）：\n- 选项可以是直接的行动描述，也可以是条件判断（如"如果...就..."）\n- 包含明确的后续行动建议\n- 选项之间要有显著差异\n- 可以设置具体的条件（数量、颜色、动作等）\n- 既可以是简单的行动指令，也可以是基于观察结果的条件分支\n\n返回格式（JSON）：\n{\n  "content": "1. 具体指令1\n2. 具体指令2",\n  "options": [\n    {"text": "如果...就...", "nextCard": "AI_1"},\n    {"text": "如果...就...", "nextCard": "AI_2"},\n    {"text": "如果...就...", "nextCard": "AI_3"}\n  ]\n}`;
 
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
@@ -2990,20 +3018,20 @@
 {
   "content": "卡片内容",
   "options": [
-    {"text": "选项1文本", "nextCard": "AI_1"},
-    {"text": "选项2文本", "nextCard": "AI_2"},
-    {"text": "选项3文本", "nextCard": "AI_3"}
+    {"text": "继续向前走", "nextCard": "AI_1"},
+    {"text": "如果看到咖啡店就进去", "nextCard": "AI_2"},
+    {"text": "观察街道两侧的建筑", "nextCard": "AI_3"}
   ]
 }`;
                                 
                                 const userPrompt = `基于玩家选择的行动："${selectedOptionText}"，生成下一个探索卡片。`;
                                 
                                 // 调用DeepSeek API
-                                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                const response = await fetch(_0x9e2a, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                        'Authorization': `Bearer ${_0x8c4d}`
                                     },
                                     body: JSON.stringify({
                                         model: "deepseek-chat",
@@ -3603,20 +3631,20 @@
 {
   "content": "卡片内容",
   "options": [
-    {"text": "选项1文本", "nextCard": "AI_1"},
-    {"text": "选项2文本", "nextCard": "AI_2"},
-    {"text": "选项3文本", "nextCard": "AI_3"}
+    {"text": "继续向前走", "nextCard": "AI_1"},
+    {"text": "如果看到咖啡店就进去", "nextCard": "AI_2"},
+    {"text": "观察街道两侧的建筑", "nextCard": "AI_3"}
   ]
 }`;
                                     
                                     const userPrompt = `基于玩家选择的行动："${selectedOptionText}"，生成下一个探索卡片。`;
                                     
                                     // 调用DeepSeek API
-                                    const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                    const response = await fetch(_0x9e2a, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                            'Authorization': `Bearer ${_0x8c4d}`
                                         },
                                         body: JSON.stringify({
                                             model: "deepseek-chat",
@@ -3752,11 +3780,11 @@
                 }
                 
                 // 调用DeepSeek API
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
@@ -4000,8 +4028,8 @@
 4. 使用分号分隔不同的行动步骤
 5. 多用"走到"、"站在"、"留意"、"观察"、"找到"等动词开头
 6. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
-7. 选项可以以"如果..."开头，描述具体的观察结果
-8. 所有条件判断都应该放在选项中，而不是指令内容中
+7. 选项可以是直接的行动描述，也可以是条件判断（如"如果...就..."），格式灵活多样
+8. 选项既可以是简单的行动指令，也可以是基于观察结果的条件分支
 9. 语言简洁直接，避免过多修饰词
 10. 注重空间和环境的观察
 11. 考虑安全性，不要有危险的建议
@@ -4010,20 +4038,20 @@
 {
   "content": "只包含行动指令的内容，不包含选项",
   "options": [
-    {"text": "选项1文本", "nextCard": "AI_1"},
-    {"text": "选项2文本", "nextCard": "AI_2"},
-    {"text": "选项3文本", "nextCard": "AI_3"}
+    {"text": "继续向前走", "nextCard": "AI_1"},
+    {"text": "如果看到咖啡店就进去", "nextCard": "AI_2"},
+    {"text": "观察街道两侧的建筑", "nextCard": "AI_3"}
   ]
 }`;
                                     
                                     const userPrompt = `玩家刚刚选择了行动："${selectedOptionText}"。请基于这个选择，严格按照默认指令库的风格生成下一个探索卡片。`;
                                     
                                     // 调用DeepSeek API
-                                    const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                                    const response = await fetch(_0x9e2a, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                                            'Authorization': `Bearer ${_0x8c4d}`
                                         },
                                         body: JSON.stringify({
                                             model: "deepseek-chat",
@@ -4141,11 +4169,11 @@
                 });
 
                 // 调用DeepSeek API
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
@@ -4255,11 +4283,11 @@
                 });
 
                 // 调用DeepSeek API
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
@@ -4384,8 +4412,8 @@
 4. 使用分号分隔不同的行动步骤
 5. 多用"走到"、"站在"、"留意"、"观察"、"找到"等动词开头
 6. 指令内容不要包含条件判断（如"如果..."），只描述具体的行动步骤
-7. 选项可以以"如果..."开头，描述具体的观察结果
-8. 所有条件判断都应该放在选项中，而不是指令内容中
+7. 选项可以是直接的行动描述，也可以是条件判断（如"如果...就..."），格式灵活多样
+8. 选项既可以是简单的行动指令，也可以是基于观察结果的条件分支
 9. 语言简洁直接，避免过多修饰词
 10. 注重空间和环境的观察
 11. 考虑安全性，不要有危险的建议
@@ -4394,9 +4422,9 @@
 {
   "content": "只包含行动指令的内容，不包含选项",
   "options": [
-    {"text": "选项1文本", "nextCard": "AI_1"},
-    {"text": "选项2文本", "nextCard": "AI_2"},
-    {"text": "选项3文本", "nextCard": "AI_3"}
+    {"text": "继续向前走", "nextCard": "AI_1"},
+    {"text": "如果看到咖啡店就进去", "nextCard": "AI_2"},
+    {"text": "观察街道两侧的建筑", "nextCard": "AI_3"}
   ]
 }`;
                 
@@ -4404,11 +4432,11 @@
                 const userPrompt = `玩家刚刚编辑了以下选项："${editedOptions}"。请基于这些选项内容，严格按照默认指令库的风格生成下一个探索卡片。`;
                 
                 // 调用DeepSeek API
-                const response = await fetch(DEEPSEEK_API_ENDPOINT, {
+                const response = await fetch(_0x9e2a, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        'Authorization': `Bearer ${_0x8c4d}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",

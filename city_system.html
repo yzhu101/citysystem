@@ -4,8 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>城市漫游向导</title>
+    <!-- Leaflet CSS 和 JS 已移除 -->
+    <!-- walkingMap.js 已移除 -->
+    <script src="js/map/mentalMap.js"></script>
+    <script>
+        // 检查必要的类是否正确加载
+        window.addEventListener('load', function() {
+            // Leaflet库检查已移除
+            // WalkingMap类检查已移除
+            if (typeof MentalMap === 'undefined') {
+                console.error('MentalMap类加载失败');
+            }
+
+            // 添加地图容器检查函数
+            window.checkMapContainer = function(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('地图容器未找到:', containerId);
+                    return false;
+                }
+
+                const style = window.getComputedStyle(container);
+                const rect = container.getBoundingClientRect();
+
+                console.log('地图容器状态:', {
+                    id: containerId,
+                    display: style.display,
+                    visibility: style.visibility,
+                    position: style.position,
+                    width: rect.width + 'px',
+                    height: rect.height + 'px',
+                    backgroundColor: style.backgroundColor,
+                    border: style.border,
+                    overflow: style.overflow,
+                    zIndex: style.zIndex,
+                    opacity: style.opacity,
+                    transform: style.transform
+                });
+
+                const isVisible = style.display !== 'none' && 
+                                 style.visibility !== 'hidden' && 
+                                 rect.width > 0 && 
+                                 rect.height > 0;
+
+                if (!isVisible) {
+                    console.error('地图容器不可见或尺寸无效');
+                    return false;
+                }
+
+                return true;
+            };
+        });
+
+        // 添加全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('全局错误:', {
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error
+            });
+
+            // 检查是否是地图相关错误
+            if (event.message.includes('MentalMap') || 
+                event.message.includes('地图') || 
+                event.message.includes('心理地图') || 
+                event.message.includes('心象地图')) {
+                alert('地图加载失败，请刷新页面重试。错误信息：' + event.message);
+            }
+        });
+
+        // 添加未捕获的Promise错误处理
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未捕获的Promise错误:', {
+                reason: event.reason
+            });
+
+            // 检查是否是地图相关错误
+            if (event.reason.message && (
+                event.reason.message.includes('MentalMap') || 
+                event.reason.message.includes('地图') || 
+                event.reason.message.includes('心理地图') || 
+                event.reason.message.includes('心象地图')
+            )) {
+                alert('地图操作失败，请刷新页面重试。错误信息：' + event.reason.message);
+            }
+        });
+    </script>
     <link rel="stylesheet" href="fonts/fonts.css">
     <style>
+        /* Leaflet地图自定义样式已移除 */
+
         /* 全局样式 */
         :root {
             --color-background: #F5F1E6;
@@ -2215,6 +2305,15 @@
             // 设置为默认模式
             isAIMode = false;
             
+            // 重置游戏状态
+            currentCard = 1;
+            history = [];
+            gameStartTime = null;
+            document.querySelector('.history-list').innerHTML = '';
+            
+            // 显示第一张卡片
+            showCard(1);
+            
             const coverPage = document.getElementById('coverPage');
             coverPage.style.transition = 'transform 0.3s ease-out';
             coverPage.style.transform = 'translateY(-100%)';
@@ -4174,8 +4273,437 @@
                 const loadingDiv = document.createElement('div');
                 loadingDiv.id = 'loading-message';
                 loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;';
-                loadingDiv.textContent = '正在生成故事...';
+                loadingDiv.textContent = '正在生成故事和心象地图...';
                 document.body.appendChild(loadingDiv);
+
+                // 创建并设置容器
+                console.log('开始创建容器...');
+                
+                // 1. 创建故事容器
+                const storyContainer = document.createElement('div');
+                storyContainer.className = 'story-container';
+                Object.assign(storyContainer.style, {
+                    margin: '20px auto',
+                    padding: '20px',
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    boxShadow: 'rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px',
+                    width: '800px',
+                    position: 'relative'
+                });
+                
+                // 2. 创建地图容器
+                const mapContainer = document.createElement('div');
+                mapContainer.id = 'memory-map';
+                
+                // 3. 设置地图容器样式 - 确保容器立即可见且尺寸正确
+                Object.assign(mapContainer.style, {
+                    width: '100%',
+                    height: '300px',
+                    margin: '20px 0',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    backgroundColor: '#F2F4CB',
+                    border: '2px solid #252525',
+                    position: 'relative',
+                    display: 'block',
+                    zIndex: '1',
+                    opacity: '1', // 直接设置为可见，避免过渡效果
+                    visibility: 'visible', // 确保可见
+                    minHeight: '300px', // 确保最小高度
+                    boxSizing: 'border-box' // 确保边框不影响尺寸计算
+                });
+                
+                // 添加内部标记，确保容器不为空
+                mapContainer.innerHTML = '<div style="text-align: center; padding: 20px;">正在加载心理地图...</div>';
+                
+                // 检查CSS动画和过渡状态
+                function checkAnimationState(element) {
+                    const style = window.getComputedStyle(element);
+                    const animations = {
+                        transition: style.transition,
+                        animation: style.animation,
+                        transform: style.transform,
+                        opacity: style.opacity
+                    };
+                    
+                    // 获取所有运行中的动画
+                    const runningAnimations = element.getAnimations();
+                    
+                    console.log('CSS动画状态:', {
+                        element: element.id,
+                        styleProperties: animations,
+                        activeAnimations: runningAnimations.map(anim => ({
+                            animationName: anim.animationName,
+                            playState: anim.playState,
+                            currentTime: anim.currentTime
+                        })),
+                        hasTransition: style.transition !== 'none',
+                        hasAnimation: style.animation !== 'none',
+                        hasTransform: style.transform !== 'none'
+                    });
+                    
+                    // 监听过渡完成事件
+                    element.addEventListener('transitionend', (event) => {
+                        console.log('过渡完成:', {
+                            property: event.propertyName,
+                            elapsedTime: event.elapsedTime
+                        });
+                    });
+                }
+                
+                // 初始检查动画状态
+                checkAnimationState(mapContainer);
+                
+                // 移除淡入效果，确保容器始终可见
+                console.log('地图容器已设置为可见状态');
+                
+                // 检查堆叠上下文
+                function checkStackingContext(element) {
+                    const style = window.getComputedStyle(element);
+                    const stackingContextProps = {
+                        position: style.position !== 'static',
+                        zIndex: style.zIndex !== 'auto',
+                        opacity: parseFloat(style.opacity) < 1,
+                        transform: style.transform !== 'none',
+                        filter: style.filter !== 'none',
+                        isolation: style.isolation === 'isolate',
+                        willChange: style.willChange !== 'auto',
+                        perspective: style.perspective !== 'none',
+                        backdropFilter: style.backdropFilter !== 'none'
+                    };
+                    
+                    const createsStackingContext = Object.values(stackingContextProps).some(prop => prop);
+                    console.log('堆叠上下文检查:', {
+                        element: element.tagName + (element.id ? '#' + element.id : ''),
+                        createsStackingContext,
+                        properties: stackingContextProps
+                    });
+                    
+                    return createsStackingContext;
+                }
+                
+                // 检查地图容器及其父元素的堆叠上下文
+                let current = mapContainer;
+                while (current && current !== document.body) {
+                    checkStackingContext(current);
+                    current = current.parentElement;
+                }
+                
+                // 4. 构建DOM结构
+                storyContainer.appendChild(mapContainer);
+                loadingDiv.insertAdjacentElement('beforebegin', storyContainer);
+                
+                // 5. 检查父元素状态
+                function checkParentElements(element) {
+                    let current = element;
+                    const parentInfo = [];
+                    
+                    while (current && current !== document.body) {
+                        const style = window.getComputedStyle(current);
+                        const rect = current.getBoundingClientRect();
+                        
+                        parentInfo.push({
+                            tagName: current.tagName,
+                            id: current.id,
+                            className: current.className,
+                            display: style.display,
+                            position: style.position,
+                            width: rect.width,
+                            height: rect.height,
+                            overflow: style.overflow,
+                            visibility: style.visibility
+                        });
+                        
+                        current = current.parentElement;
+                    }
+                    
+                    return parentInfo;
+                }
+                
+                const parentStates = checkParentElements(mapContainer);
+                console.log('地图容器父元素状态:', parentStates);
+                
+                // 6. 创建样式变化观察器
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            const style = window.getComputedStyle(mapContainer);
+                            const rect = mapContainer.getBoundingClientRect();
+                            console.log('地图容器样式变化:', {
+                                width: rect.width + 'px',
+                                height: rect.height + 'px',
+                                display: style.display,
+                                visibility: style.visibility,
+                                position: style.position
+                            });
+                            
+                            // 重新检查父元素状态
+                            const updatedParentStates = checkParentElements(mapContainer);
+                            console.log('父元素状态更新:', updatedParentStates);
+                        }
+                    });
+                });
+                
+                // 开始观察地图容器的样式变化
+                observer.observe(mapContainer, {
+                    attributes: true,
+                    attributeFilter: ['style']
+                });
+                
+                // 7. 验证容器尺寸
+                const containerRect = mapContainer.getBoundingClientRect();
+                console.log('地图容器尺寸:', {
+                    width: containerRect.width + 'px',
+                    height: containerRect.height + 'px'
+                });
+                
+                if (containerRect.width === 0 || containerRect.height === 0) {
+                    console.error('地图容器尺寸无效，检查父元素状态:', parentStates);
+                    throw new Error('地图容器尺寸无效，请检查容器样式和DOM结构');
+                }
+                
+                console.log('容器DOM结构构建完成');
+                
+                // 等待DOM更新并检查布局 - 优化异步流程
+                await new Promise(resolve => {
+                    // 使用双重requestAnimationFrame确保DOM完全更新
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            // 检查布局和渲染状态
+                            const checkLayout = () => {
+                                const rect = mapContainer.getBoundingClientRect();
+                                const style = window.getComputedStyle(mapContainer);
+                                
+                                // 检查容器是否在视口内
+                                const isInViewport = (
+                                    rect.top >= 0 &&
+                                    rect.left >= 0 &&
+                                    rect.bottom <= window.innerHeight &&
+                                    rect.right <= window.innerWidth
+                                );
+                                
+                                console.log('地图容器布局状态:', {
+                                    inViewport: isInViewport,
+                                    offsetParent: mapContainer.offsetParent?.tagName,
+                                    clientRect: {
+                                        top: rect.top,
+                                        left: rect.left,
+                                        width: rect.width,
+                                        height: rect.height
+                                    },
+                                    computedStyle: {
+                                        display: style.display,
+                                        position: style.position,
+                                        float: style.float,
+                                        flexBasis: style.flexBasis,
+                                        gridArea: style.gridArea,
+                                        boxSizing: style.boxSizing,
+                                        opacity: style.opacity,
+                                        visibility: style.visibility
+                                    }
+                                });
+                                
+                                // 检查容器是否已完成渲染
+                                const isRendered = (
+                                    rect.width > 0 &&
+                                    rect.height > 0 &&
+                                    style.display !== 'none' &&
+                                    style.visibility !== 'hidden' &&
+                                    mapContainer.offsetParent !== null
+                                );
+                                
+                                return isRendered;
+                            };
+                            
+                            // 如果布局检查通过，立即继续初始化
+                            if (checkLayout()) {
+                                resolve();
+                            } else {
+                                console.error('地图容器布局异常');
+                                // 尝试强制重新计算布局
+                                mapContainer.style.display = 'none';
+                                mapContainer.offsetHeight; // 触发重排
+                                mapContainer.style.display = 'block';
+                                
+                                // 再次检查
+                                setTimeout(() => {
+                                    console.log('重试布局检查:', checkLayout());
+                                    resolve();
+                                }, 50);
+                            }
+                        });
+                    });
+                });
+                
+                // 初始化心象地图
+                console.log('开始初始化心象地图...');
+                
+                // 检查必要的类是否可用
+                if (typeof MentalMap === 'undefined') {
+                    throw new Error('MentalMap类未定义，请检查mentalMap.js是否正确加载');
+                }
+                console.log('依赖检查通过');
+                
+                // 检查地图容器状态
+                if (!window.checkMapContainer('memory-map')) {
+                    throw new Error('地图容器状态异常，请检查容器的可见性和尺寸');
+                }
+                console.log('地图容器状态检查通过');
+                
+                // 检查事件处理和交互状态
+                function checkInteractionState(container) {
+                    const style = window.getComputedStyle(container);
+                    const interactionState = {
+                        pointerEvents: style.pointerEvents,
+                        userSelect: style.userSelect,
+                        touchAction: style.touchAction,
+                        cursor: style.cursor
+                    };
+                    
+                    // 测试事件冒泡
+                    let eventBubbles = false;
+                    container.addEventListener('testBubble', () => {
+                        eventBubbles = true;
+                    }, { once: true });
+                    
+                    const testEvent = new Event('testBubble', { bubbles: true });
+                    container.dispatchEvent(testEvent);
+                    
+                    console.log('地图容器交互状态:', {
+                        ...interactionState,
+                        eventBubbles,
+                        isConnected: container.isConnected,
+                        hasMouseListeners: container.onmousedown !== null || container.onclick !== null,
+                        hasTouchListeners: container.ontouchstart !== null || container.ontouchmove !== null
+                    });
+                }
+                
+                checkInteractionState(mapContainer);
+                
+                // 创建MentalMap实例并初始化
+                console.log('准备创建MentalMap实例...');
+                console.log('MentalMap类是否可用:', typeof MentalMap !== 'undefined');
+                
+                try {
+                    // 检查MentalMap类是否正确加载
+                    if (typeof MentalMap === 'undefined') {
+                        throw new Error('MentalMap类未定义，请检查mentalMap.js是否正确加载');
+                    }
+                    
+                    // 检查地图容器
+                    const mapContainerCheck = document.getElementById('memory-map');
+                    if (!mapContainerCheck) {
+                        throw new Error('地图容器未找到，请检查DOM结构');
+                    }
+                    
+                    // 强制设置容器样式，确保可见
+                    Object.assign(mapContainerCheck.style, {
+                        display: 'block',
+                        visibility: 'visible',
+                        opacity: '1',
+                        width: '100%',
+                        height: '300px',
+                        minHeight: '300px',
+                        backgroundColor: '#F2F4CB'
+                    });
+                    
+                    // 检查容器尺寸
+                    const rect = mapContainerCheck.getBoundingClientRect();
+                    console.log('地图容器尺寸检查:', {
+                        width: rect.width,
+                        height: rect.height,
+                        offsetWidth: mapContainerCheck.offsetWidth,
+                        offsetHeight: mapContainerCheck.offsetHeight,
+                        clientWidth: mapContainerCheck.clientWidth,
+                        clientHeight: mapContainerCheck.clientHeight,
+                        style: {
+                            display: mapContainerCheck.style.display,
+                            visibility: mapContainerCheck.style.visibility,
+                            opacity: mapContainerCheck.style.opacity
+                        }
+                    });
+                    
+                    if (rect.width === 0 || rect.height === 0) {
+                        throw new Error(`地图容器尺寸无效: width=${rect.width}, height=${rect.height}`);
+                    }
+                    
+                    // 清空容器内容，确保没有残留元素
+                    mapContainerCheck.innerHTML = '';
+                    
+                    // 创建MentalMap实例
+                    console.log('创建MentalMap实例...');
+                    const mentalMap = new MentalMap('memory-map');
+                    
+                    // 初始化心理地图
+                    console.log('开始初始化心理地图...');
+                    await mentalMap.initialize();
+                    console.log('心理地图初始化成功');
+                    
+                    // 获取探索历史文本用于生成心理地图
+                    const historyItems = document.querySelectorAll('.history-item');
+                    console.log('找到历史项目数量:', historyItems.length);
+                    
+                    if (historyItems.length === 0) {
+                        console.warn('未找到历史项目，将使用默认文本');
+                        // 使用默认文本
+                        mentalMap.generateFromText('城市漫游 探索 发现 建筑 街道 人文 历史 文化 艺术 体验');
+                    } else {
+                        // 从历史项目中提取文本
+                        let historyText = '';
+                        historyItems.forEach((item, index) => {
+                            const itemText = item.textContent.trim();
+                            console.log(`历史项目 #${index + 1}:`, itemText.substring(0, 50) + (itemText.length > 50 ? '...' : ''));
+                            historyText += itemText + ' ';
+                        });
+                        
+                        // 从历史文本生成心理地图
+                        console.log('开始从历史文本生成心理地图，文本长度:', historyText.length);
+                        mentalMap.generateFromText(historyText);
+                    }
+                    
+                    // 显示探索总结
+                    console.log('显示探索总结...');
+                    const distance = '约2.5公里';
+                    const points = historyItems.length || 1;
+                    const speed = '中等步行速度';
+                    mentalMap.showSummary(distance, points, speed);
+                    console.log('探索总结显示完成');
+                    
+                    // 检查地图容器最终状态
+                    const finalContainerState = document.getElementById('memory-map');
+                    const finalCanvas = finalContainerState?.querySelector('canvas');
+                    console.log('地图容器最终状态:', {
+                        exists: !!finalContainerState,
+                        hasCanvas: !!finalCanvas,
+                        canvasWidth: finalCanvas?.width,
+                        canvasHeight: finalCanvas?.height,
+                        containerWidth: finalContainerState?.offsetWidth,
+                        containerHeight: finalContainerState?.offsetHeight
+                    });
+                    
+                    // 如果Canvas不存在，说明初始化失败
+                    if (!finalCanvas) {
+                        throw new Error('Canvas元素未创建，心理地图初始化可能失败');
+                    }
+                } catch (error) {
+                    console.error('心理地图创建失败:', error);
+                    // 显示错误信息在地图容器中
+                    const errorContainer = document.getElementById('memory-map');
+                    if (errorContainer) {
+                        errorContainer.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #EC6E5F; background-color: #FFF; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <h3 style="margin-top: 0;">心理地图加载失败</h3>
+                                <p>错误信息: ${error.message}</p>
+                                <p>请尝试刷新页面或检查控制台获取更多信息</p>
+                                <button onclick="location.reload()" style="padding: 8px 16px; margin-top: 15px; background-color: #4B7B91; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    重新加载
+                                </button>
+                            </div>
+                        `;
+                    }
+                    throw error;
+                }
 
                 // 构建提示词，去除卡片编号
                 const historyItems = document.querySelectorAll('.history-item');
@@ -4226,10 +4754,7 @@
                         hour12: false
                     });
 
-                    // 创建故事容器
-                    const storyContainer = document.createElement('div');
-                    storyContainer.className = 'story-container';
-                    storyContainer.style.cssText = 'margin: 10px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px; width: calc(100% - 52px); max-width: 500px;';
+                    // 创建标题和时间信息
                     
                     const storyTitle = document.createElement('h3');
                     storyTitle.textContent = '你的城市探索故事';
@@ -4253,11 +4778,15 @@
                     
                     storyContainer.appendChild(storyTitle);
                     storyContainer.appendChild(timeInfo);
+                    // 添加心象地图
+                    storyContainer.appendChild(mapContainer);
                     storyContainer.appendChild(storyContent);
                     document.body.appendChild(storyContainer);
                     
                     // 滚动到故事位置
                     storyContainer.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // walkingMap相关功能已移除
                 } else {
                     throw new Error('API返回数据格式错误');
                 }
@@ -4288,7 +4817,7 @@
                 const loadingDiv = document.createElement('div');
                 loadingDiv.id = 'loading-message';
                 loadingDiv.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;';
-                loadingDiv.textContent = '正在生成故事...';
+                loadingDiv.textContent = '正在生成故事和地图...';
                 document.body.appendChild(loadingDiv);
 
                 // 构建提示词，去除卡片编号
@@ -4326,9 +4855,6 @@
                 if (data.choices && data.choices[0]) {
                     const story = data.choices[0].message.content;
                     
-                    // 移除加载提示
-                    loadingDiv.remove();
-
                     // 获取当前时间
                     const currentTime = new Date();
                     const formattedTime = currentTime.toLocaleString('zh-CN', {
@@ -4368,7 +4894,83 @@
                     storyContainer.appendChild(storyTitle);
                     storyContainer.appendChild(timeInfo);
                     storyContainer.appendChild(storyContent);
+                    
+                    // 创建地图容器
+                    const mapContainer = document.createElement('div');
+                    mapContainer.id = 'memory-map';
+                    
+                    // 设置地图容器样式
+                    Object.assign(mapContainer.style, {
+                        width: '100%',
+                        height: '400px', // 增加高度以容纳底部的探索总结
+                        margin: '20px 0 10px 0',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        backgroundColor: '#F2F4CB',
+                        border: '2px solid #252525',
+                        position: 'relative',
+                        display: 'block',
+                        zIndex: '1',
+                        opacity: '1',
+                        visibility: 'visible',
+                        minHeight: '400px', // 增加最小高度
+                        boxSizing: 'border-box'
+                    });
+                    
+                    // 添加内部标记，确保容器不为空
+                    mapContainer.innerHTML = '<div style="text-align: center; padding: 20px;">正在加载心理地图...</div>';
+                    
+                    // 将地图容器添加到故事容器中
+                    storyContainer.appendChild(mapContainer);
+                    
+                    // 将故事容器添加到页面
                     document.body.appendChild(storyContainer);
+                    
+                    // 移除加载提示
+                    loadingDiv.remove();
+                    
+                    // 创建并初始化心理地图
+                    try {
+                        console.log('创建MentalMap实例...');
+                        const mentalMap = new MentalMap('memory-map');
+                        
+                        console.log('开始初始化心理地图...');
+                        await mentalMap.initialize();
+                        console.log('心理地图初始化成功');
+                        
+                        // 获取探索历史文本用于生成心理地图
+                        const historyItems = document.querySelectorAll('.history-item');
+                        console.log('找到历史项目数量:', historyItems.length);
+                        
+                        if (historyItems.length === 0) {
+                            console.warn('未找到历史项目，将使用默认文本');
+                            // 使用默认文本
+                            mentalMap.generateFromText('城市漫游 探索 发现 建筑 街道 人文 历史 文化 艺术 体验');
+                        } else {
+                            // 从历史项目中提取文本
+                            let historyText = '';
+                            historyItems.forEach((item, index) => {
+                                const itemText = item.textContent.trim();
+                                console.log(`历史项目 #${index + 1}:`, itemText.substring(0, 50) + (itemText.length > 50 ? '...' : ''));
+                                historyText += itemText + ' ';
+                            });
+                            
+                            // 从历史文本生成心理地图
+                            console.log('开始从历史文本生成心理地图，文本长度:', historyText.length);
+                            mentalMap.generateFromText(historyText);
+                        }
+                        
+                        // 显示探索总结
+                        console.log('显示探索总结...');
+                        const distance = '约2.5公里';
+                        const points = historyItems.length || 1;
+                        const speed = '中等步行速度';
+                        mentalMap.showSummary(distance, points, speed);
+                        console.log('探索总结显示完成');
+                    } catch (error) {
+                        console.error('心理地图生成失败:', error);
+                        mapContainer.innerHTML = `<div style="text-align: center; padding: 20px; color: #EC6E5F;">心理地图生成失败: ${error.message}</div>`;
+                    }
                     
                     // 滚动到故事位置
                     storyContainer.scrollIntoView({ behavior: 'smooth' });

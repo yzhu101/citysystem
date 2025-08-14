@@ -741,6 +741,33 @@ class MentalMap {
                 this.showNodeDetails(node, index);
             });
             
+            // 添加移动端轻压预览功能（Peek）
+            let touchModal = null;
+            group.addEventListener('touchstart', (e) => {
+                // 防止触发点击事件
+                e.preventDefault();
+                
+                // 创建临时预览模态框
+                touchModal = this.createTouchPreviewModal(node, index);
+                document.body.appendChild(touchModal);
+            });
+            
+            group.addEventListener('touchend', () => {
+                // 松开手指时移除预览
+                if (touchModal) {
+                    touchModal.remove();
+                    touchModal = null;
+                }
+            });
+            
+            group.addEventListener('touchcancel', () => {
+                // 触摸取消时也移除预览
+                if (touchModal) {
+                    touchModal.remove();
+                    touchModal = null;
+                }
+            });
+            
             // 添加悬停效果 - 增强效果
             group.addEventListener('mouseenter', () => {
                 outerCircle.setAttribute('fill', '#f0f8ff'); // 悬停时改变填充色
@@ -770,6 +797,66 @@ class MentalMap {
             
             this.nodeLayer.appendChild(group);
         });
+    }
+    
+    /**
+     * 创建触摸预览模态框 - 用于移动端轻压预览
+     */
+    createTouchPreviewModal(node, index) {
+        // 创建轻量级模态框 - 适合移动端轻压预览
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            touch-action: none;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 60%;
+            overflow-y: auto;
+            border: 2px solid #577A8F;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        `;
+        
+        // 简化的内容显示 - 适合轻压预览
+        const previewContent = `
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background-color: #B7B4AC; color: white; 
+                       display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">
+                      ${index + 1}
+                  </div>
+                <h3 style="margin: 0; font-size: 20px; font-weight: bold;">${node.phrase || '探索记录'}</h3>
+            </div>
+            <div style="height: 2px; background-color: #f0f0f0; margin: 10px 0 15px 0;"></div>
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 28px; margin-right: 10px;">${node.emoji}</span>
+                <span style="color: #666; font-size: 14px;">${node.content.substring(0, 20)}${node.content.length > 20 ? '...' : ''}</span>
+            </div>
+            <p style="line-height: 1.6; color: #333; margin: 5px 0 15px 0;">${node.content}</p>
+        `;
+        
+        content.innerHTML = previewContent;
+        modal.appendChild(content);
+        
+        // 阻止模态框上的触摸事件冒泡，以防止滚动和其他交互
+        modal.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        });
+        
+        return modal;
     }
     
     /**

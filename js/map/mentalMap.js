@@ -1,5 +1,5 @@
 /**
- * Mental Map 心理地图功能
+ * Mental Map 散步地图功能
  * 基于探索历史生成emoji节点的可视化地图
  * 包含底图、点图层、线图层和面图层
  */
@@ -341,7 +341,7 @@ class MentalMap {
     }
     
     /**
-     * 从探索历史生成心理地图
+     * 从探索历史生成散步地图
      */
     async generateFromHistory() {
         try {
@@ -408,9 +408,9 @@ class MentalMap {
             this.hideLoading();
             
         } catch (error) {
-            console.error('生成心理地图失败:', error);
+            console.error('生成散步地图失败:', error);
             this.hideLoading();
-            this.showError('生成心理地图失败: ' + error.message);
+            this.showError('生成散步地图失败: ' + error.message);
         }
     }
     
@@ -419,7 +419,7 @@ class MentalMap {
      */
     async analyzeAreas(contents) {
         // 此方法已被移除，保留空函数以避免引用错误
-        return { name: "探索区域", description: "你的探索轨迹" };
+        return { name: "散步区域", description: "你的散步轨迹" };
     }
     
     /**
@@ -555,7 +555,7 @@ class MentalMap {
     }
     
     /**
-     * 渲染心理地图
+     * 渲染散步地图
      */
     render() {
         // 清空各图层
@@ -843,7 +843,6 @@ class MentalMap {
             <div style="height: 2px; background-color: #f0f0f0; margin: 10px 0 15px 0;"></div>
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <span style="font-size: 28px; margin-right: 10px;">${node.emoji}</span>
-                <span style="color: #666; font-size: 14px;">${node.content.substring(0, 20)}${node.content.length > 20 ? '...' : ''}</span>
             </div>
             <p style="line-height: 1.6; color: #333; margin: 5px 0 15px 0;">${node.content}</p>
         `;
@@ -905,13 +904,12 @@ class MentalMap {
             <div style="height: 2px; background-color: #f0f0f0; margin: 10px 0 15px 0;"></div>
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <span style="font-size: 28px; margin-right: 10px;">${node.emoji}</span>
-                <span style="color: #666; font-size: 14px;">${node.content.substring(0, 20)}${node.content.length > 20 ? '...' : ''}</span>
             </div>
             <p style="line-height: 1.6; color: #333; margin: 5px 0 15px 0;">${node.content}</p>
             <button onclick="this.parentElement.parentElement.remove()" 
                     style="margin-top: 15px; padding: 8px 16px; background: #577A8F; color: white; border: none; 
                            border-radius: 4px; cursor: pointer; font-weight: bold;">
-                关闭站点信息
+                关闭
             </button>
         `;
         
@@ -931,7 +929,7 @@ class MentalMap {
     /**
      * 显示加载状态
      */
-    showLoading(text = '正在生成心理地图...') {
+    showLoading(text = '正在生成散步地图...') {
         this.container.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 400px; color: #666;">
                 <div style="font-size: 24px; margin-bottom: 10px;">🧠</div>

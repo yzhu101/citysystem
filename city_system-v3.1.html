@@ -27,13 +27,13 @@
             return script; // 返回script元素以便进一步操作
         }
         
-        // 预加载心理地图脚本 - 延迟到API配置设置后
+        // 预加载散步地图脚本 - 延迟到API配置设置后
         function loadMentalMapScript() {
             loadScript('js/map/mentalMap.js', function(success, error) {
                 if (success) {
-                    console.log('心理地图脚本加载成功');
+                    console.log('散步地图脚本加载成功');
                 } else {
-                    console.error('心理地图脚本加载失败:', error);
+                    console.error('散步地图脚本加载失败:', error);
                 }
             });
         }
@@ -827,13 +827,13 @@
             });
         }
         
-        // f配置变量 - 设置为全局变量以供心理地图使用
+        // f配置变量 - 设置为全局变量以供散步地图使用
         window._0x8c4d = _0x1f3e(_0x4a2b[0]);
         window._0x9e2a = _0x1f3e(_0x4a2b[1]);
         const _0x8c4d = window._0x8c4d;
         const _0x9e2a = window._0x9e2a;
         
-        // 在API配置设置后加载心理地图脚本
+        // 在API配置设置后加载散步地图脚本
         if (typeof loadMentalMapScript === 'function') {
             loadMentalMapScript();
         }
@@ -2290,7 +2290,7 @@
             gameStartTime = null;
             document.querySelector('.history-list').innerHTML = '';
             
-            // 清除心理地图相关元素和数据
+            // 清除散步地图相关元素和数据
             const mentalMapContainer = document.getElementById('mental-map-container');
             if (mentalMapContainer) {
                 mentalMapContainer.remove();
@@ -2301,7 +2301,7 @@
                 storyContainer.remove();
             }
             
-            // 移除可能存在的心理地图详情模态框
+            // 移除可能存在的散步地图详情模态框
             const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
             modalElements.forEach(modal => modal.remove());
             
@@ -2326,7 +2326,7 @@
             // 设置AI模式标记
             isAIMode = true;
             
-            // 清除心理地图相关元素和数据
+            // 清除散步地图相关元素和数据
             const mentalMapContainer = document.getElementById('mental-map-container');
             if (mentalMapContainer) {
                 mentalMapContainer.remove();
@@ -2337,7 +2337,7 @@
                 storyContainer.remove();
             }
             
-            // 移除可能存在的心理地图详情模态框
+            // 移除可能存在的散步地图详情模态框
             const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
             modalElements.forEach(modal => modal.remove());
             
@@ -4528,7 +4528,7 @@
                     });
                 });
                 
-                // 心理地图初始化已移除
+                // 散步地图初始化已移除
                 
                 // 地图容器状态检查已移除
                 
@@ -4597,7 +4597,7 @@
                     console.log('探索卡片数量:', points);
                     
                     // 检查地图容器最终状态
-                // 心理地图检查和错误处理已移除
+                // 散步地图检查和错误处理已移除
 
                 // 构建提示词，去除卡片编号
                 const historyItems = document.querySelectorAll('.history-item');
@@ -4673,7 +4673,7 @@
                     storyContainer.appendChild(storyTitle);
                     storyContainer.appendChild(timeInfo);
                     
-                    // 心理地图控制容器已移除
+                    // 散步地图控制容器已移除
                     storyContainer.appendChild(storyContent);
                     document.body.appendChild(storyContainer);
                     
@@ -4789,13 +4789,13 @@
                     storyContainer.appendChild(timeInfo);
                     storyContainer.appendChild(storyContent);
                     
-                    // 创建心理地图容器
+                    // 创建散步地图容器
                     const mapContainer = document.createElement('div');
                     mapContainer.id = 'mental-map-container';
                     mapContainer.style.cssText = 'margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px; width: calc(100% - 52px); max-width: 500px;';
                     
                     const mapTitle = document.createElement('h3');
-                    mapTitle.textContent = '你的探索心理地图';
+                    mapTitle.textContent = '你的散步地图';
                     mapTitle.style.cssText = 'color: #2c3e50; margin-bottom: 15px;';
                     
                     const mapContent = document.createElement('div');
@@ -4812,13 +4812,13 @@
                     // 移除加载提示
                     loadingDiv.remove();
                     
-                    // 创建并初始化心理地图
+                    // 创建并初始化散步地图
                     try {
                         const mentalMap = new MentalMap('mental-map');
                         await mentalMap.generateFromHistory();
                     } catch (error) {
-                        console.error('心理地图生成失败:', error);
-                        mapContent.innerHTML = '<div style="color: #dc3545; text-align: center;">心理地图生成失败，请重试</div>';
+                        console.error('散步地图生成失败:', error);
+                mapContent.innerHTML = '<div style="color: #dc3545; text-align: center;">散步地图生成失败，请重试</div>';
                     }
                     
                     // 滚动到故事位置
@@ -5005,7 +5005,7 @@
                     aiModePage.style.display = 'none';
                 }
                 
-                // 清除心理地图相关元素和数据
+                // 清除散步地图相关元素和数据
                 const mentalMapContainer = document.getElementById('mental-map-container');
                 if (mentalMapContainer) {
                     mentalMapContainer.remove();
@@ -5016,7 +5016,7 @@
                     storyContainer.remove();
                 }
                 
-                // 移除可能存在的心理地图详情模态框
+                // 移除可能存在的散步地图详情模态框
                 const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
                 modalElements.forEach(modal => modal.remove());
                 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -2290,6 +2291,21 @@
             gameStartTime = null;
             document.querySelector('.history-list').innerHTML = '';
             
+            // 清除心理地图相关元素和数据
+            const mentalMapContainer = document.getElementById('mental-map-container');
+            if (mentalMapContainer) {
+                mentalMapContainer.remove();
+            }
+            
+            const storyContainer = document.querySelector('.story-container');
+            if (storyContainer) {
+                storyContainer.remove();
+            }
+            
+            // 移除可能存在的心理地图详情模态框
+            const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
+            modalElements.forEach(modal => modal.remove());
+            
             // 显示第一张卡片
             showCard(1);
             
@@ -2310,6 +2326,21 @@
         function startAIMode() {
             // 设置AI模式标记
             isAIMode = true;
+            
+            // 清除心理地图相关元素和数据
+            const mentalMapContainer = document.getElementById('mental-map-container');
+            if (mentalMapContainer) {
+                mentalMapContainer.remove();
+            }
+            
+            const storyContainer = document.querySelector('.story-container');
+            if (storyContainer) {
+                storyContainer.remove();
+            }
+            
+            // 移除可能存在的心理地图详情模态框
+            const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
+            modalElements.forEach(modal => modal.remove());
             
             const coverPage = document.getElementById('coverPage');
             coverPage.style.transition = 'transform 0.3s ease-out';
@@ -4974,6 +5005,21 @@
                 if (aiModePage) {
                     aiModePage.style.display = 'none';
                 }
+                
+                // 清除心理地图相关元素和数据
+                const mentalMapContainer = document.getElementById('mental-map-container');
+                if (mentalMapContainer) {
+                    mentalMapContainer.remove();
+                }
+                
+                const storyContainer = document.querySelector('.story-container');
+                if (storyContainer) {
+                    storyContainer.remove();
+                }
+                
+                // 移除可能存在的心理地图详情模态框
+                const modalElements = document.querySelectorAll('div[style*="position: fixed"][style*="z-index: 1000"]');
+                modalElements.forEach(modal => modal.remove());
                 
                 // 显示封面页面
                 const coverPage = document.getElementById('coverPage');
